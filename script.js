@@ -30,11 +30,13 @@ async function loadPosts() {
 
 async function loadReviews() {
   const reviews = await (await fetch('/api/reviews')).json();
-  if (reviews.length) $('#review-list').innerHTML = reviews.slice(0, 2).map((review) => {
+  $('#reviews-empty').hidden = reviews.length > 0;
+  const cards = reviews.map((review) => {
     const shot = review.image_url ? `<a class="review-shot" href="${review.image_url}" target="_blank" rel="noopener"><img src="${review.image_url}" alt="Screenshot of feedback from ${review.name}" loading="lazy"></a>` : '';
-    const text = review.review ? `${review.review}<br>` : '';
-    return `<strong>${'★'.repeat(review.rating)}</strong><br>${shot}${text}<small>— ${review.name}</small>`;
-  }).join('<hr>');
+    const text = review.review ? `<p>${review.review}</p>` : '';
+    return `<article class="review-card"><div class="stars">${'★'.repeat(review.rating)}</div>${shot}${text}<span class="who">— ${review.name}</span></article>`;
+  });
+  $('#review-track').innerHTML = cards.length ? cards.concat(cards).join('') : '';
 }
 
 document.querySelectorAll('.topic-tabs button').forEach((button) => button.addEventListener('click', () => {
@@ -43,4 +45,4 @@ document.querySelectorAll('.topic-tabs button').forEach((button) => button.addEv
 }));
 $('#search').addEventListener('input', (event) => { state.query = event.target.value.trim().toLowerCase(); renderPosts(); });
 loadPosts().catch(() => { $('#post-grid').innerHTML = '<p class="loading-note">Could not load insights. Start app.py and refresh.</p>'; });
-loadReviews();
+loadReviews().catch(() => { $('#review-track').innerHTML = '<p class="loading-note">Could not load reviews. Start app.py and refresh.</p>'; });

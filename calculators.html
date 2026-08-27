@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Interactive SIP, lump sum, tax, and retirement calculators.">
+<title>Financial Calculators | Let Money Earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .calc-hero{padding:70px max(24px,calc((100% - 1180px)/2)) 48px;border-bottom:1px solid var(--line)}
+  .calc-hero h1{max-width:760px;font:600 clamp(40px,6vw,68px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .calc-hero p{max-width:520px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .calc-list{padding:0 max(24px,calc((100% - 1180px)/2)) 100px}
+  .calc-item{border-top:1px solid var(--line)}
+  .calc-item:first-child{border-top:1px solid var(--ink)}
+  .collapse-btn{width:100%;text-align:left;background:transparent;border:0;padding:24px 0;font:600 22px var(--serif);color:var(--ink);cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:20px}
+  .collapse-btn:hover{color:var(--coral)}
+  .collapse-btn b{font:400 26px var(--mono);color:var(--coral);flex-shrink:0}
+  .collapse-content{display:none;padding:0 0 40px;max-width:720px}
+  .collapse-content.active{display:block}
+  .calc-fields{display:flex;flex-wrap:wrap;gap:20px;margin-bottom:18px}
+  .calc-field{min-width:210px;flex:1 1 210px}
+  .calc-field label{display:block;font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+  .calc-field input,.calc-field select{width:100%;border:1px solid var(--line);padding:11px;background:transparent;font:13px var(--sans);color:var(--ink)}
+  .calc-submit{border:0;background:var(--ink);color:var(--paper);padding:12px 20px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;cursor:pointer}
+  .calc-result{margin-top:22px;font-size:14px}
+  .calc-result:empty{margin-top:0}
+  .calc-result-row{padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:16px}
+  .calc-result-row b{color:var(--coral-text);font-weight:600}
+  .calc-result-note{color:var(--muted);font-size:12px;margin-top:10px}
+  .calc-result-cards{display:flex;flex-wrap:wrap;gap:20px}
+  .calc-result-card{border:1px solid var(--line);padding:18px;flex:1 1 260px;min-width:240px}
+  .calc-result-card h3{font:600 16px var(--serif);margin:0 0 12px}
+  .calc-result-ok{color:var(--success);font-weight:600}
+  .calc-result-warn{color:var(--coral-text);font-weight:600}
+  @media(max-width:700px){
+    .calc-hero{padding:50px 8vw 40px}
+    .calc-list{padding:0 8vw 70px}
+    .collapse-btn{font:600 18px var(--serif);padding:20px 0}
+    .calc-fields{gap:14px}
+  }
+</style>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="calc-hero"><p class="eyebrow">Plan with numbers, not guesses</p><h1>Financial calculators</h1><p>Nine interactive tools for SIPs, lump sums, EMIs, taxes, and retirement planning. Open a calculator, enter your numbers, and see the result instantly — nothing is saved or sent anywhere.</p></section>
+    <section class="calc-list">
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="sip-calc">SIP Calculator <b>+</b></button>
+        <div class="collapse-content" id="sip-calc">
+          <form id="sip-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="sip-amount">Monthly SIP amount (₹)</label><input type="number" id="sip-amount" min="1" required></div>
+              <div class="calc-field"><label for="sip-rate">Expected annual return (%)</label><input type="number" id="sip-rate" min="1" max="50" step="0.01" required></div>
+              <div class="calc-field"><label for="sip-years">Investment duration (years)</label><input type="number" id="sip-years" min="1" max="50" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="sip-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="lump-calc">Lump Sum Calculator <b>+</b></button>
+        <div class="collapse-content" id="lump-calc">
+          <form id="lump-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="lump-amount">Lump sum amount (₹)</label><input type="number" id="lump-amount" min="1" required></div>
+              <div class="calc-field"><label for="lump-rate">Expected annual return (%)</label><input type="number" id="lump-rate" min="1" max="50" step="0.01" required></div>
+              <div class="calc-field"><label for="lump-years">Investment duration (years)</label><input type="number" id="lump-years" min="1" max="50" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="lump-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="lumpsip-calc">Lump Sum + SIP Calculator <b>+</b></button>
+        <div class="collapse-content" id="lumpsip-calc">
+          <form id="lumpsip-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="lumpsip-lump">Lump sum amount (₹)</label><input type="number" id="lumpsip-lump" min="0" required></div>
+              <div class="calc-field"><label for="lumpsip-sip">Monthly SIP amount (₹)</label><input type="number" id="lumpsip-sip" min="0" required></div>
+              <div class="calc-field"><label for="lumpsip-rate">Expected annual return (%)</label><input type="number" id="lumpsip-rate" min="1" max="50" step="0.01" required></div>
+              <div class="calc-field"><label for="lumpsip-years">Investment duration (years)</label><input type="number" id="lumpsip-years" min="1" max="50" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="lumpsip-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="tax-calc">Income Tax Calculator <b>+</b></button>
+        <div class="collapse-content" id="tax-calc">
+          <form id="tax-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="tax-income">Total annual income (₹)</label><input type="number" id="tax-income" min="0" required></div>
+              <div class="calc-field"><label for="tax-deduction">Section 80C investments (₹)</label><input type="number" id="tax-deduction" min="0" value="0" required></div>
+              <div class="calc-field"><label for="tax-medical">Medical insurance, 80D (₹)</label><input type="number" id="tax-medical" min="0" value="0" required></div>
+              <div class="calc-field"><label for="tax-hra">HRA received (₹)</label><input type="number" id="tax-hra" min="0" value="0" required></div>
+              <div class="calc-field"><label for="tax-rent">Rent paid (₹)</label><input type="number" id="tax-rent" min="0" value="0" required></div>
+              <div class="calc-field"><label for="tax-pf">PF, provident fund (₹)</label><input type="number" id="tax-pf" min="0" value="0" required></div>
+              <div class="calc-field"><label for="tax-age">Age group</label><select id="tax-age"><option value="normal">Below 60</option><option value="senior">60–80</option><option value="super">Above 80</option><option value="huf">HUF</option></select></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="tax-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="cgt-calc">Capital Gains Tax Calculator <b>+</b></button>
+        <div class="collapse-content" id="cgt-calc">
+          <form id="cgt-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="cgt-type">Asset type</label><select id="cgt-type"><option value="stock">Stocks (listed)</option><option value="equity-mf">Equity mutual fund</option><option value="debt-mf">Debt mutual fund</option><option value="property">Property</option></select></div>
+              <div class="calc-field"><label for="cgt-buy">Purchase price (₹)</label><input type="number" id="cgt-buy" min="0" required></div>
+              <div class="calc-field"><label for="cgt-sell">Sale price (₹)</label><input type="number" id="cgt-sell" min="0" required></div>
+              <div class="calc-field"><label for="cgt-years">Holding period (years)</label><input type="number" id="cgt-years" min="0" step="0.01" required></div>
+              <div class="calc-field"><label for="cgt-exp">Expenses on sale (₹)</label><input type="number" id="cgt-exp" min="0" value="0" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="cgt-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="retire-calc">Retirement Corpus Calculator <b>+</b></button>
+        <div class="collapse-content" id="retire-calc">
+          <form id="retire-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="retire-age">Current age</label><input type="number" id="retire-age" min="18" max="70" required></div>
+              <div class="calc-field"><label for="retire-retire">Retirement age</label><input type="number" id="retire-retire" min="30" max="80" required></div>
+              <div class="calc-field"><label for="retire-life">Life expectancy (years)</label><input type="number" id="retire-life" min="60" max="120" required></div>
+              <div class="calc-field"><label for="retire-exp">Monthly expenses today (₹)</label><input type="number" id="retire-exp" min="1" required></div>
+              <div class="calc-field"><label for="retire-infl">Expected inflation rate (%)</label><input type="number" id="retire-infl" min="1" max="15" step="0.01" required></div>
+              <div class="calc-field"><label for="retire-rate">Expected return post-retirement (%)</label><input type="number" id="retire-rate" min="1" max="15" step="0.01" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="retire-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="goal-calc">Goal-based Investment Calculator <b>+</b></button>
+        <div class="collapse-content" id="goal-calc">
+          <form id="goal-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="goal-amount">Future goal amount (₹)</label><input type="number" id="goal-amount" min="1" required></div>
+              <div class="calc-field"><label for="goal-years">Years to goal</label><input type="number" id="goal-years" min="1" max="50" required></div>
+              <div class="calc-field"><label for="goal-rate">Expected annual return (%)</label><input type="number" id="goal-rate" min="1" max="50" step="0.01" required></div>
+              <div class="calc-field"><label for="goal-type">Investment type</label><select id="goal-type"><option value="sip">Monthly SIP</option><option value="lump">Lump sum</option></select></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="goal-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="swp-calc">SWP Calculator <b>+</b></button>
+        <div class="collapse-content" id="swp-calc">
+          <form id="swp-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="swp-corpus">Initial corpus (₹)</label><input type="number" id="swp-corpus" min="1" required></div>
+              <div class="calc-field"><label for="swp-withdraw">Monthly withdrawal (₹)</label><input type="number" id="swp-withdraw" min="1" required></div>
+              <div class="calc-field"><label for="swp-rate">Expected annual return (%)</label><input type="number" id="swp-rate" min="1" max="20" step="0.01" required></div>
+              <div class="calc-field"><label for="swp-years">Planned withdrawal period (years)</label><input type="number" id="swp-years" min="1" max="50" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="swp-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="emi-calc">EMI Calculator <b>+</b></button>
+        <div class="collapse-content" id="emi-calc">
+          <form id="emi-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="emi-principal">Loan amount (₹)</label><input type="number" id="emi-principal" min="1" required></div>
+              <div class="calc-field"><label for="emi-rate">Annual interest rate (%)</label><input type="number" id="emi-rate" min="0.1" max="50" step="0.01" required></div>
+              <div class="calc-field"><label for="emi-years">Loan tenure (years)</label><input type="number" id="emi-years" min="1" max="40" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="emi-result" class="calc-result"></div>
+        </div>
+      </article>
+
+      <article class="calc-item">
+        <button class="collapse-btn" type="button" data-target="emiadd-calc">EMI with Additional Payment <b>+</b></button>
+        <div class="collapse-content" id="emiadd-calc">
+          <form id="emiadd-form">
+            <div class="calc-fields">
+              <div class="calc-field"><label for="emiadd-principal">Loan amount (₹)</label><input type="number" id="emiadd-principal" min="1" required></div>
+              <div class="calc-field"><label for="emiadd-rate">Annual interest rate (%)</label><input type="number" id="emiadd-rate" min="0.1" max="50" step="0.01" required></div>
+              <div class="calc-field"><label for="emiadd-years">Loan tenure (years)</label><input type="number" id="emiadd-years" min="1" max="40" required></div>
+              <div class="calc-field"><label for="emiadd-extra">Additional payment per year (₹)</label><input type="number" id="emiadd-extra" min="0" required></div>
+            </div>
+            <button type="submit" class="calc-submit">Calculate</button>
+          </form>
+          <div id="emiadd-result" class="calc-result"></div>
+        </div>
+      </article>
+
+    </section>
+  </main>
+  <aside class="site-disclaimer"><strong>Important disclaimer</strong>These calculators use standard, simplified financial formulas for educational illustration only — including approximate income tax and capital gains tax rules that may not reflect the latest law. They are not personalised tax or investment advice. The author of this blog is not a SEBI registered financial adviser. Please consult a qualified financial adviser or chartered accountant before acting on any figures shown here.</aside>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script src="calculators.js"></script>
+</body>
+</html>
