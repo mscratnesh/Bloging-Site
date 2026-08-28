@@ -55,6 +55,10 @@ def initialize_database():
             id INTEGER PRIMARY KEY AUTOINCREMENT, service TEXT NOT NULL, name TEXT NOT NULL,
             email TEXT NOT NULL, phone TEXT NOT NULL, message TEXT DEFAULT '', created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )""")
+        database.execute("""CREATE TABLE IF NOT EXISTS questions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL,
+            email TEXT NOT NULL, message TEXT NOT NULL, created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )""")
         database.execute("""CREATE TABLE IF NOT EXISTS reviews (
             id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, review TEXT NOT NULL,
             rating INTEGER NOT NULL DEFAULT 5, status TEXT NOT NULL DEFAULT 'pending', created_at TEXT DEFAULT CURRENT_TIMESTAMP,
@@ -110,7 +114,7 @@ class BlogHandler(BaseHTTPRequestHandler):
         if PUBLIC_ONLY and (route.startswith("/admin") or route.startswith("/api/admin")):
             self.send_error(404)
             return
-        if route in ("/admin.html", "/admin_reviews.html", "/admin_comments.html", "/api/admin/session") and not self.is_admin():
+        if route in ("/admin.html", "/admin_reviews.html", "/admin_comments.html", "/admin_questions.html", "/api/admin/session") and not self.is_admin():
             if route == "/api/admin/session":
                 self.send_json({"authenticated": False}, 401)
             else:
@@ -144,6 +148,14 @@ class BlogHandler(BaseHTTPRequestHandler):
             with connection() as database:
                 comments = [dict(row) for row in database.execute("SELECT comments.*, posts.title AS post_title FROM comments JOIN posts ON posts.id = comments.post_id ORDER BY comments.id DESC")]
             self.send_json(comments)
+            return
+        if route == "/api/admin/questions":
+            if not self.is_admin():
+                self.send_json({"error": "Admin access required."}, 401)
+                return
+            with connection() as database:
+                questions = [dict(row) for row in database.execute("SELECT * FROM questions ORDER BY id DESC")]
+            self.send_json(questions)
             return
         if route.startswith("/api/posts/"):
             try:
@@ -241,8 +253,8 @@ class BlogHandler(BaseHTTPRequestHandler):
                 length = int(self.headers.get("Content-Length", 0))
                 post = json.loads(self.rfile.read(length))
                 fields = [post.get(field, "").strip() for field in ("title", "summary", "category", "published_at", "author", "initials", "image_class", "image_url")]
-                if not all(fields):
-                    self.send_json({"error": "All fields are required."}, 400)
+                if not all(fields[:-1]):
+                    self.send_json({"error": "All fields except the image are required."}, 400)
                     return
                 content = post.get("content", "").strip()
                 status = post.get("status", "draft").strip()
@@ -272,6 +284,22 @@ class BlogHandler(BaseHTTPRequestHandler):
                 self.send_json({"message": "Your enquiry has been saved. We will contact you soon."}, 201)
             except (ValueError, json.JSONDecodeError, OSError):
                 self.send_json({"error": "The request could not be saved. Please try again."}, 400)
+            return
+        if route == "/api/questions":
+            try:
+                length = int(self.headers.get("Content-Length", 0))
+                question = json.loads(self.rfile.read(length))
+                name = question.get("name", "").strip()
+                email = question.get("email", "").strip()
+                message = question.get("message", "").strip()
+                if not name or "@" not in email or len(message) < 5:
+                    self.send_json({"error": "Name, valid email, and a question are required."}, 400)
+                    return
+                with connection() as database:
+                    database.execute("INSERT INTO questions (name, email, message) VALUES (?, ?, ?)", (name, email, message))
+                self.send_json({"message": "Thanks — your question has been sent."}, 201)
+            except (ValueError, json.JSONDecodeError, OSError):
+                self.send_json({"error": "The question could not be saved. Please try again."}, 400)
             return
         if route == "/api/reviews":
             try:
@@ -367,7 +395,7 @@ class BlogHandler(BaseHTTPRequestHandler):
             fields = [post.get(field, "").strip() for field in ("title", "summary", "category", "published_at", "author", "initials", "image_class", "image_url")]
             status = post.get("status", "draft").strip()
             active = 1 if post.get("active", True) in (True, 1, "1", "true", "on") else 0
-            if not all(fields) or status not in ("draft", "published"):
+            if not all(fields[:-1]) or status not in ("draft", "published"):
                 self.send_json({"error": "Valid post fields are required."}, 400)
                 return
             with connection() as database:

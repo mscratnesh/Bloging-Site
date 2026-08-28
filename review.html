@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Share your experience with Let Money Earn.">
+<title>Post a Review | Let Money Earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .review-hero{padding:70px max(24px,calc((100% - 1180px)/2)) 0}
+  .review-hero h1{max-width:640px;font:600 clamp(40px,6vw,64px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .review-hero p{max-width:480px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .review-form-wrap{padding:44px max(24px,calc((100% - 1180px)/2)) 100px}
+  .review-form{max-width:520px;display:grid;gap:16px}
+  .review-form label{display:block;font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+  .review-form input,.review-form select,.review-form textarea{width:100%;border:1px solid var(--line);padding:12px;background:transparent;font:13px var(--sans);color:var(--ink)}
+  .review-form textarea{min-height:120px;resize:vertical}
+  .review-form button{justify-self:start;border:0;background:var(--ink);color:var(--paper);padding:13px 20px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;cursor:pointer}
+  .review-submit-note{color:var(--muted);font-size:12px;margin:-4px 0 4px}
+  .review-status{font:11px var(--mono);margin:0}
+  .review-status.status-ok{color:var(--success)}
+  .review-status.status-error{color:var(--coral-text)}
+  @media(max-width:700px){.review-hero{padding:50px 8vw 0}.review-form-wrap{padding:34px 8vw 70px}}
+  .site-disclaimer{padding:25px max(24px,calc((100% - 1180px)/2));border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+  .site-disclaimer strong{display:block;color:var(--ink);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+  @media(max-width:700px){.site-disclaimer{padding:25px 8vw}}
+</style>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="review-hero"><p class="eyebrow">Share your experience</p><h1>Post a review</h1><p>Tell other readers what working with Let Money Earn has been like. Your review is checked before it appears publicly.</p></section>
+    <section class="review-form-wrap">
+      <form class="review-form" id="review-form">
+        <div><label for="review-name">Your name</label><input id="review-name" name="name" required></div>
+        <div><label for="review-rating">Rating</label><select id="review-rating" name="rating"><option value="5">★★★★★ Excellent</option><option value="4">★★★★ Good</option><option value="3">★★★ Average</option><option value="2">★★ Poor</option><option value="1">★ Very poor</option></select></div>
+        <div><label for="review-text">Your review</label><textarea id="review-text" name="review" minlength="10" required placeholder="At least 10 characters"></textarea></div>
+        <p class="review-submit-note">Reviews are read before publishing — yours will appear on the homepage once approved.</p>
+        <button type="submit">Submit review</button>
+        <p class="review-status" id="review-status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+  <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is not a SEBI registered financial adviser and is not associated with any agency, company, or brokerage house. Any advice mentioned is not personal advice. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script>
+    document.querySelector('#review-form').addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const form = event.target;
+      const status = document.querySelector('#review-status');
+      const data = { name: form.name.value.trim(), rating: form.rating.value, review: form.review.value.trim() };
+      const response = await fetch('/api/reviews', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+      const result = await response.json();
+      status.textContent = result.message || result.error;
+      status.classList.toggle('status-ok', response.ok);
+      status.classList.toggle('status-error', !response.ok);
+      if (response.ok) form.reset();
+    });
+  </script>
+</body>
+</html>
