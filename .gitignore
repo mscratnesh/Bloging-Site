@@ -2,3 +2,6 @@ __pycache__/
 *.pyc
 *.db
 uploads/
+build/
+dist/
+*.doc

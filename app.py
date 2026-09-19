@@ -6,10 +6,11 @@ import json
 import os
 import secrets
 import sqlite3
+import sys
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
-ROOT = Path(__file__).parent
+ROOT = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).parent
 DB_PATH = ROOT / "let_money_earn.db"
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
@@ -262,6 +263,8 @@ class BlogHandler(BaseHTTPRequestHandler):
                 if status not in ("draft", "published"):
                     status = "draft"
                 with connection() as database:
+                    if fields[6] == "featured":
+                        database.execute("UPDATE posts SET image_class='desk' WHERE image_class='featured'")
                     database.execute("INSERT INTO posts (title, summary, category, published_at, author, initials, image_class, image_url, content, status, active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", fields + [content, status, active])
                 self.send_json({"message": "Post saved."}, 201)
             except (ValueError, json.JSONDecodeError):
@@ -399,6 +402,8 @@ class BlogHandler(BaseHTTPRequestHandler):
                 self.send_json({"error": "Valid post fields are required."}, 400)
                 return
             with connection() as database:
+                if fields[6] == "featured":
+                    database.execute("UPDATE posts SET image_class='desk' WHERE image_class='featured' AND id != ?", (post_id,))
                 result = database.execute("UPDATE posts SET title=?, summary=?, category=?, published_at=?, author=?, initials=?, image_class=?, image_url=?, content=?, status=?, active=? WHERE id=?", fields + [post.get("content", "").strip(), status, active, post_id])
             if result.rowcount == 0:
                 self.send_json({"error": "Post not found."}, 404)
@@ -443,8 +448,11 @@ class BlogHandler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     PUBLIC_ONLY = True
     initialize_database()
-    server = ThreadingHTTPServer(("127.0.0.1", 8000), BlogHandler)
-    print("Let Money Earn is running at http://127.0.0.1:8000")
+    host = os.environ.get("LET_MONEY_EARN_HOST", "127.0.0.1")
+    port = int(os.environ.get("LET_MONEY_EARN_PORT", "8000"))
+    server = ThreadingHTTPServer((host, port), BlogHandler)
+    display_host = "127.0.0.1" if host == "0.0.0.0" else host
+    print(f"Let Money Earn is running at http://{display_host}:{port}")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
