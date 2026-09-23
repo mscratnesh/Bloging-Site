@@ -1,0 +1,36 @@
+{
+  "updatedAt": "2026-09-23T19:46:02+05:30",
+  "rows": [
+    {"symbol":"ANTELOPUS","setup":"MYB","status":"BREAKOUT","baseYrs":2.1,"breakoutPct":7.9,"cmp":1163,"resistance":1078.25,"resDate":"23-Aug-2024","stop":1078.25,"volRatio":1.69,"ma30":751.66,"entryPrice":1163,"entryDate":"23-Sep-2026","weeklyClose":1104.85,"pnlPct":-5},
+    {"symbol":"JSWINFRA","setup":"MYB","status":"BREAKOUT","baseYrs":2.2,"breakoutPct":0.7,"cmp":363.6,"resistance":360.95,"resDate":"05-Jul-2024","stop":360.95,"volRatio":2.03,"ma30":297.66,"entryPrice":363.6,"entryDate":"23-Sep-2026","weeklyClose":348.25,"pnlPct":-4.22},
+    {"symbol":"GNFC","setup":"C&H","status":"BREAKOUT","cmp":622.5,"pivot":619,"distPct":0.6,"cupDepth":20.1,"cupWks":8,"handleDepth":10.1,"handleWks":3,"leftRimDate":"25-Jun-2026","stop":556.5,"volRatio":3.87,"ma30":502.2,"entryPrice":622.5,"entryDate":"23-Sep-2026","weeklyClose":588.9,"pnlPct":-5.4},
+    {"symbol":"POLICYBZR","setup":"C&H","status":"BREAKOUT","cmp":1893,"pivot":1875,"distPct":1,"cupDepth":31,"cupWks":61,"handleDepth":6.5,"handleWks":2,"leftRimDate":"20-Jun-2025","stop":1752.3,"volRatio":1.54,"ma30":1616.68,"entryPrice":1893,"entryDate":"23-Sep-2026","weeklyClose":1743,"pnlPct":-7.92},
+
+    {"symbol":"EDELWEISS","setup":"MYB","status":"NEAR","baseYrs":2,"breakoutPct":-2.1,"cmp":142.48,"resistance":145.53,"resDate":"04-Oct-2024","volRatio":1.16,"ma30":118.11},
+    {"symbol":"LALPATHLAB","setup":"MYB","status":"NEAR","baseYrs":5,"breakoutPct":-4.9,"cmp":1930,"resistance":2029.85,"resDate":"24-Sep-2021","volRatio":1.03,"ma30":1622.02},
+    {"symbol":"MANAKSTEEL","setup":"MYB","status":"NEAR","baseYrs":2.6,"breakoutPct":-0.4,"cmp":106.55,"resistance":107,"resDate":"02-Feb-2024","volRatio":0.42,"ma30":72.5},
+    {"symbol":"MEDANTA","setup":"MYB","status":"NEAR","baseYrs":2.6,"breakoutPct":-1,"cmp":1499,"resistance":1513.9,"resDate":"16-Feb-2024","volRatio":0.88,"ma30":1252.4},
+    {"symbol":"OPTIEMUS","setup":"MYB","status":"NEAR","baseYrs":2,"breakoutPct":-4.9,"cmp":830.8,"resistance":873.8,"resDate":"27-Sep-2024","volRatio":2.38,"ma30":468.15},
+    {"symbol":"SHANTIGEAR","setup":"MYB","status":"NEAR","baseYrs":2.2,"breakoutPct":-4.7,"cmp":669.9,"resistance":703,"resDate":"12-Jul-2024","volRatio":0.4,"ma30":468.84},
+
+    {"symbol":"APARINDS","setup":"C&H","status":"READY","cmp":17920,"pivot":18465,"distPct":-3,"cupDepth":22.6,"cupWks":7,"handleDepth":12.3,"handleWks":4,"leftRimDate":"25-Jun-2026","volRatio":0.91,"ma30":13707.55},
+    {"symbol":"APLAPOLLO","setup":"C&H","status":"READY","cmp":2195,"pivot":2281,"distPct":-3.8,"cupDepth":24.6,"cupWks":29,"handleDepth":7.5,"handleWks":1,"leftRimDate":"13-Feb-2026","volRatio":0.88,"ma30":1976.92},
+    {"symbol":"BLUSPRING","setup":"C&H","status":"READY","cmp":133,"pivot":139.8,"distPct":-4.9,"cupDepth":23.5,"cupWks":9,"handleDepth":13.6,"handleWks":1,"leftRimDate":"03-Jul-2026","volRatio":0.41,"ma30":89.66},
+    {"symbol":"FOSECOIND","setup":"C&H","status":"READY","cmp":6552,"pivot":6580,"distPct":-0.4,"cupDepth":37.2,"cupWks":50,"handleDepth":8.6,"handleWks":2,"leftRimDate":"12-Sep-2025","volRatio":10.89,"ma30":5224.17},
+    {"symbol":"GLENMARK","setup":"C&H","status":"READY","cmp":2475,"pivot":2537.6,"distPct":-2.5,"cupDepth":15.1,"cupWks":17,"handleDepth":6,"handleWks":2,"leftRimDate":"30-Apr-2026","volRatio":0.66,"ma30":2260.55},
+    {"symbol":"IDFCFIRSTB","setup":"C&H","status":"READY","cmp":87.89,"pivot":88.76,"distPct":-1,"cupDepth":33.2,"cupWks":30,"handleDepth":7.1,"handleWks":6,"leftRimDate":"02-Jan-2026","volRatio":0.91,"ma30":75.16},
+    {"symbol":"INDGN","setup":"C&H","status":"READY","cmp":597.1,"pivot":615.5,"distPct":-3,"cupDepth":34.6,"cupWks":65,"handleDepth":7.3,"handleWks":1,"leftRimDate":"06-Jun-2025","volRatio":0.42,"ma30":515.08},
+    {"symbol":"IPCALAB","setup":"C&H","status":"READY","cmp":1959.5,"pivot":2001.5,"distPct":-2.1,"cupDepth":13.9,"cupWks":7,"handleDepth":2.9,"handleWks":1,"leftRimDate":"17-Jul-2026","volRatio":0.81,"ma30":1672.69},
+    {"symbol":"KAJARIACER","setup":"C&H","status":"READY","cmp":1214.8,"pivot":1275,"distPct":-4.7,"cupDepth":34.2,"cupWks":53,"handleDepth":6.9,"handleWks":4,"leftRimDate":"08-Aug-2025","volRatio":0.4,"ma30":1126.52},
+    {"symbol":"MCX","setup":"C&H","status":"READY","cmp":3369,"pivot":3400,"distPct":-0.9,"cupDepth":26.3,"cupWks":15,"handleDepth":4.5,"handleWks":1,"leftRimDate":"22-May-2026","volRatio":0.62,"ma30":2853.95},
+    {"symbol":"MEDANTA","setup":"C&H","status":"READY","cmp":1499,"pivot":1544,"distPct":-2.9,"cupDepth":34.4,"cupWks":55,"handleDepth":9.1,"handleWks":2,"leftRimDate":"08-Aug-2025","volRatio":0.88,"ma30":1252.4},
+    {"symbol":"NORTHARC","setup":"C&H","status":"READY","cmp":314.9,"pivot":319.6,"distPct":-1.5,"cupDepth":18.2,"cupWks":7,"handleDepth":6.4,"handleWks":1,"leftRimDate":"17-Jul-2026","volRatio":0.66,"ma30":275.13},
+    {"symbol":"ROLEXRINGS","setup":"C&H","status":"READY","cmp":182.66,"pivot":189.4,"distPct":-3.6,"cupDepth":23.6,"cupWks":17,"handleDepth":12.1,"handleWks":3,"leftRimDate":"24-Apr-2026","volRatio":0.18,"ma30":145.84},
+    {"symbol":"VINCOFE","setup":"C&H","status":"READY","cmp":184.7,"pivot":189.4,"distPct":-2.5,"cupDepth":33.1,"cupWks":34,"handleDepth":10,"handleWks":1,"leftRimDate":"09-Jan-2026","volRatio":0.55,"ma30":147.67},
+
+    {"symbol":"AARTIPHARM","setup":"C&H","status":"BO LOW VOL","cmp":935.05,"pivot":932.6,"distPct":0.3,"cupDepth":39.8,"cupWks":56,"handleDepth":13.5,"handleWks":4,"leftRimDate":"18-Jul-2025","volRatio":0.84,"ma30":714.51},
+    {"symbol":"PVRINOX","setup":"C&H","status":"BO LOW VOL","cmp":1308,"pivot":1284.5,"distPct":1.8,"cupDepth":27.4,"cupWks":43,"handleDepth":12.4,"handleWks":2,"leftRimDate":"31-Oct-2025","volRatio":0.8,"ma30":1049.24},
+    {"symbol":"SVLL","setup":"C&H","status":"BO LOW VOL","cmp":855.25,"pivot":838,"distPct":2.1,"cupDepth":27.5,"cupWks":12,"handleDepth":7.5,"handleWks":1,"leftRimDate":"12-Jun-2026","volRatio":0.06,"ma30":657.56},
+    {"symbol":"TI","setup":"C&H","status":"BO LOW VOL","cmp":602.4,"pivot":594.55,"distPct":1.3,"cupDepth":30.6,"cupWks":42,"handleDepth":12.5,"handleWks":2,"leftRimDate":"31-Oct-2025","volRatio":0.99,"ma30":467.26}
+  ]
+}

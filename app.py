@@ -12,8 +12,9 @@ from datetime import datetime, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
-ROOT = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).parent
+ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 DB_PATH = ROOT / "let_money_earn.db"
+BREAKOUT_DATA_PATH = ROOT / "breakout_data.json"
 SITE_URL = "https://letmoneyearn.in"
 SITEMAP_STATIC_PAGES = ("", "services.html", "calculators.html", "review.html", "question.html")
 UPLOADS_DIR = ROOT / "uploads"
@@ -246,6 +247,12 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/admin/session":
             self.send_json({"authenticated": True})
+            return
+        if route == "/api/breakout-desk":
+            if BREAKOUT_DATA_PATH.is_file():
+                self.send_json(json.loads(BREAKOUT_DATA_PATH.read_text(encoding="utf-8")))
+            else:
+                self.send_json({"updatedAt": None, "rows": []})
             return
         if route == "/api/posts":
             with connection() as database:
