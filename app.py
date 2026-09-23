@@ -1,17 +1,21 @@
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
 import base64
+import html
 import json
 import os
 import secrets
 import sqlite3
 import sys
+from datetime import datetime, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
 ROOT = Path(sys.executable).parent if getattr(sys, "frozen", False) else Path(__file__).parent
 DB_PATH = ROOT / "let_money_earn.db"
+SITE_URL = "https://letmoneyearn.in"
+SITEMAP_STATIC_PAGES = ("", "services.html", "calculators.html", "review.html", "question.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -95,6 +99,13 @@ def initialize_database():
             ])
 
 
+def format_sitemap_date(value):
+    try:
+        return datetime.strptime(value, "%d %b %Y").strftime("%Y-%m-%d")
+    except (TypeError, ValueError):
+        return datetime.now(timezone.utc).strftime("%Y-%m-%d")
+
+
 class BlogHandler(BaseHTTPRequestHandler):
     def is_admin(self):
         cookie = SimpleCookie(self.headers.get("Cookie", ""))
@@ -110,8 +121,120 @@ class BlogHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def serve_robots(self):
+        body = (
+            "User-agent: *\n"
+            "Allow: /\n"
+            "Disallow: /admin.html\n"
+            "Disallow: /admin-login.html\n"
+            "Disallow: /admin_comments.html\n"
+            "Disallow: /admin_questions.html\n"
+            "Disallow: /admin_reviews.html\n"
+            "Disallow: /api/\n\n"
+            f"Sitemap: {SITE_URL}/sitemap.xml\n"
+        ).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def serve_sitemap(self):
+        today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+        entries = [
+            f"<url><loc>{SITE_URL}/{page}</loc><lastmod>{today}</lastmod><changefreq>weekly</changefreq></url>"
+            for page in SITEMAP_STATIC_PAGES
+        ]
+        with connection() as database:
+            posts = database.execute(
+                "SELECT id, published_at FROM posts WHERE status = 'published' AND active = 1 ORDER BY id DESC"
+            ).fetchall()
+        for post in posts:
+            entries.append(
+                f"<url><loc>{SITE_URL}/post.html?id={post['id']}</loc>"
+                f"<lastmod>{format_sitemap_date(post['published_at'])}</lastmod>"
+                f"<changefreq>monthly</changefreq></url>"
+            )
+        body = (
+            '<?xml version="1.0" encoding="UTF-8"?>'
+            '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+            + "".join(entries) + "</urlset>"
+        ).encode("utf-8")
+        self.send_response(200)
+        self.send_header("Content-Type", "application/xml; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
+    def serve_post_page(self):
+        post_id = parse_qs(urlparse(self.path).query).get("id", [None])[0]
+        template = (ROOT / "post.html").read_text(encoding="utf-8")
+        post = None
+        if post_id and post_id.isdigit():
+            with connection() as database:
+                post = database.execute(
+                    "SELECT * FROM posts WHERE id = ? AND status = 'published' AND active = 1",
+                    (int(post_id),),
+                ).fetchone()
+        if post:
+            post = dict(post)
+            page_url = f"{SITE_URL}/post.html?id={post['id']}"
+            image = post["image_url"] or "https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png"
+            if image.startswith("/"):
+                image = f"{SITE_URL}{image}"
+            title = html.escape(f"{post['title']} | Let Money Earn")
+            description = html.escape(post["summary"], quote=True)
+            image_attr = html.escape(image, quote=True)
+            structured_data = json.dumps({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                "headline": post["title"],
+                "description": post["summary"],
+                "image": image,
+                "author": {"@type": "Person", "name": post["author"]},
+                "publisher": {"@type": "Organization", "name": "Let Money Earn"},
+                "datePublished": post["published_at"],
+                "mainEntityOfPage": {"@type": "WebPage", "@id": page_url},
+            })
+            head_tags = (
+                f'<link rel="canonical" href="{page_url}">'
+                f'<meta name="robots" content="index, follow">'
+                f'<meta property="og:type" content="article">'
+                f'<meta property="og:site_name" content="Let Money Earn">'
+                f'<meta property="og:title" content="{html.escape(post["title"], quote=True)}">'
+                f'<meta property="og:description" content="{description}">'
+                f'<meta property="og:url" content="{page_url}">'
+                f'<meta property="og:image" content="{image_attr}">'
+                f'<meta name="twitter:card" content="summary_large_image">'
+                f'<meta name="twitter:title" content="{html.escape(post["title"], quote=True)}">'
+                f'<meta name="twitter:description" content="{description}">'
+                f'<meta name="twitter:image" content="{image_attr}">'
+                f'<script type="application/ld+json">{structured_data}</script>'
+            )
+            template = template.replace(
+                '<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Article | Let Money Earn</title>',
+                f'<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+                f'<meta name="description" content="{description}"><title>{title}</title>{head_tags}',
+                1,
+            )
+        body = template.encode("utf-8")
+        self.send_response(200 if post else 404)
+        self.send_header("Content-Type", "text/html; charset=utf-8")
+        self.send_header("Content-Length", str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
+
     def do_GET(self):
         route = urlparse(self.path).path
+        if route == "/robots.txt":
+            self.serve_robots()
+            return
+        if route == "/sitemap.xml":
+            self.serve_sitemap()
+            return
+        if route == "/post.html":
+            self.serve_post_page()
+            return
         if PUBLIC_ONLY and (route.startswith("/admin") or route.startswith("/api/admin")):
             self.send_error(404)
             return

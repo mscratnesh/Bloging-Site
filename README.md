@@ -50,6 +50,38 @@ nginx and both apps run as plain processes, not Windows services, so they don't 
 
 The homepage hero story is whichever post has `image_class = 'featured'` in the database — there's only ever one. In the admin editor, check **"Feature on homepage"** on the post you want highlighted and save; the server automatically un-features whichever post had it before.
 
+## Punam Numerology (subdomain site)
+
+`punam-numerology/` is a separate, standalone site — services + consultation booking for a numerology practice, meant to run at `numerology.letmoneyearn.in`. It reuses the same pure-Python/SQLite pattern as the main site but is its own app with its own database; it does not share content or the admin login with the finance blog.
+
+Run it locally the same way:
+
+```powershell
+cd punam-numerology
+py app.py
+```
+
+Open http://127.0.0.1:8020. The first run creates `punam_numerology.db`. Bookings from the consultation form land in the `bookings` table; reviews and comments are moderated the same pending/approved way as the main site.
+
+Admin app (bookings inbox + review/comment moderation), in a second PowerShell window:
+
+```powershell
+cd punam-numerology
+$env:PUNAM_NUMEROLOGY_ADMIN_PASSWORD="your-strong-password"
+py admin_app.py
+```
+
+Open http://127.0.0.1:8021/admin-login.html.
+
+**Content to review before going live:** the bio on the homepage, the services list and "contact for pricing" note on `services.html`, and the disclaimer wording — these are placeholders and should reflect Punam's actual background, offerings, and any real pricing.
+
+**Going live on `numerology.letmoneyearn.in`:** this isn't wired into production yet. To deploy it alongside the main site on the same Windows VM:
+1. Add a DNS A record for `numerology.letmoneyearn.in` pointing at the VM's IP (same as the existing `letmoneyearn.in` record).
+2. Package it the same way as the main site — a PyInstaller `.spec` mirroring `LetMoneyEarn.spec`/`LetMoneyEarnAdmin.spec` — or run `py app.py`/`py admin_app.py` directly on the VM with `PUNAM_NUMEROLOGY_HOST=0.0.0.0`.
+3. Add a new `server` block to `dist/nginx.conf` for `numerology.letmoneyearn.in` that proxies to `127.0.0.1:8020` (copy the existing block, swap `server_name` and `proxy_pass`).
+4. Include `numerology.letmoneyearn.in` in the Certify The Web certificate (it can issue a multi-domain cert, or a separate one) so HTTPS covers the subdomain.
+5. Add the new app to the autostart scripts (`dist\autostart_public.bat` equivalent) so it survives a reboot, same as the main site.
+
 ## Private admin app
 
 Open a second PowerShell window and run:
