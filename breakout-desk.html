@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Multi-year base breakout desk — NSE stocks breaking out of 2-yr+ resistance on weekly close, with entry, holding, and exit rules.">
+<title>Multi-Year Breakout Desk | Let Money Earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .bd-hero{padding:70px max(24px,calc((100% - 1180px)/2)) 40px;border-bottom:1px solid var(--line)}
+  .bd-hero h1{max-width:760px;font:600 clamp(40px,6vw,68px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .bd-hero p{max-width:560px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .bd-stamp{margin-top:20px;font:12px var(--mono);color:var(--muted)}
+  .bd-stamp .stale{background:#f3e3df;color:var(--coral-text);padding:2px 8px;margin-left:6px}
+
+  .bd-wrap{padding:48px max(24px,calc((100% - 1180px)/2)) 100px}
+  .bd-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:44px}
+  .bd-strip a{background:var(--paper);padding:16px 18px;text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c)}
+  .bd-strip a:hover{background:#fff}
+  .bd-strip .n{font:600 32px var(--serif);color:var(--c)}
+  .bd-strip .l{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  .bd-strip .d{color:var(--muted);font-size:12px}
+  @media(max-width:700px){.bd-strip{grid-template-columns:repeat(2,1fr)}}
+
+  .bd-section{border-top:1px solid var(--ink);padding-top:16px;margin-bottom:48px}
+  .bd-section h2{font:600 30px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
+  .bd-section .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+  .bd-table{overflow-x:auto;border:1px solid var(--line)}
+  table{border-collapse:collapse;width:100%;min-width:640px}
+  th,td{padding:11px 16px;text-align:right;white-space:nowrap;font-size:13px}
+  th:first-child,td:first-child{text-align:left}
+  th{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
+  td{font-family:var(--mono);font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line)}
+  tr:last-child td{border-bottom:0}
+  td.sym{font-family:var(--sans);font-weight:600;font-size:13px}
+  td.sym small{display:block;font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted)}
+  .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
+  .bd-placeholder{padding:14px 16px;color:var(--muted);font:12px var(--mono)}
+
+  .bd-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;border-top:1px solid var(--ink);padding-top:20px}
+  .bd-rules h3{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .bd-rules ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:13px}
+  @media(max-width:700px){
+    .bd-hero{padding:50px 8vw 32px}
+    .bd-wrap{padding:36px 8vw 70px}
+    .site-disclaimer{padding:25px 8vw}
+  }
+  .site-disclaimer{padding:25px max(24px,calc((100% - 1180px)/2));border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+  .site-disclaimer strong{display:block;color:var(--ink);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+</style>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="bd-hero">
+      <p class="eyebrow">NSE · 2-yr+ base · weekly close</p>
+      <h1>Multi-Year Breakout Desk</h1>
+      <p>A screening desk for stocks breaking out of a multi-year (2 yr+) resistance base on rising volume, above their 30-week moving average.</p>
+      <p class="bd-stamp" id="stamp">Loading latest snapshot…</p>
+    </section>
+
+    <div class="bd-wrap">
+      <nav class="bd-strip" aria-label="Status summary">
+        <a href="#breakout" style="--c:var(--success)"><span class="l">Breakout</span><span class="n" id="c-BREAKOUT">–</span><span class="d">Buy signals this week</span></a>
+        <a href="#holding" style="--c:var(--coral-text)"><span class="l">Holding</span><span class="n" id="c-HOLDING">–</span><span class="d">Open trades</span></a>
+        <a href="#exit" style="--c:var(--muted)"><span class="l">Exit</span><span class="n" id="c-EXIT">–</span><span class="d">Closed, last 30 days</span></a>
+        <a href="#near" style="--c:var(--ink)"><span class="l">Near</span><span class="n" id="c-NEAR">–</span><span class="d">Within 5% of resistance</span></a>
+      </nav>
+
+      <section class="bd-section" id="breakout">
+        <h2>Breakout</h2>
+        <p class="sub">All rules pass — base ≥ 2 yrs, 0–10% above resistance, volume ≥ 1.5×, above 30-week MA.</p>
+        <div class="bd-table" id="t-BREAKOUT"></div>
+      </section>
+
+      <section class="bd-section" id="holding">
+        <h2>Holding</h2>
+        <p class="sub">Exit on a weekly close below resistance (stop) or below the 30-week MA (trail).</p>
+        <div class="bd-table" id="t-HOLDING"></div>
+      </section>
+
+      <section class="bd-section" id="exit">
+        <h2>Exit</h2>
+        <p class="sub">Trades closed in the last 30 days.</p>
+        <div class="bd-table" id="t-EXIT"></div>
+      </section>
+
+      <section class="bd-section" id="near">
+        <h2>Near</h2>
+        <p class="sub">Watchlist — act only if it breaks out with volume.</p>
+        <div class="bd-table" id="t-NEAR"></div>
+      </section>
+
+      <section class="bd-rules">
+        <div><h3>Entry — Breakout</h3><ul>
+          <li>Resistance (multi-year high) at least 2 years old</li>
+          <li>CMP above resistance by 0–10%</li>
+          <li>Volume ratio ≥ 1.5×</li>
+          <li>CMP above 30-week MA</li></ul></div>
+        <div><h3>Watch — Near</h3><ul>
+          <li>Base ≥ 2 years</li>
+          <li>CMP 0–5% below resistance</li>
+          <li>No volume or MA check — confirm before buying</li></ul></div>
+        <div><h3>Exit — after entry</h3><ul>
+          <li>Stop-loss: weekly close below resistance</li>
+          <li>Trailing: weekly close below 30-week MA</li></ul></div>
+      </section>
+    </div>
+  </main>
+  <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is not a SEBI registered financial adviser and is not associated with any agency, company, or brokerage house. Any advice mentioned is not personal advice. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script>
+  (function(){
+    const $ = id => document.getElementById(id);
+    const inr = v => v == null || v === "" ? "–" : "₹" + Number(v).toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+    const pct = (v, signed) => v == null || v === "" ? "–" : (signed && v > 0 ? "+" : "") + Number(v).toFixed(2) + "%";
+    const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const vsMA = r => r.cmp && r.ma30 ? (r.cmp / r.ma30 - 1) * 100 : null;
+
+    const COLS = {
+      BREAKOUT: [
+        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>base ${r.baseYrs ?? "–"} yrs · high ${esc(r.resDate)}</small></td>`],
+        ["CMP", r => `<td>${inr(r.cmp)}</td>`],
+        ["Resistance", r => `<td>${inr(r.resistance)}</td>`],
+        ["Above res.", r => `<td class="${cls(r.breakoutPct)}">${pct(r.breakoutPct, true)}</td>`],
+        ["Vol ratio", r => `<td>${r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–"}</td>`],
+        ["vs 30W MA", r => `<td class="${cls(vsMA(r))}">${pct(vsMA(r), true)}</td>`]
+      ],
+      HOLDING: [
+        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>since ${esc(r.entryDate)}</small></td>`],
+        ["Entry", r => `<td>${inr(r.entryPrice)}</td>`],
+        ["Weekly close", r => `<td>${inr(r.weeklyClose)}</td>`],
+        ["P&amp;L", r => `<td class="${cls(r.pnlPct)}">${pct(r.pnlPct, true)}</td>`],
+        ["Stop (res.)", r => `<td>${inr(r.resistance)}</td>`],
+        ["30W MA", r => `<td>${inr(r.ma30)}</td>`]
+      ],
+      EXIT: [
+        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>in ${esc(r.entryDate)}</small></td>`],
+        ["Entry", r => `<td>${inr(r.entryPrice)}</td>`],
+        ["Exit", r => `<td>${inr(r.exitPrice)}<small class="dim"> ${esc(r.exitDate)}</small></td>`],
+        ["P&amp;L", r => `<td class="${cls(r.pnlPct)}">${pct(r.pnlPct, true)}</td>`],
+        ["Reason", r => `<td style="text-align:left;font-family:var(--sans)">${esc(r.exitReason)}</td>`]
+      ],
+      NEAR: [
+        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>base ${r.baseYrs ?? "–"} yrs · high ${esc(r.resDate)}</small></td>`],
+        ["CMP", r => `<td>${inr(r.cmp)}</td>`],
+        ["Resistance", r => `<td>${inr(r.resistance)}</td>`],
+        ["Gap to break", r => `<td class="dim">${Math.abs(Number(r.breakoutPct) || 0).toFixed(1)}%</td>`],
+        ["Vol ratio", r => `<td>${r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–"}</td>`]
+      ]
+    };
+
+    function table(status, rows){
+      if (!rows.length) return `<div class="bd-placeholder">No ${status.toLowerCase()} stocks right now.</div>`;
+      const cols = COLS[status];
+      return `<table><thead><tr>${cols.map(c => `<th scope="col">${c[0]}</th>`).join("")}</tr></thead><tbody>${
+        rows.map(r => `<tr>${cols.map(c => c[1](r)).join("")}</tr>`).join("")}</tbody></table>`;
+    }
+
+    function render(data){
+      const all = Array.isArray(data.rows) ? data.rows : [];
+      for (const s of ["BREAKOUT","HOLDING","EXIT","NEAR"]) {
+        let list = all.filter(r => r.status === s);
+        if (s === "NEAR") list.sort((a,b) => (b.breakoutPct ?? -99) - (a.breakoutPct ?? -99));
+        $("c-" + s).textContent = list.length;
+        $("t-" + s).innerHTML = table(s, list);
+      }
+      const t = data.updatedAt ? new Date(data.updatedAt) : null;
+      if (t && !isNaN(t)) {
+        const txt = t.toLocaleString("en-IN",{timeZone:"Asia/Kolkata",day:"numeric",month:"short",year:"numeric",hour:"numeric",minute:"2-digit"});
+        const stale = Date.now() - t.getTime() > 30 * 3600 * 1000;
+        $("stamp").innerHTML = `Updated ${esc(txt)} IST${stale ? ' <span class="stale">older than a day</span>' : ""}`;
+      } else {
+        $("stamp").textContent = "Update time unknown";
+      }
+    }
+
+    fetch("/api/breakout-desk").then(r => r.json()).then(render).catch(() => {
+      $("stamp").textContent = "Couldn't load the snapshot. Reload the page to try again.";
+    });
+  })();
+  </script>
+</body>
+</html>

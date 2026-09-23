@@ -1,0 +1,13 @@
+{
+  "updatedAt": "2026-09-23T18:00:00+05:30",
+  "rows": [
+    {"symbol":"ANTELOPUS","status":"BREAKOUT","baseYrs":2.1,"breakoutPct":7.9,"cmp":1163,"resistance":1078.25,"resDate":"23-Aug-2024","volRatio":1.69,"ma30":751.66,"entryPrice":1163,"entryDate":"23-Sep-2026","weeklyClose":1104.85,"pnlPct":-5},
+    {"symbol":"JSWINFRA","status":"BREAKOUT","baseYrs":2.2,"breakoutPct":0.7,"cmp":363.6,"resistance":360.95,"resDate":"05-Jul-2024","volRatio":2.03,"ma30":297.66,"entryPrice":363.6,"entryDate":"23-Sep-2026","weeklyClose":348.25,"pnlPct":-4.22},
+    {"symbol":"MANAKSTEEL","status":"NEAR","baseYrs":2.6,"breakoutPct":-0.4,"cmp":106.55,"resistance":107,"resDate":"02-Feb-2024","volRatio":0.42,"ma30":72.5},
+    {"symbol":"MEDANTA","status":"NEAR","baseYrs":2.6,"breakoutPct":-1,"cmp":1499,"resistance":1513.9,"resDate":"16-Feb-2024","volRatio":0.88,"ma30":1252.4},
+    {"symbol":"EDELWEISS","status":"NEAR","baseYrs":2,"breakoutPct":-2.1,"cmp":142.48,"resistance":145.53,"resDate":"04-Oct-2024","volRatio":1.16,"ma30":118.11},
+    {"symbol":"SHANTIGEAR","status":"NEAR","baseYrs":2.2,"breakoutPct":-4.7,"cmp":669.9,"resistance":703,"resDate":"12-Jul-2024","volRatio":0.4,"ma30":468.84},
+    {"symbol":"LALPATHLAB","status":"NEAR","baseYrs":5,"breakoutPct":-4.9,"cmp":1930,"resistance":2029.85,"resDate":"24-Sep-2021","volRatio":1.03,"ma30":1622.02},
+    {"symbol":"OPTIEMUS","status":"NEAR","baseYrs":2,"breakoutPct":-4.9,"cmp":830.8,"resistance":873.8,"resDate":"27-Sep-2024","volRatio":2.38,"ma30":468.15}
+  ]
+}
