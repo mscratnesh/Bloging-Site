@@ -175,10 +175,13 @@
     const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
     const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
     const vsMA = r => r.cmp && r.ma30 ? (r.cmp / r.ma30 - 1) * 100 : null;
+    // MYB rows from the Google Sheet carry `base` as text (e.g. "3.5 yrs") instead of `baseYrs`.
+    const baseYears = r => r.baseYrs != null ? r.baseYrs : (Number.isFinite(parseFloat(r.base)) ? parseFloat(r.base) : null);
+    const baseSub = r => r.baseYrs != null ? `base ${r.baseYrs} yrs · high ${r.resDate ?? "–"}` : `base ${r.base ?? "–"}`;
     // Chart window = the base's own length + 6 months, so the whole base plus a bit of
     // breakout room is visible instead of a fixed, possibly-too-short/too-long window.
     const chartYears = r => {
-      if (r.baseYrs != null) return r.baseYrs + 0.5;
+      if (baseYears(r) != null) return baseYears(r) + 0.5;
       if (r.cupWks != null) return (r.cupWks + (r.handleWks || 0)) / 52 + 0.5;
       return 2;
     };
@@ -187,32 +190,36 @@
     // Each set has a `sym` (card title + subtitle) and `fields` (label/value/class) shared by
     // the desktop table and the mobile card blocks, so both stay in sync from one definition.
     const COLS = {
+      // MYB fields with a `show` predicate only appear when the row has that data — rows from
+      // the Google Sheet have base/pct52w only, rows from the local JSON fallback have the rest.
       MYB_BREAKOUT: {
-        sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
+        sym: { value: r => r.symbol, sub: baseSub },
         refLevel: r => r.resistance,
         refLabel: "Resistance",
         markDate: r => r.resDate,
         markLabel: "High",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
-          { label: "Resistance", value: r => inr(r.resistance) },
-          { label: "Above res.", value: r => pct(r.breakoutPct, true), cls: r => cls(r.breakoutPct) },
-          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" },
-          { label: "vs 30W MA", value: r => pct(vsMA(r), true), cls: r => cls(vsMA(r)) },
+          { label: "Below 52W high", value: r => pct(r.pct52w), cls: () => "dim", show: r => r.pct52w != null },
+          { label: "Resistance", value: r => inr(r.resistance), show: r => r.resistance != null },
+          { label: "Above res.", value: r => pct(r.breakoutPct, true), cls: r => cls(r.breakoutPct), show: r => r.breakoutPct != null },
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–", show: r => r.volRatio != null },
+          { label: "vs 30W MA", value: r => pct(vsMA(r), true), cls: r => cls(vsMA(r)), show: r => vsMA(r) != null },
           { label: "SL", value: r => inr(r.stop) }
         ]
       },
       MYB_NEAR: {
-        sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
+        sym: { value: r => r.symbol, sub: baseSub },
         refLevel: r => r.resistance,
         refLabel: "Resistance",
         markDate: r => r.resDate,
         markLabel: "High",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
-          { label: "Resistance", value: r => inr(r.resistance) },
-          { label: "Gap to break", value: r => Math.abs(Number(r.breakoutPct) || 0).toFixed(1) + "%", cls: () => "dim" },
-          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" }
+          { label: "Below 52W high", value: r => pct(r.pct52w), cls: () => "dim", show: r => r.pct52w != null },
+          { label: "Resistance", value: r => inr(r.resistance), show: r => r.resistance != null },
+          { label: "Gap to break", value: r => Math.abs(Number(r.breakoutPct) || 0).toFixed(1) + "%", cls: () => "dim", show: r => r.breakoutPct != null },
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–", show: r => r.volRatio != null }
         ]
       },
       CH: {
@@ -277,6 +284,8 @@
       return `<button class="bd-chart-expand" type="button" data-key="${key}" aria-label="Open full chart with all details">⤢</button>`;
     }
 
+    const visibleFields = (set, r) => set.fields.filter(f => !f.show || f.show(r));
+
     function cardFieldHTML(f, r){
       return `<div class="bd-card-item" data-field-label="${esc(f.label)}"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
     }
@@ -288,7 +297,7 @@
       const cards = rows.map(r => {
         const key = "row" + (rowSeq++);
         rowRegistry[key] = { set, r };
-        const items = set.fields.map(f => cardFieldHTML(f, r)).join("");
+        const items = visibleFields(set, r).map(f => cardFieldHTML(f, r)).join("");
         const head = `<div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><div class="bd-card-head-right"><span class="bd-card-sub">${esc(set.sym.sub(r))}</span>${expandButtonHTML(key)}</div></div>`;
         return `<div class="bd-card" id="card-${key}">${head}${chartHTML(set, r, key)}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
@@ -317,7 +326,10 @@
 
       const breakout = byStatus("BREAKOUT");
       const ready = byStatus("READY").sort((a,b) => (b.distPct ?? -99) - (a.distPct ?? -99));
-      const near = byStatus("NEAR").sort((a,b) => (b.breakoutPct ?? -99) - (a.breakoutPct ?? -99));
+      // Closest to breaking out first: smallest % below 52W high (sheet rows), else
+      // smallest gap below resistance (JSON fallback rows, where breakoutPct is negative).
+      const nearGap = r => r.pct52w != null ? Math.abs(r.pct52w) : r.breakoutPct != null ? Math.abs(r.breakoutPct) : 99;
+      const near = byStatus("NEAR").sort((a,b) => nearGap(a) - nearGap(b));
       const boLowVol = byStatus("BO LOW VOL");
       const holding = byStatus("HOLDING");
       const exited = byStatus("EXIT");
@@ -571,7 +583,7 @@
 
       $("bd-detail-sym").textContent = set.sym.value(r);
       $("bd-detail-sub").textContent = set.sym.sub(r);
-      $("bd-detail-grid").innerHTML = set.fields.map(f => detailFieldHTML(f, r)).join("");
+      $("bd-detail-grid").innerHTML = visibleFields(set, r).map(f => detailFieldHTML(f, r)).join("");
       $("bd-detail-price").innerHTML = '<span class="bd-chart-note">Loading chart…</span>';
       $("bd-detail-vol").innerHTML = "";
 

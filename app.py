@@ -24,6 +24,10 @@ BREAKOUT_DATA_PATH = ROOT / "breakout_data.json"
 HISTORY_CACHE_PATH = ROOT / "price_history_cache.json"
 HISTORY_CACHE_TTL_SECONDS = 24 * 3600
 HISTORY_SYMBOL_RE = re.compile(r"^[A-Z0-9&\-]{1,20}$")
+BREAKOUT_SHEET_ID = "1gLrCYp_GmRSpEkrCVwwEn_Ec97IQr6YfNo7mvPQLZgk"
+BREAKOUT_SHEET_GID_CH = "649235540"
+BREAKOUT_SHEET_GID_MYB = "1080335833"
+BREAKOUT_CACHE_TTL = 15 * 60
 SITE_URL = "https://letmoneyearn.in"
 SITEMAP_STATIC_PAGES = ("", "services.html", "calculators.html", "review.html", "question.html")
 UPLOADS_DIR = ROOT / "uploads"
@@ -238,6 +242,116 @@ def format_sitemap_date(value):
         return datetime.now(timezone.utc).strftime("%Y-%m-%d")
 
 
+IST = timezone(timedelta(hours=5, minutes=30))
+BREAKOUT_HINDI_MONTHS = {
+    "जनवरी": "Jan", "जन": "Jan", "फ़रवरी": "Feb", "फ़र": "Feb", "फरवरी": "Feb", "फर": "Feb",
+    "मार्च": "Mar", "अप्रैल": "Apr", "मई": "May", "जून": "Jun", "जुलाई": "Jul", "जुल": "Jul",
+    "अगस्त": "Aug", "अग": "Aug", "सितंबर": "Sep", "सित": "Sep", "अक्टूबर": "Oct", "अक्टू": "Oct",
+    "नवंबर": "Nov", "नव": "Nov", "दिसंबर": "Dec", "दिस": "Dec",
+}
+
+
+def breakout_hindi_date_to_en(value):
+    text = (value or "").strip().replace("॰", "")
+    if not text:
+        return None
+    for hindi, english in sorted(BREAKOUT_HINDI_MONTHS.items(), key=lambda item: -len(item[0])):
+        if hindi in text:
+            return text.replace(hindi, english)
+    return text
+
+
+def breakout_num(value):
+    text = (value or "").strip().replace(",", "").rstrip("%")
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def fetch_breakout_sheet_csv(gid):
+    url = f"https://docs.google.com/spreadsheets/d/{BREAKOUT_SHEET_ID}/export?format=csv&gid={gid}"
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=10) as response:
+        return response.read().decode("utf-8")
+
+
+def parse_breakout_ch_rows(csv_text):
+    rows = []
+    for record in csv.DictReader(io.StringIO(csv_text)):
+        symbol = (record.get("Symbol") or "").strip()
+        status = (record.get("C&H Signal") or "").strip()
+        if not symbol or not status:
+            continue
+        rows.append({
+            "symbol": symbol,
+            "setup": "C&H",
+            "status": status,
+            "cmp": breakout_num(record.get("CMP")),
+            "pivot": breakout_num(record.get("Pivot")),
+            "distPct": breakout_num(record.get("Dist %")),
+            "cupWks": breakout_num(record.get("Cup Wks")),
+            "cupDepth": breakout_num(record.get("Cup Depth %")),
+            "handleWks": breakout_num(record.get("Handle Wks")),
+            "handleDepth": breakout_num(record.get("Handle Depth %")),
+            "leftRimDate": breakout_hindi_date_to_en(record.get("Left Rim Date")),
+            "volRatio": breakout_num(record.get("Vol Ratio")),
+            "ma30": breakout_num(record.get("30W MA")),
+        })
+    return rows
+
+
+def parse_breakout_myb_rows(csv_text):
+    rows = []
+    for record in csv.reader(io.StringIO(csv_text)):
+        if len(record) < 7:
+            continue
+        symbol = record[0].strip()
+        setup = record[6].strip().upper()
+        if not symbol or setup != "MYB":
+            continue
+        rows.append({
+            "symbol": symbol,
+            "setup": "MYB",
+            "status": record[4].strip(),
+            "cmp": breakout_num(record[1]),
+            "base": record[5].strip() or None,
+            "pct52w": breakout_num(record[3]),
+        })
+    return rows
+
+
+BREAKOUT_CACHE = {"data": None, "fetched_at": 0.0}
+
+
+def fetch_breakout_data():
+    now = time.time()
+    cached = BREAKOUT_CACHE["data"]
+    if cached is not None and (now - BREAKOUT_CACHE["fetched_at"]) < BREAKOUT_CACHE_TTL:
+        return cached
+    try:
+        ch_rows = parse_breakout_ch_rows(fetch_breakout_sheet_csv(BREAKOUT_SHEET_GID_CH))
+        myb_rows = parse_breakout_myb_rows(fetch_breakout_sheet_csv(BREAKOUT_SHEET_GID_MYB))
+        data = {
+            "updatedAt": datetime.now(IST).isoformat(timespec="seconds"),
+            "rows": myb_rows + ch_rows,
+        }
+        BREAKOUT_CACHE["data"] = data
+        BREAKOUT_CACHE["fetched_at"] = now
+        return data
+    except Exception:
+        if cached is not None:
+            return cached
+        if BREAKOUT_DATA_PATH.is_file():
+            try:
+                return json.loads(BREAKOUT_DATA_PATH.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                pass
+        return {"updatedAt": None, "rows": []}
+
+
 class BlogHandler(BaseHTTPRequestHandler):
     def is_admin(self):
         cookie = SimpleCookie(self.headers.get("Cookie", ""))
@@ -380,10 +494,7 @@ class BlogHandler(BaseHTTPRequestHandler):
             self.send_json({"authenticated": True})
             return
         if route == "/api/breakout-desk":
-            if BREAKOUT_DATA_PATH.is_file():
-                self.send_json(json.loads(BREAKOUT_DATA_PATH.read_text(encoding="utf-8")))
-            else:
-                self.send_json({"updatedAt": None, "rows": []})
+            self.send_json(fetch_breakout_data())
             return
         if route.startswith("/api/breakout-desk/history/"):
             symbol = route.rsplit("/", 1)[1].upper()
