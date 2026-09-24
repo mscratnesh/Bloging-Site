@@ -14,14 +14,7 @@
   .ms-stamp{margin-top:20px;font:12px var(--mono);color:var(--muted)}
 
   .ms-wrap{padding:48px max(24px,calc((100% - 1180px)/2)) 100px}
-  .ms-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:44px}
-  .ms-tile{background:var(--paper);padding:16px 18px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c)}
-  .ms-tile .l{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase}
-  .ms-tile .n{font:600 28px var(--serif);color:var(--c)}
-  .ms-tile .d{color:var(--muted);font-size:12px}
-  @media(max-width:700px){.ms-strip{grid-template-columns:1fr}}
 
-  .ms-note{border-left:3px solid var(--coral);background:#fbf1ed;padding:12px 16px;font-size:14px;margin:0 0 36px}
 
   .ms-section{border-top:1px solid var(--ink);padding-top:16px;margin-bottom:52px}
   .ms-section h2{font:600 30px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
@@ -37,9 +30,6 @@
   .ms-table .wrap{white-space:normal;font-family:var(--sans);min-width:220px;text-align:left}
   .ms-table tr.held td{background:#f3f8ea}
   .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
-  .ms-badge{display:inline-block;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;margin-left:6px;vertical-align:middle}
-  .ms-badge.held{background:var(--lime);color:var(--ink)}
-  .ms-badge.warn{background:#f3e3df;color:var(--coral-text)}
 
   .ms-chart{border:1px solid var(--line);background:#fff;padding:14px 14px 8px;margin-bottom:24px}
   .ms-chart svg{display:block;width:100%;height:auto}
@@ -124,50 +114,9 @@
       return `<div class="ms-table-wrap"><table class="ms-table"><thead><tr>${head.map(h => `<th scope="col"${LEFT_COLUMNS.has(h) ? ' class="left"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
     }
 
-    function statusStrip(s){
-      const m = s.market, p = s.portfolio;
-      const gap = m.close / m.sma - 1;
-      const b = s.backtest;
-      return `<div class="ms-strip">
-        <div class="ms-tile" style="--c:${m.belowMA ? "var(--coral-text)" : "var(--success)"}"><span class="l">Market filter</span><span class="n">${m.belowMA ? "Below" : "Above"} 200-DMA</span><span class="d">Nifty 500 ${num(m.close, 0)} vs 200-DMA ${num(m.sma, 0)} (${pct(gap)})</span></div>
-        <div class="ms-tile" style="--c:${p.mode === "INVESTED" ? "var(--ink)" : "var(--muted)"}"><span class="l">Portfolio</span><span class="n">${p.mode === "INVESTED" ? p.holdings.length + " stocks" : "Liquid fund"}</span><span class="d">${p.mode === "INVESTED" ? "Last rebalanced " + fmtDate(p.lastRebalance) : "In liquid fund since " + fmtDate(p.liquidSince)}</span></div>
-        <div class="ms-tile" style="--c:var(--ink)"><span class="l">Backtest CAGR</span><span class="n">${pct(b.strategy.cagr)}</span><span class="d">vs Nifty 500 ${pct(b.nifty500.cagr)}, ${fmtDate(b.from)} – ${fmtDate(b.to)}</span></div>
-      </div>`;
-    }
-
-    function filterNote(s){
-      const m = s.market, p = s.portfolio;
-      if (p.mode === "INVESTED" && m.belowMA)
-        return `<p class="ms-note">On ${fmtDate(s.asOf)}, Nifty 500 was below its 200-day average. Under the rules, if it is still below on the month-end close, the whole portfolio moves to the liquid fund.</p>`;
-      if (p.mode === "LIQUID" && !m.belowMA)
-        return `<p class="ms-note">On ${fmtDate(s.asOf)}, Nifty 500 was back above its 200-day average. Under the rules, if it stays above until the month-end close, the portfolio re-enters with the top 10.</p>`;
-      return "";
-    }
-
-    const FILTER_LABEL = { ath: "Over 25% below ATH", turnover: "Turnover under ₹1 Cr", trend: "Below SMA233" };
-
-    function holdingsSection(s){
-      const p = s.portfolio;
-      let body;
-      if (p.mode === "LIQUID") {
-        body = `<p class="ms-placeholder">Fully in the liquid fund since ${fmtDate(p.liquidSince)}. The top 10 of the current scan is what the portfolio would buy if Nifty 500 closes above its 200-day average at month-end.</p>`;
-      } else {
-        const rows = p.holdings.map(h => {
-          const reasons = (h.failedFilters || []).map(f => FILTER_LABEL[f] || f);
-          if (!reasons.length && (h.rank == null || h.rank > s.rules.exitRank)) reasons.push(`Ranked below ${s.rules.exitRank}`);
-          const badge = reasons.length ? `<span class="ms-badge warn" title="${esc(reasons.join(", "))}">Exit due</span>` : "";
-          return `<tr><td class="sym">${esc(h.symbol)}${badge}</td><td>${h.rank ?? "–"}</td><td>${fmtDate(h.entryDate)}</td><td>${inr(h.entryPrice)}</td><td>${inr(h.close)}</td><td class="${cls(h.return)}">${pct(h.return)}</td><td class="wrap dim">${esc(reasons.join(", ")) || "–"}</td></tr>`;
-        });
-        body = table(["Stock", "Rank now", "Bought", "Buy price", "Last close", "Return", "Exit reason"], rows);
-        if (p.cashShare > 0.01) body += `<p class="sub" style="margin-top:12px">${pct(p.cashShare, false, 0)} of the portfolio is in the liquid fund because fewer than ${s.rules.topN} stocks passed the filters at the last rebalance.</p>`;
-      }
-      return `<section class="ms-section"><h2>Current holdings</h2>
-        <p class="sub">Equal amounts when bought. "Exit due" marks a holding that is out of the top ${s.rules.exitRank} today (including failing a filter); it will be replaced at the next rebalance unless it recovers.</p>${body}</section>`;
-    }
-
     function scanSection(s){
       const f = s.funnel, r = s.rules;
-      const rows = s.scan.map(x => `<tr class="${x.rank <= r.topN ? "held" : ""}"><td>${x.rank}</td><td class="sym left">${esc(x.symbol)}${x.held ? '<span class="ms-badge held">Held</span>' : ""}</td><td class="left dim" style="font-family:var(--sans)">${esc(x.industry || "–")}</td><td>${inr(x.cmp)}</td><td><strong>${num(x.score)}</strong></td><td>${pct(x.fall, false)}</td></tr>`);
+      const rows = s.scan.map(x => `<tr class="${x.rank <= r.topN ? "held" : ""}"><td>${x.rank}</td><td class="sym left">${esc(x.symbol)}</td><td class="left dim" style="font-family:var(--sans)">${esc(x.industry || "–")}</td><td>${inr(x.cmp)}</td><td><strong>${num(x.score)}</strong></td><td>${pct(x.fall, false)}</td></tr>`);
       return `<section class="ms-section" id="scan"><h2>Current scan</h2>
         <p class="sub">${f.universe} stocks in the Nifty 750 → ${f.scored} with a full year of data → <strong>${f.passedAll} pass all three filters</strong> (within 25% of all-time high: ${f.nearAth} · turnover above ₹1 Cr: ${f.liquid} · above SMA233: ${f.aboveSma}). Ranked by Av Sharp; ranks 1–${r.scanSize} shown, and the top ${r.topN} (green) are the buy candidates.</p>
         ${s.scan.length ? table(["Rank", "Stock", "Industry", "CMP", "Av Sharp", "Fall from ATH"], rows) : '<p class="ms-placeholder">No stocks pass all three filters today.</p>'}</section>`;
@@ -257,7 +206,7 @@
         return;
       }
       $("stamp").textContent = `Backtest snapshot · prices as of ${fmtDate(s.asOf)} close · not updated live`;
-      $("ms-body").innerHTML = statusStrip(s) + filterNote(s) + scanSection(s) + holdingsSection(s) + eventsSection(s) + backtestSection(s) + rulesSection(s) + $("universe-tpl").innerHTML +
+      $("ms-body").innerHTML = scanSection(s) + eventsSection(s) + backtestSection(s) + rulesSection(s) + $("universe-tpl").innerHTML +
         `<p class="ms-disclaimer">For information and education only. This is a model portfolio produced by fixed rules, not a recommendation to buy or sell any security, and not investment advice. Figures may be delayed or inaccurate. Past and backtested performance does not guarantee future results. Price data: Yahoo Finance; index constituents: NSE Indices.</p>`;
     }
 
