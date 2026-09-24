@@ -1,0 +1,51 @@
+"""NSE symbol changes: old symbol -> current symbol for the same listed company.
+
+Only pure renames (same company, same shares), used when Yahoo has no data under the old symbol.
+Mergers into a different company are deliberately NOT mapped (e.g. HDFC, MINDTREE, GRUH, EQUITAS):
+those stocks stopped trading, which is exactly the survivorship effect the study measures.
+"""
+RENAMES = {
+    "AKZOINDIA": "JSWDULUX",
+    "CENTURYTEX": "ABREL",
+    "GLS": "ALIVUS",
+    "GUJFLUORO": "FLUOROCHEM",
+    "INFIBEAM": "CCAVENUE",
+    "LTIM": "LTM",
+    "MINDAIND": "UNOMINDA",
+    "SEQUENT": "VIYASH",
+    "SWANENERGY": "SWANCORP",
+    "TIFIN": "CHOLAHLDNG",
+    "WABCOINDIA": "ZFCVINDIA",
+    "ADANIGAS": "ATGL",
+    "ADANITRANS": "ADANIENSOL",
+    "AMARAJABAT": "ARE&M",
+    "BAJAJCORP": "BAJAJCON",
+    "CADILAHC": "ZYDUSLIFE",
+    "ESSELPACK": "EPL",
+    "GET&D": "GVT&D",
+    "GMRINFRA": "GMRAIRPORT",
+    "IBULHSGFIN": "SAMMAANCAP",
+    "IDFCBANK": "IDFCFIRSTB",
+    "IIFLWAM": "360ONE",
+    "INFRATEL": "INDUSTOWER",
+    "JUBILANT": "JUBLPHARMA",
+    "KALPATPOWR": "KPIL",
+    "L&TFH": "LTF",
+    "LAXMIMACH": "LMW",
+    "LTI": "LTM",  # LTI absorbed Mindtree in 2022 (LTIMindtree), symbol later changed to LTM
+    "MAHINDCIE": "CIEINDIA",
+    "MCDOWELL-N": "UNITDSPR",
+    "MOTHERSUMI": "MOTHERSON",
+    "NIITTECH": "COFORGE",
+    "ORIENTREF": "RHIM",
+    "PHILIPCARB": "PCBL",
+    "PVR": "PVRINOX",
+    "RNAM": "NAM-INDIA",
+    "SRTRANSFIN": "SHRIRAMFIN",
+    "STRTECH": "STLTECH",
+    "SUVENPHAR": "COHANCE",
+    "TATAGLOBAL": "TATACONSUM",
+    "TATAMOTORS": "TMPV",
+    "WELSPUNIND": "WELSPUNLIV",
+    "ZOMATO": "ETERNAL",
+}

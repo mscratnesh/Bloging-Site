@@ -11,3 +11,4 @@ price_history_cache.json
 fundamentals_cache.json
 momentum_prices.json
 *.json.tmp
+study/prices_extra.json

@@ -60,6 +60,7 @@
       <h1>Momentum Scan</h1>
       <p>A backtested scan of the Nifty Total Market (750) for stocks near their all-time highs, in a long-term uptrend and liquid enough to trade, ranked by average Sharpe ratio. A model portfolio holds the top 10, replaces a holding only when it falls out of the top 30, and moves to a liquid fund when the Nifty 500 is below its 200-day moving average.</p>
       <p class="ms-stamp" id="stamp">Loading…</p>
+      <p class="ms-stamp"><a href="momentum-study.html" style="color:var(--ink)">How reliable is this backtest? Read the Momentum Study ›</a></p>
     </section>
 
     <div class="ms-wrap" id="ms-body">
@@ -173,12 +174,12 @@
           ${table(["Year", "Strategy", "Nifty 500"], yearRows)}
         </div>
         <div class="ms-caveats"><h3>Read this before trusting the numbers</h3><ul>
-          <li><strong>Survivorship bias.</strong> The backtest uses today's list of index stocks for every past month. Many of its best trades are in the index today <em>because</em> they rallied, and stocks that crashed or were dropped are missing. Real results would very likely be much lower.</li>
-          <li><strong>Taxes are ignored.</strong> Frequent swaps mean most gains would be short-term capital gains.</li>
+          <li><strong>Survivorship bias.</strong> The backtest uses today's list of index stocks for every past month. Many of its best trades are in the index today <em>because</em> they rallied, and stocks that crashed or were dropped are missing. The <a href="momentum-study.html#survivorship">Momentum Study</a> measured this on the Nifty 500 using archived index lists: it added about 2.5 percentage points a year there, and it is likely larger among the small caps in the Nifty 750.</li>
+          <li><strong>Taxes are ignored.</strong> Frequent swaps mean most gains would be short-term capital gains; the <a href="momentum-study.html#costs">study</a> estimates tax costs about 5 percentage points a year.</li>
           <li><strong>Dividends are ignored.</strong> Prices are adjusted for splits but not dividends (the same as Google Finance), so returns are slightly understated.</li>
           <li><strong>Execution.</strong> Trades assume the closing price; small caps can cost more than ${pct(s.rules.costPerSide, false, 2)} to trade, especially in size.</li>
           <li><strong>Drawdowns are real.</strong> Even with the trend filter, the backtest lost ${pct(-Math.abs(st.maxDrawdown), true, 0)} from a peak at its worst.</li>
-        </ul></div>
+        </ul><p style="margin:12px 0 0"><a href="momentum-study.html"><strong>Read the full Momentum Study ›</strong></a> Survivorship bias, parameter sensitivity, costs, taxes, capacity and risk.</p></div>
       </section>`;
     }
 
