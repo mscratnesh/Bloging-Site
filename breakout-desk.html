@@ -40,6 +40,21 @@
   .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
   .bd-placeholder{padding:14px 16px;color:var(--muted);font:12px var(--mono);border:1px solid var(--line)}
 
+  .bd-cards{display:none;flex-direction:column;gap:10px;margin-bottom:14px}
+  .bd-card{border:1px solid var(--line);padding:14px 16px}
+  .bd-card-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+  .bd-card-sym{font-family:var(--sans);font-weight:700;font-size:15px}
+  .bd-card-sub{font-family:var(--mono);font-size:11px;color:var(--muted);text-align:right}
+  .bd-card-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+  .bd-card-item{display:flex;flex-direction:column;gap:3px}
+  .bd-card-label{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .bd-card-value{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
+  .bd-card-value.pos{color:var(--success)} .bd-card-value.neg{color:var(--coral-text)} .bd-card-value.dim{color:var(--muted)}
+  @media(max-width:700px){
+    .bd-table{display:none}
+    .bd-cards{display:flex}
+  }
+
   .bd-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;border-top:1px solid var(--ink);padding-top:20px}
   .bd-rules h3{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
   .bd-rules ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:13px}
@@ -136,66 +151,96 @@
     const vsMA = r => r.cmp && r.ma30 ? (r.cmp / r.ma30 - 1) * 100 : null;
 
     // Column sets, keyed by base setup ("MYB" = multi-year base, "C&H" = cup & handle).
+    // Each set has a `sym` (card title + subtitle) and `fields` (label/value/class) shared by
+    // the desktop table and the mobile card blocks, so both stay in sync from one definition.
     const COLS = {
-      MYB_BREAKOUT: [
-        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>base ${r.baseYrs ?? "–"} yrs · high ${esc(r.resDate)}</small></td>`],
-        ["CMP", r => `<td>${inr(r.cmp)}</td>`],
-        ["Resistance", r => `<td>${inr(r.resistance)}</td>`],
-        ["Above res.", r => `<td class="${cls(r.breakoutPct)}">${pct(r.breakoutPct, true)}</td>`],
-        ["Vol ratio", r => `<td>${r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–"}</td>`],
-        ["vs 30W MA", r => `<td class="${cls(vsMA(r))}">${pct(vsMA(r), true)}</td>`]
-      ],
-      MYB_NEAR: [
-        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>base ${r.baseYrs ?? "–"} yrs · high ${esc(r.resDate)}</small></td>`],
-        ["CMP", r => `<td>${inr(r.cmp)}</td>`],
-        ["Resistance", r => `<td>${inr(r.resistance)}</td>`],
-        ["Gap to break", r => `<td class="dim">${Math.abs(Number(r.breakoutPct) || 0).toFixed(1)}%</td>`],
-        ["Vol ratio", r => `<td>${r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–"}</td>`]
-      ],
-      CH: [
-        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>cup ${r.cupWks ?? "–"} wks · left rim ${esc(r.leftRimDate)}</small></td>`],
-        ["CMP", r => `<td>${inr(r.cmp)}</td>`],
-        ["Pivot", r => `<td>${inr(r.pivot)}</td>`],
-        ["Dist to pivot", r => `<td class="${cls(r.distPct)}">${pct(r.distPct, true)}</td>`],
-        ["Cup / handle depth", r => `<td>${r.cupDepth ?? "–"}% / ${r.handleDepth ?? "–"}%</td>`],
-        ["Vol ratio", r => `<td>${r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–"}</td>`]
-      ],
-      HOLDING: [
-        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>${r.setup === "C&H" ? "cup &amp; handle" : "multi-year base"} · since ${esc(r.entryDate)}</small></td>`],
-        ["Entry", r => `<td>${inr(r.entryPrice)}</td>`],
-        ["Weekly close", r => `<td>${inr(r.weeklyClose)}</td>`],
-        ["P&amp;L", r => `<td class="${cls(r.pnlPct)}">${pct(r.pnlPct, true)}</td>`],
-        ["Stop", r => `<td>${inr(r.stop)}</td>`],
-        ["30W MA", r => `<td>${inr(r.ma30)}</td>`]
-      ],
-      EXIT: [
-        ["Symbol", r => `<td class="sym">${esc(r.symbol)}<small>in ${esc(r.entryDate)}</small></td>`],
-        ["Entry", r => `<td>${inr(r.entryPrice)}</td>`],
-        ["Exit", r => `<td>${inr(r.exitPrice)}<small class="dim"> ${esc(r.exitDate)}</small></td>`],
-        ["P&amp;L", r => `<td class="${cls(r.pnlPct)}">${pct(r.pnlPct, true)}</td>`],
-        ["Reason", r => `<td style="text-align:left;font-family:var(--sans)">${esc(r.exitReason)}</td>`]
-      ]
+      MYB_BREAKOUT: {
+        sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
+        fields: [
+          { label: "CMP", value: r => inr(r.cmp) },
+          { label: "Resistance", value: r => inr(r.resistance) },
+          { label: "Above res.", value: r => pct(r.breakoutPct, true), cls: r => cls(r.breakoutPct) },
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" },
+          { label: "vs 30W MA", value: r => pct(vsMA(r), true), cls: r => cls(vsMA(r)) }
+        ]
+      },
+      MYB_NEAR: {
+        sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
+        fields: [
+          { label: "CMP", value: r => inr(r.cmp) },
+          { label: "Resistance", value: r => inr(r.resistance) },
+          { label: "Gap to break", value: r => Math.abs(Number(r.breakoutPct) || 0).toFixed(1) + "%", cls: () => "dim" },
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" }
+        ]
+      },
+      CH: {
+        sym: { value: r => r.symbol, sub: r => `cup ${r.cupWks ?? "–"} wks · left rim ${r.leftRimDate ?? "–"}` },
+        fields: [
+          { label: "CMP", value: r => inr(r.cmp) },
+          { label: "Pivot", value: r => inr(r.pivot) },
+          { label: "Dist to pivot", value: r => pct(r.distPct, true), cls: r => cls(r.distPct) },
+          { label: "Cup / handle depth", value: r => `${r.cupDepth ?? "–"}% / ${r.handleDepth ?? "–"}%` },
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" }
+        ]
+      },
+      HOLDING: {
+        sym: { value: r => r.symbol, sub: r => `${r.setup === "C&H" ? "cup & handle" : "multi-year base"} · since ${r.entryDate ?? "–"}` },
+        fields: [
+          { label: "Entry", value: r => inr(r.entryPrice) },
+          { label: "Weekly close", value: r => inr(r.weeklyClose) },
+          { label: "P&L", value: r => pct(r.pnlPct, true), cls: r => cls(r.pnlPct) },
+          { label: "Stop", value: r => inr(r.stop) },
+          { label: "30W MA", value: r => inr(r.ma30) }
+        ]
+      },
+      EXIT: {
+        sym: { value: r => r.symbol, sub: r => `in ${r.entryDate ?? "–"}` },
+        fields: [
+          { label: "Entry", value: r => inr(r.entryPrice) },
+          { label: "Exit", value: r => `${inr(r.exitPrice)} (${r.exitDate ?? "–"})` },
+          { label: "P&L", value: r => pct(r.pnlPct, true), cls: r => cls(r.pnlPct) },
+          { label: "Reason", value: r => esc(r.exitReason ?? "–") }
+        ]
+      }
     };
 
     function renderTable(colsKey, rows){
-      const cols = COLS[colsKey];
-      return `<div class="bd-table"><table><thead><tr>${cols.map(c => `<th scope="col">${c[0]}</th>`).join("")}</tr></thead><tbody>${
-        rows.map(r => `<tr>${cols.map(c => c[1](r)).join("")}</tr>`).join("")}</tbody></table></div>`;
+      const set = COLS[colsKey];
+      const heads = [`<th scope="col">Symbol</th>`].concat(set.fields.map(f => `<th scope="col">${f.label}</th>`));
+      const body = rows.map(r => {
+        const symCell = `<td class="sym">${esc(set.sym.value(r))}<small>${esc(set.sym.sub(r))}</small></td>`;
+        const cells = set.fields.map(f => `<td class="${f.cls ? f.cls(r) : ""}">${f.value(r)}</td>`).join("");
+        return `<tr>${symCell}${cells}</tr>`;
+      }).join("");
+      return `<div class="bd-table"><table><thead><tr>${heads.join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
+    }
+
+    function renderCards(colsKey, rows){
+      const set = COLS[colsKey];
+      const cards = rows.map(r => {
+        const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
+        return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div><div class="bd-card-grid">${items}</div></div>`;
+      }).join("");
+      return `<div class="bd-cards">${cards}</div>`;
+    }
+
+    function renderRows(colsKey, rows){
+      return renderTable(colsKey, rows) + renderCards(colsKey, rows);
     }
 
     // Simple sections that use one column set regardless of setup.
     function simpleSection(id, colsKey, rows, label){
-      $("t-" + id).innerHTML = rows.length ? renderTable(colsKey, rows) : `<div class="bd-placeholder">No ${label} right now.</div>`;
+      $("t-" + id).innerHTML = rows.length ? renderRows(colsKey, rows) : `<div class="bd-placeholder">No ${label} right now.</div>`;
     }
 
-    // Mixed sections (Breakout) can contain both MYB and C&H rows — split into sub-tables.
+    // Mixed sections (Breakout) can contain both MYB and C&H rows — split into sub-groups.
     function mixedSection(id, rows, label){
       const myb = rows.filter(r => r.setup !== "C&H");
       const ch = rows.filter(r => r.setup === "C&H");
       if (!rows.length) { $("t-" + id).innerHTML = `<div class="bd-placeholder">No ${label} right now.</div>`; return; }
       let html = "";
-      if (myb.length) html += `<div class="bd-subhead">Multi-year base</div>` + renderTable("MYB_BREAKOUT", myb);
-      if (ch.length) html += `<div class="bd-subhead">Cup &amp; handle</div>` + renderTable("CH", ch);
+      if (myb.length) html += `<div class="bd-subhead">Multi-year base</div>` + renderRows("MYB_BREAKOUT", myb);
+      if (ch.length) html += `<div class="bd-subhead">Cup &amp; handle</div>` + renderRows("CH", ch);
       $("t-" + id).innerHTML = html;
     }
 
