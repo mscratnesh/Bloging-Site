@@ -7,3 +7,4 @@ dist/
 *.doc
 *.spec
 *.exe
+price_history_cache.json

@@ -50,6 +50,9 @@
   .bd-card-label{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
   .bd-card-value{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
   .bd-card-value.pos{color:var(--success)} .bd-card-value.neg{color:var(--coral-text)} .bd-card-value.dim{color:var(--muted)}
+  .bd-chart{height:52px;margin-bottom:12px}
+  .bd-chart svg{display:block;width:100%;height:100%}
+  .bd-chart-note{font:11px var(--mono);color:var(--muted)}
   @media(max-width:700px){
     .bd-table{display:none}
     .bd-cards{display:flex}
@@ -156,6 +159,8 @@
     const COLS = {
       MYB_BREAKOUT: {
         sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
+        refLevel: r => r.resistance,
+        refLabel: "Resistance",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
           { label: "Resistance", value: r => inr(r.resistance) },
@@ -166,6 +171,8 @@
       },
       MYB_NEAR: {
         sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
+        refLevel: r => r.resistance,
+        refLabel: "Resistance",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
           { label: "Resistance", value: r => inr(r.resistance) },
@@ -175,6 +182,8 @@
       },
       CH: {
         sym: { value: r => r.symbol, sub: r => `cup ${r.cupWks ?? "–"} wks · left rim ${r.leftRimDate ?? "–"}` },
+        refLevel: r => r.pivot,
+        refLabel: "Pivot",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
           { label: "Pivot", value: r => inr(r.pivot) },
@@ -185,6 +194,8 @@
       },
       HOLDING: {
         sym: { value: r => r.symbol, sub: r => `${r.setup === "C&H" ? "cup & handle" : "multi-year base"} · since ${r.entryDate ?? "–"}` },
+        refLevel: r => r.stop,
+        refLabel: "Stop",
         fields: [
           { label: "Entry", value: r => inr(r.entryPrice) },
           { label: "Weekly close", value: r => inr(r.weeklyClose) },
@@ -219,7 +230,9 @@
       const set = COLS[colsKey];
       const cards = rows.map(r => {
         const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
-        return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div><div class="bd-card-grid">${items}</div></div>`;
+        const refLevel = set.refLevel ? set.refLevel(r) : null;
+        const chart = `<div class="bd-chart" data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}"><span class="bd-chart-note">Loading chart…</span></div>`;
+        return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div>${chart}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
       return `<div class="bd-cards">${cards}</div>`;
     }
@@ -277,6 +290,49 @@
       } else {
         $("stamp").textContent = "Update time unknown";
       }
+
+      hydrateCharts();
+    }
+
+    // Renders a simple price line, plus a dashed reference line (resistance/pivot/stop) if given.
+    function buildSparklineSVG(closes, ref){
+      const W = 300, H = 52, PAD = 4;
+      const vals = closes.slice();
+      if (ref != null) vals.push(ref);
+      const min = Math.min(...vals), max = Math.max(...vals);
+      const span = (max - min) || 1;
+      const yFor = v => H - PAD - ((v - min) / span) * (H - PAD * 2);
+      const xFor = i => (i / (closes.length - 1 || 1)) * W;
+      const points = closes.map((c, i) => `${xFor(i).toFixed(1)},${yFor(c).toFixed(1)}`).join(" ");
+      const last = closes[closes.length - 1];
+      const up = ref != null ? last >= ref : true;
+      const lineColor = up ? "var(--success)" : "var(--coral-text)";
+      const refLine = ref != null
+        ? `<line x1="0" y1="${yFor(ref).toFixed(1)}" x2="${W}" y2="${yFor(ref).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3,3" stroke-width="1"/>`
+        : "";
+      const lastX = xFor(closes.length - 1), lastY = yFor(last);
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Price chart">${refLine}<polyline points="${points}" fill="none" stroke="${lineColor}" stroke-width="1.6"/><circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.4" fill="${lineColor}"/></svg>`;
+    }
+
+    // Fetches (and caches per page load) 1y daily history for every visible card's symbol,
+    // then draws a small line chart against its resistance/pivot/stop level.
+    const historyCache = {};
+    function hydrateCharts(){
+      document.querySelectorAll(".bd-chart[data-symbol]").forEach(async (node) => {
+        const symbol = node.dataset.symbol;
+        const ref = node.dataset.ref ? Number(node.dataset.ref) : null;
+        try {
+          if (!historyCache[symbol]) {
+            historyCache[symbol] = fetch("/api/breakout-desk/history/" + encodeURIComponent(symbol)).then(r => r.json());
+          }
+          const result = await historyCache[symbol];
+          const closes = (result.points || []).map(p => p.close).filter(v => v != null);
+          if (!closes.length) { node.innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
+          node.innerHTML = buildSparklineSVG(closes, ref);
+        } catch (e) {
+          node.innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
+        }
+      });
     }
 
     fetch("/api/breakout-desk").then(r => r.json()).then(render).catch(() => {

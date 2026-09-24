@@ -5,9 +5,13 @@ import base64
 import html
 import json
 import os
+import re
 import secrets
 import sqlite3
 import sys
+import time
+import urllib.error
+import urllib.request
 from datetime import datetime, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
@@ -15,6 +19,9 @@ from hmac import compare_digest
 ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 DB_PATH = ROOT / "let_money_earn.db"
 BREAKOUT_DATA_PATH = ROOT / "breakout_data.json"
+HISTORY_CACHE_PATH = ROOT / "price_history_cache.json"
+HISTORY_CACHE_TTL_SECONDS = 24 * 3600
+HISTORY_SYMBOL_RE = re.compile(r"^[A-Z0-9&\-]{1,20}$")
 SITE_URL = "https://letmoneyearn.in"
 SITEMAP_STATIC_PAGES = ("", "services.html", "calculators.html", "review.html", "question.html")
 UPLOADS_DIR = ROOT / "uploads"
@@ -98,6 +105,60 @@ def initialize_database():
                 (post_id, "Neha Kapoor", "This made mutual funds much easier to understand. The goal-first approach is very helpful."),
                 (post_id, "Vikram Joshi", "A useful beginner's overview. I am going to revisit the checklist before investing."),
             ])
+
+
+def load_history_cache():
+    if not HISTORY_CACHE_PATH.is_file():
+        return {}
+    try:
+        return json.loads(HISTORY_CACHE_PATH.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+
+
+def save_history_cache(cache):
+    try:
+        HISTORY_CACHE_PATH.write_text(json.dumps(cache), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def fetch_symbol_history(symbol):
+    # Stooq's public CSV endpoint is blocked by a JS anti-bot challenge for server-side
+    # requests as of writing, so this uses Yahoo Finance's unofficial chart endpoint,
+    # confirmed working with real requests during development.
+    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}.NS?range=1y&interval=1d"
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=6) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    result = payload["chart"]["result"][0]
+    timestamps = result["timestamp"]
+    closes = result["indicators"]["quote"][0]["close"]
+    points = [
+        {"date": datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d"), "close": round(close, 2)}
+        for ts, close in zip(timestamps, closes)
+        if close is not None
+    ]
+    if not points:
+        raise ValueError("Yahoo returned an empty series.")
+    return points
+
+
+def get_symbol_history(symbol):
+    cache = load_history_cache()
+    entry = cache.get(symbol)
+    now = time.time()
+    if entry and now - entry.get("fetchedAt", 0) < HISTORY_CACHE_TTL_SECONDS:
+        return entry["data"], False
+    try:
+        points = fetch_symbol_history(symbol)
+    except (urllib.error.URLError, TimeoutError, KeyError, IndexError, ValueError, json.JSONDecodeError):
+        if entry:
+            return entry["data"], True
+        return None, False
+    cache[symbol] = {"fetchedAt": now, "data": points}
+    save_history_cache(cache)
+    return points, False
 
 
 def format_sitemap_date(value):
@@ -253,6 +314,17 @@ class BlogHandler(BaseHTTPRequestHandler):
                 self.send_json(json.loads(BREAKOUT_DATA_PATH.read_text(encoding="utf-8")))
             else:
                 self.send_json({"updatedAt": None, "rows": []})
+            return
+        if route.startswith("/api/breakout-desk/history/"):
+            symbol = route.rsplit("/", 1)[1].upper()
+            if not HISTORY_SYMBOL_RE.match(symbol):
+                self.send_json({"error": "Invalid symbol."}, 400)
+                return
+            points, stale = get_symbol_history(symbol)
+            if points is None:
+                self.send_json({"error": "Could not load price history."}, 502)
+                return
+            self.send_json({"symbol": symbol, "points": points, "stale": stale})
             return
         if route == "/api/posts":
             with connection() as database:
