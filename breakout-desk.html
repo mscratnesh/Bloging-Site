@@ -152,6 +152,13 @@
     const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
     const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
     const vsMA = r => r.cmp && r.ma30 ? (r.cmp / r.ma30 - 1) * 100 : null;
+    // Chart window = the base's own length + 1 year, so the whole base plus some
+    // breakout room is visible instead of a fixed, possibly-too-short 1y window.
+    const chartYears = r => {
+      if (r.baseYrs != null) return Math.ceil(r.baseYrs) + 1;
+      if (r.cupWks != null) return Math.ceil((r.cupWks + (r.handleWks || 0)) / 52) + 1;
+      return 2;
+    };
 
     // Column sets, keyed by base setup ("MYB" = multi-year base, "C&H" = cup & handle).
     // Each set has a `sym` (card title + subtitle) and `fields` (label/value/class) shared by
@@ -231,7 +238,7 @@
       const cards = rows.map(r => {
         const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
         const refLevel = set.refLevel ? set.refLevel(r) : null;
-        const chart = `<div class="bd-chart" data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}"><span class="bd-chart-note">Loading chart…</span></div>`;
+        const chart = `<div class="bd-chart" data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}"><span class="bd-chart-note">Loading chart…</span></div>`;
         return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div>${chart}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
       return `<div class="bd-cards">${cards}</div>`;
@@ -314,18 +321,21 @@
       return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Price chart">${refLine}<polyline points="${points}" fill="none" stroke="${lineColor}" stroke-width="1.6"/><circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.4" fill="${lineColor}"/></svg>`;
     }
 
-    // Fetches (and caches per page load) 1y daily history for every visible card's symbol,
-    // then draws a small line chart against its resistance/pivot/stop level.
+    // Fetches (and caches per page load) daily history for every visible card's symbol —
+    // the window is that row's own base length + 1 year (see chartYears) — then draws a
+    // small line chart against its resistance/pivot/stop level.
     const historyCache = {};
     function hydrateCharts(){
       document.querySelectorAll(".bd-chart[data-symbol]").forEach(async (node) => {
         const symbol = node.dataset.symbol;
+        const years = node.dataset.years || "2";
         const ref = node.dataset.ref ? Number(node.dataset.ref) : null;
+        const cacheKey = symbol + ":" + years;
         try {
-          if (!historyCache[symbol]) {
-            historyCache[symbol] = fetch("/api/breakout-desk/history/" + encodeURIComponent(symbol)).then(r => r.json());
+          if (!historyCache[cacheKey]) {
+            historyCache[cacheKey] = fetch("/api/breakout-desk/history/" + encodeURIComponent(symbol) + "?years=" + encodeURIComponent(years)).then(r => r.json());
           }
-          const result = await historyCache[symbol];
+          const result = await historyCache[cacheKey];
           const closes = (result.points || []).map(p => p.close).filter(v => v != null);
           if (!closes.length) { node.innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
           node.innerHTML = buildSparklineSVG(closes, ref);

@@ -14,7 +14,7 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
@@ -128,9 +128,8 @@ def save_history_cache(cache):
 HISTORY_FETCH_ERRORS = (urllib.error.URLError, TimeoutError, KeyError, IndexError, ValueError, json.JSONDecodeError, csv.Error)
 
 
-def fetch_symbol_history_yahoo(symbol):
-    """Primary source. Confirmed working with real requests during development."""
-    url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}.NS?range=1y&interval=1d"
+def _fetch_symbol_history_yahoo_host(host, symbol, period1, period2):
+    url = f"https://{host}.finance.yahoo.com/v8/finance/chart/{symbol}.NS?period1={period1}&period2={period2}&interval=1d"
     request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(request, timeout=6) as response:
         payload = json.loads(response.read().decode("utf-8"))
@@ -143,14 +142,21 @@ def fetch_symbol_history_yahoo(symbol):
         if close is not None
     ]
     if not points:
-        raise ValueError("Yahoo returned an empty series.")
+        raise ValueError(f"Yahoo ({host}) returned an empty series.")
     return points
 
 
-def fetch_symbol_history_stooq(symbol):
+def fetch_symbol_history_yahoo(symbol, period1, period2):
+    """Primary source. Confirmed working with real requests during development."""
+    return _fetch_symbol_history_yahoo_host("query1", symbol, period1, period2)
+
+
+def fetch_symbol_history_stooq(symbol, period1, period2):
     """Fallback 1. Blocked by a JS anti-bot challenge from the dev network as of writing —
     kept as a fallback in case it's reachable from wherever this actually runs."""
-    url = f"https://stooq.com/q/d/l/?s={symbol}.IN&i=d"
+    d1 = datetime.fromtimestamp(period1, tz=timezone.utc).strftime("%Y%m%d")
+    d2 = datetime.fromtimestamp(period2, tz=timezone.utc).strftime("%Y%m%d")
+    url = f"https://stooq.com/q/d/l/?s={symbol}.IN&d1={d1}&d2={d2}&i=d"
     request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(request, timeout=6) as response:
         text = response.read().decode("utf-8")
@@ -166,49 +172,38 @@ def fetch_symbol_history_stooq(symbol):
     return points
 
 
-def fetch_symbol_history_yahoo_alt(symbol):
+def fetch_symbol_history_yahoo_alt(symbol, period1, period2):
     """Fallback 2. Yahoo's alternate edge host (query2 instead of query1) — cheap extra
     redundancy against a single Yahoo edge/host having an outage, no new dependency."""
-    url = f"https://query2.finance.yahoo.com/v8/finance/chart/{symbol}.NS?range=1y&interval=1d"
-    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(request, timeout=6) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    result = payload["chart"]["result"][0]
-    timestamps = result["timestamp"]
-    closes = result["indicators"]["quote"][0]["close"]
-    points = [
-        {"date": datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d"), "close": round(close, 2)}
-        for ts, close in zip(timestamps, closes)
-        if close is not None
-    ]
-    if not points:
-        raise ValueError("Yahoo (query2) returned an empty series.")
-    return points
+    return _fetch_symbol_history_yahoo_host("query2", symbol, period1, period2)
 
 
-def fetch_symbol_history(symbol):
+def fetch_symbol_history(symbol, years):
+    period2 = int(time.time())
+    period1 = int((datetime.now(timezone.utc) - timedelta(days=365 * years)).timestamp())
     last_error = None
     for source in (fetch_symbol_history_yahoo, fetch_symbol_history_stooq, fetch_symbol_history_yahoo_alt):
         try:
-            return source(symbol)
+            return source(symbol, period1, period2)
         except HISTORY_FETCH_ERRORS as error:
             last_error = error
     raise last_error
 
 
-def get_symbol_history(symbol):
+def get_symbol_history(symbol, years):
+    cache_key = f"{symbol}:{years}y"
     cache = load_history_cache()
-    entry = cache.get(symbol)
+    entry = cache.get(cache_key)
     now = time.time()
     if entry and now - entry.get("fetchedAt", 0) < HISTORY_CACHE_TTL_SECONDS:
         return entry["data"], False
     try:
-        points = fetch_symbol_history(symbol)
+        points = fetch_symbol_history(symbol, years)
     except HISTORY_FETCH_ERRORS:
         if entry:
             return entry["data"], True
         return None, False
-    cache[symbol] = {"fetchedAt": now, "data": points}
+    cache[cache_key] = {"fetchedAt": now, "data": points}
     save_history_cache(cache)
     return points, False
 
@@ -372,7 +367,12 @@ class BlogHandler(BaseHTTPRequestHandler):
             if not HISTORY_SYMBOL_RE.match(symbol):
                 self.send_json({"error": "Invalid symbol."}, 400)
                 return
-            points, stale = get_symbol_history(symbol)
+            try:
+                years = int(float(parse_qs(urlparse(self.path).query).get("years", ["2"])[0]))
+            except (TypeError, ValueError):
+                years = 2
+            years = max(1, min(15, years))
+            points, stale = get_symbol_history(symbol, years)
             if points is None:
                 self.send_json({"error": "Could not load price history."}, 502)
                 return
