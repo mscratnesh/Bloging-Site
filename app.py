@@ -21,6 +21,8 @@ from datetime import datetime, timedelta, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
+import momentum
+
 ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
 DB_PATH = ROOT / "let_money_earn.db"
 BREAKOUT_DATA_PATH = ROOT / "breakout_data.json"
@@ -611,6 +613,9 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/breakout-desk":
             self.send_json(fetch_breakout_data())
+            return
+        if route == "/api/momentum":
+            self.send_json(momentum.load_state(ROOT))
             return
         if route.startswith("/api/breakout-desk/fundamentals/"):
             symbol = urllib.parse.unquote(route.rsplit("/", 1)[1]).upper()

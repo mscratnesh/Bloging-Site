@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Momentum Scan — a model portfolio of the 10 strongest Nifty Total Market stocks by average Sharpe ratio, with a Nifty 500 trend filter and a backtest.">
+<title>Momentum Scan | Let Money Earn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .ms-hero{padding:70px max(24px,calc((100% - 1180px)/2)) 40px;border-bottom:1px solid var(--line)}
+  .ms-hero h1{max-width:760px;font:600 clamp(40px,6vw,68px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .ms-hero p{max-width:620px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .ms-stamp{margin-top:20px;font:12px var(--mono);color:var(--muted)}
+
+  .ms-wrap{padding:48px max(24px,calc((100% - 1180px)/2)) 100px}
+  .ms-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:44px}
+  .ms-tile{background:var(--paper);padding:16px 18px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c)}
+  .ms-tile .l{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  .ms-tile .n{font:600 28px var(--serif);color:var(--c)}
+  .ms-tile .d{color:var(--muted);font-size:12px}
+  @media(max-width:700px){.ms-strip{grid-template-columns:1fr}}
+
+  .ms-note{border-left:3px solid var(--coral);background:#fbf1ed;padding:12px 16px;font-size:14px;margin:0 0 36px}
+
+  .ms-section{border-top:1px solid var(--ink);padding-top:16px;margin-bottom:52px}
+  .ms-section h2{font:600 30px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
+  .ms-section .sub{color:var(--muted);font-size:13px;margin:0 0 20px;max-width:720px}
+
+  .ms-table-wrap{overflow-x:auto;border:1px solid var(--line)}
+  .ms-table{width:100%;border-collapse:collapse;font-size:14px;background:#fff}
+  .ms-table th{font:600 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);text-align:right;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--paper)}
+  .ms-table td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+  .ms-table th:first-child,.ms-table td:first-child,.ms-table .left{text-align:left}
+  .ms-table tr:last-child td{border-bottom:0}
+  .ms-table .sym{font-family:var(--sans);font-weight:700}
+  .ms-table .wrap{white-space:normal;font-family:var(--sans);min-width:220px;text-align:left}
+  .ms-table tr.held td{background:#f3f8ea}
+  .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
+  .ms-badge{display:inline-block;font:600 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;margin-left:6px;vertical-align:middle}
+  .ms-badge.held{background:var(--lime);color:var(--ink)}
+  .ms-badge.warn{background:#f3e3df;color:var(--coral-text)}
+
+  .ms-chart{border:1px solid var(--line);background:#fff;padding:14px 14px 8px;margin-bottom:24px}
+  .ms-chart svg{display:block;width:100%;height:auto}
+  .ms-legend{display:flex;gap:18px;font:12px var(--mono);color:var(--muted);margin:0 0 8px;flex-wrap:wrap}
+  .ms-legend i{display:inline-block;width:18px;height:2px;vertical-align:middle;margin-right:6px}
+
+  .ms-grid2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:28px}
+  @media(max-width:800px){.ms-grid2{grid-template-columns:minmax(0,1fr)}}
+  .ms-wrap,.ms-section{min-width:0}
+
+  .ms-caveats{border:1px solid var(--line);background:#fff;padding:18px 20px;font-size:14px;margin-top:28px}
+  .ms-caveats h3{font:600 18px var(--serif);margin:0 0 10px}
+  .ms-caveats ul{margin:0;padding-left:18px}
+  .ms-caveats li{margin-bottom:6px}
+  .ms-rules{margin:0;padding-left:18px;font-size:14px}
+  .ms-rules li{margin-bottom:6px}
+  .ms-placeholder{padding:28px;border:1px dashed var(--line);color:var(--muted);font-family:var(--mono);font-size:13px}
+  .ms-disclaimer{font:12px var(--mono);color:var(--muted);margin-top:36px}
+</style>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><a href="momentum-scan.html">Momentum Scan</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="ms-hero">
+      <p class="eyebrow">Nifty Total Market · monthly rebalance · trend filter</p>
+      <h1>Momentum Scan</h1>
+      <p>A backtested scan of the Nifty Total Market (750) for stocks near their all-time highs, in a long-term uptrend and liquid enough to trade, ranked by average Sharpe ratio. A model portfolio holds the top 10, replaces a holding only when it falls out of the top 30, and moves to a liquid fund when the Nifty 500 is below its 200-day moving average.</p>
+      <p class="ms-stamp" id="stamp">Loading…</p>
+    </section>
+
+    <div class="ms-wrap" id="ms-body">
+      <div class="ms-placeholder">Loading…</div>
+    </div>
+  </main>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script>
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const inr = v => v == null ? "–" : "₹" + Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const num = (v, d = 2) => v == null ? "–" : Number(v).toFixed(d);
+    const pct = (v, signed = true, d = 1) => v == null ? "–" : (signed && v > 0 ? "+" : "") + (v * 100).toFixed(d) + "%";
+    const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
+    const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "–";
+
+    // Text columns are left-aligned; numbers stay right-aligned.
+    const LEFT_COLUMNS = new Set(["Stock", "Industry", "Action", "Sold", "Bought", "Exit reason", "Year"]);
+    function table(head, rows){
+      return `<div class="ms-table-wrap"><table class="ms-table"><thead><tr>${head.map(h => `<th scope="col"${LEFT_COLUMNS.has(h) ? ' class="left"' : ""}>${h}</th>`).join("")}</tr></thead><tbody>${rows.join("")}</tbody></table></div>`;
+    }
+
+    function statusStrip(s){
+      const m = s.market, p = s.portfolio;
+      const gap = m.close / m.sma - 1;
+      const b = s.backtest;
+      return `<div class="ms-strip">
+        <div class="ms-tile" style="--c:${m.belowMA ? "var(--coral-text)" : "var(--success)"}"><span class="l">Market filter</span><span class="n">${m.belowMA ? "Below" : "Above"} 200-DMA</span><span class="d">Nifty 500 ${num(m.close, 0)} vs 200-DMA ${num(m.sma, 0)} (${pct(gap)})</span></div>
+        <div class="ms-tile" style="--c:${p.mode === "INVESTED" ? "var(--ink)" : "var(--muted)"}"><span class="l">Portfolio</span><span class="n">${p.mode === "INVESTED" ? p.holdings.length + " stocks" : "Liquid fund"}</span><span class="d">${p.mode === "INVESTED" ? "Last rebalanced " + fmtDate(p.lastRebalance) : "In liquid fund since " + fmtDate(p.liquidSince)}</span></div>
+        <div class="ms-tile" style="--c:var(--ink)"><span class="l">Backtest CAGR</span><span class="n">${pct(b.strategy.cagr)}</span><span class="d">vs Nifty 500 ${pct(b.nifty500.cagr)}, ${fmtDate(b.from)} – ${fmtDate(b.to)}</span></div>
+      </div>`;
+    }
+
+    function filterNote(s){
+      const m = s.market, p = s.portfolio;
+      if (p.mode === "INVESTED" && m.belowMA)
+        return `<p class="ms-note">On ${fmtDate(s.asOf)}, Nifty 500 was below its 200-day average. Under the rules, if it is still below on the month-end close, the whole portfolio moves to the liquid fund.</p>`;
+      if (p.mode === "LIQUID" && !m.belowMA)
+        return `<p class="ms-note">On ${fmtDate(s.asOf)}, Nifty 500 was back above its 200-day average. Under the rules, if it stays above until the month-end close, the portfolio re-enters with the top 10.</p>`;
+      return "";
+    }
+
+    const FILTER_LABEL = { ath: "Over 25% below ATH", turnover: "Turnover under ₹1 Cr", trend: "Below SMA233" };
+
+    function holdingsSection(s){
+      const p = s.portfolio;
+      let body;
+      if (p.mode === "LIQUID") {
+        body = `<p class="ms-placeholder">Fully in the liquid fund since ${fmtDate(p.liquidSince)}. The top 10 of the current scan is what the portfolio would buy if Nifty 500 closes above its 200-day average at month-end.</p>`;
+      } else {
+        const rows = p.holdings.map(h => {
+          const reasons = (h.failedFilters || []).map(f => FILTER_LABEL[f] || f);
+          if (!reasons.length && (h.rank == null || h.rank > s.rules.exitRank)) reasons.push(`Ranked below ${s.rules.exitRank}`);
+          const badge = reasons.length ? `<span class="ms-badge warn" title="${esc(reasons.join(", "))}">Exit due</span>` : "";
+          return `<tr><td class="sym">${esc(h.symbol)}${badge}</td><td>${h.rank ?? "–"}</td><td>${fmtDate(h.entryDate)}</td><td>${inr(h.entryPrice)}</td><td>${inr(h.close)}</td><td class="${cls(h.return)}">${pct(h.return)}</td><td class="wrap dim">${esc(reasons.join(", ")) || "–"}</td></tr>`;
+        });
+        body = table(["Stock", "Rank now", "Bought", "Buy price", "Last close", "Return", "Exit reason"], rows);
+        if (p.cashShare > 0.01) body += `<p class="sub" style="margin-top:12px">${pct(p.cashShare, false, 0)} of the portfolio is in the liquid fund because fewer than ${s.rules.topN} stocks passed the filters at the last rebalance.</p>`;
+      }
+      return `<section class="ms-section"><h2>Current holdings</h2>
+        <p class="sub">Equal amounts when bought. "Exit due" marks a holding that is out of the top ${s.rules.exitRank} today (including failing a filter); it will be replaced at the next rebalance unless it recovers.</p>${body}</section>`;
+    }
+
+    function scanSection(s){
+      const f = s.funnel, r = s.rules;
+      const rows = s.scan.map(x => `<tr class="${x.rank <= r.topN ? "held" : ""}"><td>${x.rank}</td><td class="sym left">${esc(x.symbol)}${x.held ? '<span class="ms-badge held">Held</span>' : ""}</td><td class="left dim" style="font-family:var(--sans)">${esc(x.industry || "–")}</td><td>${inr(x.cmp)}</td><td><strong>${num(x.score)}</strong></td><td>${pct(x.fall, false)}</td></tr>`);
+      return `<section class="ms-section" id="scan"><h2>Current scan</h2>
+        <p class="sub">${f.universe} stocks in the Nifty 750 → ${f.scored} with a full year of data → <strong>${f.passedAll} pass all three filters</strong> (within 25% of all-time high: ${f.nearAth} · turnover above ₹1 Cr: ${f.liquid} · above SMA233: ${f.aboveSma}). Ranked by Av Sharp; ranks 1–${r.scanSize} shown, and the top ${r.topN} (green) are the buy candidates.</p>
+        ${s.scan.length ? table(["Rank", "Stock", "Industry", "CMP", "Av Sharp", "Fall from ATH"], rows) : '<p class="ms-placeholder">No stocks pass all three filters today.</p>'}</section>`;
+    }
+
+    function eventsSection(s){
+      const label = { ENTER: "Entered", EXIT: "To liquid fund", SWAP: "Swap" };
+      const rows = s.events.map(e => `<tr><td>${fmtDate(e.date)}</td><td class="left">${label[e.type] || e.type}</td><td class="wrap neg">${esc(e.sold.join(", ")) || "–"}</td><td class="wrap pos">${esc(e.bought.join(", ")) || "–"}</td></tr>`);
+      return `<section class="ms-section"><h2>Rebalance log</h2>
+        <p class="sub">Every month-end change the rules made in the backtest, most recent first.</p>
+        ${rows.length ? table(["Date", "Action", "Sold", "Bought"], rows) : '<p class="ms-placeholder">No changes yet.</p>'}</section>`;
+    }
+
+    // Growth of ₹1 on a log scale, so both lines stay readable even when one grows far more.
+    function curveSVG(curve){
+      const W = 900, H = 300, L = 44, R = 12, T = 12, B = 26;
+      const vals = curve.flatMap(p => [p.strategy, p.nifty500]);
+      const lo = Math.log(Math.min(...vals) * 0.95), hi = Math.log(Math.max(...vals) * 1.05);
+      const x = i => L + (i / (curve.length - 1)) * (W - L - R);
+      const y = v => T + (1 - (Math.log(v) - lo) / (hi - lo)) * (H - T - B);
+      const line = key => curve.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[key]).toFixed(1)}`).join("");
+      let grid = "";
+      for (let g = 0.5; g <= Math.exp(hi); g *= 2) {
+        if (Math.log(g) < lo) continue;
+        grid += `<line x1="${L}" x2="${W - R}" y1="${y(g).toFixed(1)}" y2="${y(g).toFixed(1)}" stroke="var(--line)" stroke-width="1"/><text x="${L - 6}" y="${(y(g) + 4).toFixed(1)}" text-anchor="end" font-size="11" font-family="DM Mono, monospace" fill="var(--muted)">${g >= 1 ? g + "×" : g}</text>`;
+      }
+      let years = "";
+      curve.forEach((p, i) => {
+        if (i && p.date.slice(0, 4) !== curve[i - 1].date.slice(0, 4))
+          years += `<text x="${x(i).toFixed(1)}" y="${H - 6}" text-anchor="middle" font-size="11" font-family="DM Mono, monospace" fill="var(--muted)">${p.date.slice(0, 4)}</text>`;
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Growth of 1 rupee: strategy versus Nifty 500">${grid}${years}
+        <path d="${line("nifty500")}" fill="none" stroke="var(--muted)" stroke-width="1.5"/>
+        <path d="${line("strategy")}" fill="none" stroke="var(--coral-text)" stroke-width="2"/></svg>`;
+    }
+
+    function backtestSection(s){
+      const b = s.backtest, st = b.strategy, nf = b.nifty500;
+      const statRows = [
+        ["CAGR", pct(st.cagr), pct(nf.cagr)],
+        ["Volatility (annual)", pct(st.vol, false), pct(nf.vol, false)],
+        ["Max drawdown", pct(st.maxDrawdown), pct(nf.maxDrawdown)],
+        ["Sharpe", num(st.sharpe), num(nf.sharpe)],
+        ["₹1 grew to", "₹" + num(st.multiple), "₹" + num(nf.multiple)],
+      ].map(r => `<tr><td class="left">${r[0]}</td><td><strong>${r[1]}</strong></td><td>${r[2]}</td></tr>`);
+      const yearRows = b.yearly.map(y => `<tr><td class="left">${y.year}${y.partial ? '<span class="dim"> (part)</span>' : ""}</td><td class="${cls(y.strategy)}">${pct(y.strategy)}</td><td class="${cls(y.nifty500)}">${pct(y.nifty500)}</td></tr>`);
+      return `<section class="ms-section"><h2>Backtest</h2>
+        <p class="sub">${fmtDate(b.from)} to ${fmtDate(b.to)} (${num(st.years, 1)} years): ${b.rebalances} monthly rebalances, ${b.monthsInLiquid} of them in the liquid fund, ${b.trades} closed positions (${pct(b.winRate, false, 0)} profitable). Costs of ${pct(s.rules.costPerSide, false, 2)} per buy/sell; liquid fund assumed at ${pct(s.rules.liquidAnnual, false, 1)} a year. Nifty 500 is the price index (without dividends).</p>
+        <div class="ms-chart"><p class="ms-legend"><span><i style="background:var(--coral-text)"></i>Strategy</span><span><i style="background:var(--muted)"></i>Nifty 500</span><span>Growth of ₹1, log scale</span></p>${curveSVG(b.curve)}</div>
+        <div class="ms-grid2">
+          ${table(["", "Strategy", "Nifty 500"], statRows)}
+          ${table(["Year", "Strategy", "Nifty 500"], yearRows)}
+        </div>
+        <div class="ms-caveats"><h3>Read this before trusting the numbers</h3><ul>
+          <li><strong>Survivorship bias.</strong> The backtest uses today's list of index stocks for every past month. Many of its best trades are in the index today <em>because</em> they rallied, and stocks that crashed or were dropped are missing. Real results would very likely be much lower.</li>
+          <li><strong>Taxes are ignored.</strong> Frequent swaps mean most gains would be short-term capital gains.</li>
+          <li><strong>Dividends are ignored.</strong> Prices are adjusted for splits but not dividends (the same as Google Finance), so returns are slightly understated.</li>
+          <li><strong>Execution.</strong> Trades assume the closing price; small caps can cost more than ${pct(s.rules.costPerSide, false, 2)} to trade, especially in size.</li>
+          <li><strong>Drawdowns are real.</strong> Even with the trend filter, the backtest lost ${pct(-Math.abs(st.maxDrawdown), true, 0)} from a peak at its worst.</li>
+        </ul></div>
+      </section>`;
+    }
+
+    function rulesSection(s){
+      const r = s.rules;
+      return `<section class="ms-section" id="rules"><h2>Rules</h2>
+        <p class="sub">Scan</p><ol class="ms-rules">
+        <li><strong>Universe:</strong> all stocks in the Nifty Total Market index (the Nifty 750).</li>
+        <li><strong>Filters</strong> (a stock must pass all three):
+          fall from all-time high under ${pct(r.maxFallFromAth, false, 0)}, where the all-time high is the highest weekly high in the stock's full history;
+          average daily turnover (close × volume over the last ${r.turnoverDays} sessions) above ₹1 crore;
+          and the last close above its ${r.smaDays}-day simple moving average.</li>
+        <li><strong>Score:</strong> for each of ${r.lookbacks.join(", ")} sessions, Sharpe = % return over the window ÷ annualised volatility of daily returns (standard deviation × √252). Av Sharp is the average of the four. There's no risk-free rate, so it's a return-to-risk ratio.</li>
+        <li><strong>Rank:</strong> highest Av Sharp = rank 1. Ranks 1–${r.scanSize} are listed; the top ${r.topN} are the buy candidates.</li>
+        </ol>
+        <p class="sub" style="margin-top:18px">Model portfolio</p><ol class="ms-rules">
+        <li>On the last trading day of each month, check the Nifty 500 against its ${r.maDays}-day simple moving average.</li>
+        <li>If the Nifty 500 closes below it, sell everything and hold a liquid fund until a month-end close above it.</li>
+        <li>Otherwise, hold the top ${r.topN}. Keep a holding while it ranks in the top ${r.exitRank}; when it drops out (including failing a filter), sell it and buy the highest-ranked stock not already held, splitting the sale proceeds equally.</li>
+        </ol></section>`;
+    }
+
+    function render(s){
+      if (s.status) {
+        $("stamp").textContent = "The backtest isn't available right now.";
+        $("ms-body").innerHTML = '<div class="ms-placeholder">Please try again later.</div>';
+        return;
+      }
+      $("stamp").textContent = `Backtest snapshot · prices as of ${fmtDate(s.asOf)} close · not updated live`;
+      $("ms-body").innerHTML = statusStrip(s) + filterNote(s) + scanSection(s) + holdingsSection(s) + eventsSection(s) + backtestSection(s) + rulesSection(s) +
+        `<p class="ms-disclaimer">For information and education only. This is a model portfolio produced by fixed rules, not a recommendation to buy or sell any security, and not investment advice. Figures may be delayed or inaccurate. Past and backtested performance does not guarantee future results. Price data: Yahoo Finance; index constituents: NSE Indices.</p>`;
+    }
+
+    function load(){
+      fetch("/api/momentum").then(r => r.json()).then(render).catch(() => {
+        $("stamp").textContent = "Couldn't load the scan.";
+        $("ms-body").innerHTML = '<div class="ms-placeholder">Please try again later.</div>';
+      });
+    }
+    load();
+  </script>
+</body>
+</html>
