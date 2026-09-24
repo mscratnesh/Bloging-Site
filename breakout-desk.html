@@ -47,19 +47,23 @@
   .bd-chart-expand{flex-shrink:0;width:26px;height:26px;border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:4px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
   .bd-chart-expand:hover{color:var(--ink);border-color:var(--ink)}
 
-  .bd-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
-  .bd-modal[hidden]{display:none}
-  .bd-modal-inner{background:var(--paper);width:min(100%,720px);max-height:calc(100vh - 32px);display:flex;flex-direction:column;padding:18px}
-  .bd-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
-  .bd-modal-sym{font-family:var(--sans);font-weight:700;font-size:18px;display:block}
-  .bd-modal-sub{font-family:var(--mono);font-size:12px;color:var(--muted)}
-  .bd-modal-close{border:1px solid var(--line);background:transparent;width:30px;height:30px;border-radius:4px;font-size:15px;cursor:pointer;color:var(--ink);flex-shrink:0}
-  .bd-modal-close:hover{border-color:var(--ink)}
-  .bd-modal-price{height:min(46vh,320px)}
-  .bd-modal-price svg{display:block;width:100%;height:100%}
-  .bd-modal-vol-label{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
-  .bd-modal-vol{height:90px}
-  .bd-modal-vol svg{display:block;width:100%;height:100%}
+  .bd-detail{padding:40px max(24px,calc((100% - 1180px)/2)) 100px}
+  .bd-detail-back{border:0;background:transparent;padding:0;margin-bottom:28px;color:var(--ink);font:600 13px var(--mono);text-transform:uppercase;letter-spacing:.05em;cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+  .bd-detail-back:hover{color:var(--coral)}
+  .bd-detail-head{border-bottom:1px solid var(--ink);padding-bottom:18px;margin-bottom:28px}
+  .bd-detail-sym{display:block;font:600 clamp(32px,5vw,44px) var(--serif);letter-spacing:-.02em}
+  .bd-detail-sub{font-family:var(--mono);font-size:13px;color:var(--muted)}
+  .bd-detail-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 26px;margin-bottom:40px}
+  .bd-detail-item{display:flex;flex-direction:column;gap:6px}
+  .bd-detail-item-label{font:500 11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .bd-detail-item-value{font-family:var(--mono);font-size:19px;font-variant-numeric:tabular-nums}
+  .bd-detail-item-value.pos{color:var(--success)} .bd-detail-item-value.neg{color:var(--coral-text)} .bd-detail-item-value.dim{color:var(--muted)}
+  .bd-detail-caption{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  .bd-detail-price{height:min(50vh,380px);margin-bottom:10px}
+  .bd-detail-price svg{display:block;width:100%;height:100%}
+  .bd-detail-vol{height:110px}
+  .bd-detail-vol svg{display:block;width:100%;height:100%}
+  @media(max-width:700px){.bd-detail{padding:30px 8vw 70px}}
 
   .bd-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;border-top:1px solid var(--ink);padding-top:20px}
   .bd-rules h3{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
@@ -76,14 +80,14 @@
 <body>
   <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
-    <section class="bd-hero">
+    <section class="bd-hero" id="bd-hero">
       <p class="eyebrow">NSE · weekly close · two setups</p>
       <h1>Breakout Desk</h1>
       <p>A screening desk covering two setups: multi-year (2 yr+) base breakouts above resistance, and cup-and-handle breakouts above a pivot — both confirmed on rising volume and above the 30-week moving average.</p>
       <p class="bd-stamp" id="stamp">Loading latest snapshot…</p>
     </section>
 
-    <div class="bd-wrap">
+    <div class="bd-wrap" id="bd-wrap">
       <nav class="bd-strip" aria-label="Status summary">
         <a href="#breakout" style="--c:var(--success)"><span class="l">Breakout</span><span class="n" id="c-BREAKOUT">–</span><span class="d">Buy signals this week</span></a>
         <a href="#ready" style="--c:var(--ink)"><span class="l">Ready</span><span class="n" id="c-READY">–</span><span class="d">Cup &amp; handle nearing pivot</span></a>
@@ -143,19 +147,20 @@
           <li>Trailing: weekly close below 30-week MA</li></ul></div>
       </section>
     </div>
-  </main>
 
-  <div class="bd-modal" id="bd-modal" hidden>
-    <div class="bd-modal-inner">
-      <div class="bd-modal-head">
-        <div><span class="bd-modal-sym" id="bd-modal-sym"></span><span class="bd-modal-sub" id="bd-modal-sub"></span></div>
-        <button class="bd-modal-close" id="bd-modal-close" type="button" aria-label="Close chart">✕</button>
+    <section class="bd-detail" id="bd-detail" hidden>
+      <button class="bd-detail-back" id="bd-detail-back" type="button">‹ Back to Breakout Desk</button>
+      <div class="bd-detail-head">
+        <span class="bd-detail-sym" id="bd-detail-sym"></span>
+        <span class="bd-detail-sub" id="bd-detail-sub"></span>
       </div>
-      <div class="bd-modal-price" id="bd-modal-price"></div>
-      <p class="bd-modal-vol-label">Volume</p>
-      <div class="bd-modal-vol" id="bd-modal-vol"></div>
-    </div>
-  </div>
+      <div class="bd-detail-grid" id="bd-detail-grid"></div>
+      <p class="bd-detail-caption">Price</p>
+      <div class="bd-detail-price" id="bd-detail-price"></div>
+      <p class="bd-detail-caption">Volume</p>
+      <div class="bd-detail-vol" id="bd-detail-vol"></div>
+    </section>
+  </main>
 
   <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is not a SEBI registered financial adviser and is not associated with any agency, company, or brokerage house. Any advice mentioned is not personal advice. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
   <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
@@ -262,8 +267,14 @@
       return `<div class="bd-chart" ${chartAttrs(set, r)}><span class="bd-chart-note">Loading…</span></div>`;
     }
 
+    // Registry so the expand button only needs a small key in the DOM — the detail view
+    // looks up the full row + column set from here to rebuild every field, not just the chart.
+    let rowSeq = 0;
+    const rowRegistry = {};
     function expandButtonHTML(set, r){
-      return `<button class="bd-chart-expand" type="button" ${chartAttrs(set, r)} aria-label="Expand chart with volume">⤢</button>`;
+      const key = "row" + (rowSeq++);
+      rowRegistry[key] = { set, r };
+      return `<button class="bd-chart-expand" type="button" data-key="${key}" aria-label="Open full chart with all details">⤢</button>`;
     }
 
     // Cards are the display for every screen size — a responsive grid on wide screens,
@@ -413,37 +424,56 @@
       });
     }
 
-    // Fullscreen modal: same chart bigger, plus a volume chart underneath.
-    const modal = $("bd-modal");
-    async function openChartModal(dataset){
-      const { symbol, years = "2", ref, refLabel, mark, markLabel } = dataset;
-      $("bd-modal-sym").textContent = symbol;
-      $("bd-modal-sub").textContent = ref && refLabel ? `${refLabel}: ${inr(Number(ref))}` : "";
-      $("bd-modal-price").innerHTML = '<span class="bd-chart-note">Loading chart…</span>';
-      $("bd-modal-vol").innerHTML = "";
-      modal.hidden = false;
-      document.body.style.overflow = "hidden";
+    // Full-window detail view: swaps out the desk (hero + sections) in place for one
+    // stock's complete card content plus a bigger price chart and volume chart, with the
+    // real site header staying put above it and a back button to return.
+    function detailFieldHTML(f, r){
+      return `<div class="bd-detail-item"><span class="bd-detail-item-label">${f.label}</span><span class="bd-detail-item-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
+    }
+
+    async function showDetail(key){
+      const entry = rowRegistry[key];
+      if (!entry) return;
+      const { set, r } = entry;
+      const refLevel = set.refLevel ? set.refLevel(r) : null;
+      const markDateStr = set.markDate ? set.markDate(r) : null;
+      const markLabel = set.markLabel || null;
+      const years = Math.round(chartYears(r) * 10) / 10;
+
+      $("bd-detail-sym").textContent = set.sym.value(r);
+      $("bd-detail-sub").textContent = set.sym.sub(r);
+      $("bd-detail-grid").innerHTML = set.fields.map(f => detailFieldHTML(f, r)).join("");
+      $("bd-detail-price").innerHTML = '<span class="bd-chart-note">Loading chart…</span>';
+      $("bd-detail-vol").innerHTML = "";
+
+      $("bd-hero").hidden = true;
+      $("bd-wrap").hidden = true;
+      $("bd-detail").hidden = false;
+      window.scrollTo(0, 0);
+
       try {
-        const points = await loadHistory(symbol, years);
-        if (!points.length) { $("bd-modal-price").innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
-        const priceSize = { W: 800, H: 320, PAD: 12 };
-        $("bd-modal-price").innerHTML = buildSparklineSVG(points, ref ? Number(ref) : null, mark || null, markLabel || null, priceSize);
-        $("bd-modal-vol").innerHTML = buildVolumeSVG(points, { W: 800, H: 90 });
+        const points = await loadHistory(r.symbol, years);
+        if (!points.length) { $("bd-detail-price").innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
+        $("bd-detail-price").innerHTML = buildSparklineSVG(points, refLevel, markDateStr, markLabel, { W: 900, H: 340, PAD: 14 });
+        $("bd-detail-vol").innerHTML = buildVolumeSVG(points, { W: 900, H: 100 });
       } catch (e) {
-        $("bd-modal-price").innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
+        $("bd-detail-price").innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
       }
     }
-    function closeChartModal(){
-      modal.hidden = true;
-      document.body.style.overflow = "";
+
+    function hideDetail(){
+      $("bd-detail").hidden = true;
+      $("bd-hero").hidden = false;
+      $("bd-wrap").hidden = false;
     }
+
     document.addEventListener("click", (event) => {
       const expandBtn = event.target.closest(".bd-chart-expand");
-      if (expandBtn) { openChartModal(expandBtn.dataset); return; }
-      if (event.target === modal || event.target.closest("#bd-modal-close")) closeChartModal();
+      if (expandBtn) { showDetail(expandBtn.dataset.key); return; }
+      if (event.target.closest("#bd-detail-back")) hideDetail();
     });
     document.addEventListener("keydown", (event) => {
-      if (event.key === "Escape" && !modal.hidden) closeChartModal();
+      if (event.key === "Escape" && !$("bd-detail").hidden) hideDetail();
     });
 
     fetch("/api/breakout-desk").then(r => r.json()).then(render).catch(() => {
