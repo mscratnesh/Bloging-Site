@@ -70,7 +70,7 @@
   .bd-fund-group{margin-bottom:30px}
   .bd-fund-group .bd-detail-grid{margin-bottom:0}
   .bd-fund-group .bd-detail-item-value{font-size:16px}
-  .bd-fund-src{font:12px var(--mono);color:var(--muted);margin:0}
+  .bd-fund-src{font:12px var(--mono);color:var(--muted);margin:0 0 4px}
   @media(max-width:700px){.bd-detail{padding:30px 8vw 70px}}
 
   .bd-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;border-top:1px solid var(--ink);padding-top:20px}
@@ -580,7 +580,7 @@
       return `<div class="bd-detail-item" data-field-label="${esc(f.label)}"><span class="bd-detail-item-label">${f.label}</span><span class="bd-detail-item-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
     }
 
-    // Fundamental ratios (Screener.in + Yahoo, merged and cached server-side for 24h),
+    // Fundamental ratios (Yahoo Finance, cached server-side for 24h),
     // loaded independently of the chart so a slow source never blocks the price view.
     const fundamentalsCache = {};
     let detailSymbol = null;
@@ -605,8 +605,9 @@
       const groups = data.groups.map(g => `<div class="bd-fund-group"><p class="bd-detail-caption">${esc(g.title)}</p><div class="bd-detail-grid">${
         g.items.map(i => `<div class="bd-detail-item"><span class="bd-detail-item-label">${esc(i.label)}</span><span class="bd-detail-item-value">${esc(i.value)}</span></div>`).join("")
       }</div></div>`).join("");
-      const sources = (data.sources || []).map(s => s === "screener" ? "Screener.in" : "Yahoo Finance").join(" + ");
-      box.innerHTML = `<span class="bd-fund-title">Fundamentals</span>${groups}<p class="bd-fund-src">Source: ${esc(sources)} · refreshed daily${data.stale ? " · showing last saved copy" : ""}</p>`;
+      box.innerHTML = `<span class="bd-fund-title">Fundamentals</span>${groups}` +
+        `<p class="bd-fund-src">Source: Yahoo Finance${data.asOf ? " · as of " + esc(data.asOf) : ""}${data.stale ? " (latest update failed)" : ""}</p>` +
+        `<p class="bd-fund-src">For information only. Figures may be delayed or inaccurate. Not investment advice.</p>`;
     }
 
     async function showDetail(key){

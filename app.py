@@ -241,36 +241,7 @@ def get_symbol_history(symbol, years):
 
 
 FUNDAMENTALS_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"}
-FUNDAMENTALS_FETCH_ERRORS = HISTORY_FETCH_ERRORS + (AttributeError, TypeError, http.client.HTTPException)
-
-
-def fetch_fundamentals_screener(symbol):
-    """Screener.in's headline ratios, as {label: text}. Prefers consolidated figures; companies
-    without consolidated accounts get an empty consolidated page, so fall back to standalone."""
-    ratios = _fetch_screener_ratios(f"https://www.screener.in/company/{urllib.parse.quote(symbol)}/consolidated/")
-    if len(ratios) < 3:
-        ratios = _fetch_screener_ratios(f"https://www.screener.in/company/{urllib.parse.quote(symbol)}/")
-    if not ratios:
-        raise ValueError("Screener returned no ratios.")
-    return ratios
-
-
-def _fetch_screener_ratios(url):
-    request = urllib.request.Request(url, headers=FUNDAMENTALS_UA)
-    with urllib.request.urlopen(request, timeout=8) as response:
-        page = response.read().decode("utf-8", errors="replace")
-    block = re.search(r'<ul id="top-ratios">(.*?)</ul>', page, re.S).group(1)
-    ratios = {}
-    for item in re.findall(r"<li.*?</li>", block, re.S):
-        name = re.search(r'<span class="name">(.*?)</span>', item, re.S)
-        value = re.search(r'<span class="nowrap value">(.*?)</span>\s*</li>', item, re.S)
-        if not name or not value:
-            continue
-        clean = lambda text: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", text))).strip()
-        text = clean(value.group(1)).replace(" %", "%").replace("Cr.", "Cr")
-        if re.search(r"\d", text):  # blank ratios render as just "₹" / "%" / "Cr."
-            ratios[clean(name.group(1))] = text
-    return ratios
+FUNDAMENTALS_FETCH_ERRORS = HISTORY_FETCH_ERRORS + (TypeError, http.client.HTTPException)
 
 
 def fetch_fundamentals_yahoo(symbol):
@@ -294,8 +265,8 @@ def fetch_fundamentals_yahoo(symbol):
     return raw
 
 
-def build_fundamentals(screener, yahoo):
-    """Merges both sources into display groups of {label, value} with pre-formatted text."""
+def build_fundamentals(yahoo):
+    """Turns Yahoo's raw statistics into display groups of {label, value} with pre-formatted text."""
     def num(value, digits=2, suffix=""):
         return f"{value:,.{digits}f}{suffix}" if isinstance(value, (int, float)) else None
 
@@ -305,20 +276,24 @@ def build_fundamentals(screener, yahoo):
     def crore(value):
         return f"₹ {value / 1e7:,.0f} Cr" if isinstance(value, (int, float)) else None
 
+    def rupee(value):
+        return f"₹ {value:,.2f}" if isinstance(value, (int, float)) else None
+
     debt_to_equity = yahoo.get("debtToEquity")
+    high52, low52 = yahoo.get("fiftyTwoWeekHigh"), yahoo.get("fiftyTwoWeekLow")
     groups = [
         ("Valuation", [
-            ("Market cap", screener.get("Market Cap") or crore(yahoo.get("marketCap"))),
-            ("P/E (TTM)", screener.get("Stock P/E") or num(yahoo.get("trailingPE"))),
+            ("Market cap", crore(yahoo.get("marketCap"))),
+            ("P/E (TTM)", num(yahoo.get("trailingPE"))),
             ("Forward P/E", num(yahoo.get("forwardPE"))),
             ("P/B", num(yahoo.get("priceToBook"))),
             ("EV/EBITDA", num(yahoo.get("enterpriseToEbitda"))),
-            ("Book value", screener.get("Book Value") or num(yahoo.get("bookValue"))),
-            ("Dividend yield", screener.get("Dividend Yield") or pct(yahoo.get("dividendYield"))),
+            ("Book value", rupee(yahoo.get("bookValue"))),
+            ("Dividend yield", pct(yahoo.get("dividendYield"))),
         ]),
         ("Profitability", [
-            ("ROE", screener.get("ROE") or pct(yahoo.get("returnOnEquity"))),
-            ("ROCE", screener.get("ROCE")),
+            ("ROE", pct(yahoo.get("returnOnEquity"))),
+            ("ROA", pct(yahoo.get("returnOnAssets"))),
             ("Operating margin", pct(yahoo.get("operatingMargins"))),
             ("Net margin", pct(yahoo.get("profitMargins"))),
             ("EPS (TTM)", num(yahoo.get("trailingEps"))),
@@ -329,8 +304,7 @@ def build_fundamentals(screener, yahoo):
             # Yahoo reports debt/equity as a percentage (7.0 = 0.07x).
             ("Debt / equity", num(debt_to_equity / 100) if isinstance(debt_to_equity, (int, float)) else None),
             ("Insider holding", pct(yahoo.get("heldPercentInsiders"))),
-            ("52W high / low", screener.get("High / Low")),
-            ("Face value", screener.get("Face Value")),
+            ("52W high / low", f"{rupee(high52)} / {rupee(low52)}" if high52 and low52 else None),
         ]),
     ]
     return [
@@ -346,18 +320,15 @@ def get_symbol_fundamentals(symbol):
     now = time.time()
     if entry and now - entry.get("fetchedAt", 0) < FUNDAMENTALS_CACHE_TTL_SECONDS:
         return entry["data"], False
-    sources = {}
-    for name, fetcher in (("screener", fetch_fundamentals_screener), ("yahoo", fetch_fundamentals_yahoo)):
-        try:
-            sources[name] = fetcher(symbol)
-        except FUNDAMENTALS_FETCH_ERRORS:
-            sources[name] = {}
-    groups = build_fundamentals(sources["screener"], sources["yahoo"])
+    try:
+        groups = build_fundamentals(fetch_fundamentals_yahoo(symbol))
+    except FUNDAMENTALS_FETCH_ERRORS:
+        groups = []
     if not groups:
         if entry:
             return entry["data"], True
         return None, False
-    data = {"groups": groups, "sources": [name for name, values in sources.items() if values]}
+    data = {"groups": groups, "asOf": datetime.now(IST).strftime("%d %b %Y")}
     cache[symbol] = {"fetchedAt": now, "data": data}
     save_json_cache(FUNDAMENTALS_CACHE_PATH, cache)
     return data, False
