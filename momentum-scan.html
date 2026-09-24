@@ -101,6 +101,7 @@
   <script src="nav.js"></script>
   <script>
     const $ = id => document.getElementById(id);
+    const SCAN_ROWS = 50;  // the scan lists at most the top 50
     const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
     const inr = v => v == null ? "–" : "₹" + Number(v).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const num = (v, d = 2) => v == null ? "–" : Number(v).toFixed(d);
@@ -116,10 +117,11 @@
 
     function scanSection(s){
       const f = s.funnel, r = s.rules;
-      const rows = s.scan.map(x => `<tr class="${x.rank <= r.topN ? "held" : ""}"><td>${x.rank}</td><td class="sym left">${esc(x.symbol)}</td><td class="left dim" style="font-family:var(--sans)">${esc(x.industry || "–")}</td><td>${inr(x.cmp)}</td><td><strong>${num(x.score)}</strong></td><td>${pct(x.fall, false)}</td></tr>`);
-      return `<section class="ms-section" id="scan"><h2>Current scan</h2>
-        <p class="sub">${f.universe} stocks in the Nifty 750 → ${f.scored} with a full year of data → <strong>${f.passedAll} pass all three filters</strong> (within 25% of all-time high: ${f.nearAth} · turnover above ₹1 Cr: ${f.liquid} · above SMA233: ${f.aboveSma}). Ranked by Av Sharp; ranks 1–${r.scanSize} shown, and the top ${r.topN} (green) are the buy candidates.</p>
-        ${s.scan.length ? table(["Rank", "Stock", "Industry", "CMP", "Av Sharp", "Fall from ATH"], rows) : '<p class="ms-placeholder">No stocks pass all three filters today.</p>'}</section>`;
+      const shown = s.scan.slice(0, SCAN_ROWS);
+      const rows = shown.map(x => `<tr class="${x.rank <= r.topN ? "held" : ""}"><td>${x.rank}</td><td class="sym left">${esc(x.symbol)}</td><td class="left dim" style="font-family:var(--sans)">${esc(x.industry || "–")}</td><td>${inr(x.cmp)}</td><td><strong>${num(x.score)}</strong></td><td>${pct(x.fall, false)}</td></tr>`);
+      return `<section class="ms-section" id="scan"><h2>Last scan</h2>
+        <p class="sub">Scan on the ${fmtDate(s.asOf)} close. ${f.universe} stocks in the Nifty 750 → ${f.scored} with a full year of data → <strong>${f.passedAll} pass all three filters</strong> (within 25% of all-time high: ${f.nearAth} · turnover above ₹1 Cr: ${f.liquid} · above SMA233: ${f.aboveSma}). Ranked by Av Sharp; the top ${shown.length} are shown, and the top ${r.topN} (green) are the buy candidates.</p>
+        ${shown.length ? table(["Rank", "Stock", "Industry", "CMP", "Av Sharp", "Fall from ATH"], rows) : '<p class="ms-placeholder">No stocks passed all three filters.</p>'}</section>`;
     }
 
     function eventsSection(s){
@@ -190,7 +192,7 @@
           average daily turnover (close × volume over the last ${r.turnoverDays} sessions) above ₹1 crore;
           and the last close above its ${r.smaDays}-day simple moving average.</li>
         <li><strong>Score:</strong> for each of ${r.lookbacks.join(", ")} sessions, Sharpe = % return over the window ÷ annualised volatility of daily returns (standard deviation × √252). Av Sharp is the average of the four. There's no risk-free rate, so it's a return-to-risk ratio.</li>
-        <li><strong>Rank:</strong> highest Av Sharp = rank 1. Ranks 1–${r.scanSize} are listed; the top ${r.topN} are the buy candidates.</li>
+        <li><strong>Rank:</strong> highest Av Sharp = rank 1. The top ${SCAN_ROWS} are listed; the top ${r.topN} are the buy candidates.</li>
         </ol>
         <p class="sub" style="margin-top:18px">Model portfolio</p><ol class="ms-rules">
         <li>On the last trading day of each month, check the Nifty 500 against its ${r.maDays}-day simple moving average.</li>

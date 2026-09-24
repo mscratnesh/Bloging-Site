@@ -39,7 +39,7 @@ SMA_DAYS = 233
 TURNOVER_DAYS = 252
 MAX_FALL_FROM_ATH = 0.25
 MIN_TURNOVER = 1e7  # Rs 1 crore
-SCAN_SIZE = 99  # ranks 1-99 are listed
+SCAN_SIZE = 50  # the top 50 are listed
 
 # Portfolio rules
 TOP_N = 10
