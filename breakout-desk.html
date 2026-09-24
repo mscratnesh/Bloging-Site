@@ -265,18 +265,20 @@
       return `data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${Math.round(chartYears(r) * 10) / 10}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"`;
     }
 
-    function chartHTML(set, r){
-      return `<div class="bd-chart" ${chartAttrs(set, r)}><span class="bd-chart-note">Loading…</span></div>`;
+    function chartHTML(set, r, key){
+      return `<div class="bd-chart" data-key="${key}" ${chartAttrs(set, r)}><span class="bd-chart-note">Loading…</span></div>`;
     }
 
-    // Registry so the expand button only needs a small key in the DOM — the detail view
-    // looks up the full row + column set from here to rebuild every field, not just the chart.
+    // Registry so the expand button / chart div only need a small key in the DOM — the
+    // detail view and the dynamic-SL lookup both use it to get back the full row + column set.
     let rowSeq = 0;
     const rowRegistry = {};
-    function expandButtonHTML(set, r){
-      const key = "row" + (rowSeq++);
-      rowRegistry[key] = { set, r };
+    function expandButtonHTML(key){
       return `<button class="bd-chart-expand" type="button" data-key="${key}" aria-label="Open full chart with all details">⤢</button>`;
+    }
+
+    function cardFieldHTML(f, r){
+      return `<div class="bd-card-item" data-field-label="${esc(f.label)}"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
     }
 
     // Cards are the display for every screen size — a responsive grid on wide screens,
@@ -284,9 +286,11 @@
     function renderCards(colsKey, rows){
       const set = COLS[colsKey];
       const cards = rows.map(r => {
-        const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
-        const head = `<div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><div class="bd-card-head-right"><span class="bd-card-sub">${esc(set.sym.sub(r))}</span>${expandButtonHTML(set, r)}</div></div>`;
-        return `<div class="bd-card">${head}${chartHTML(set, r)}<div class="bd-card-grid">${items}</div></div>`;
+        const key = "row" + (rowSeq++);
+        rowRegistry[key] = { set, r };
+        const items = set.fields.map(f => cardFieldHTML(f, r)).join("");
+        const head = `<div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><div class="bd-card-head-right"><span class="bd-card-sub">${esc(set.sym.sub(r))}</span>${expandButtonHTML(key)}</div></div>`;
+        return `<div class="bd-card" id="card-${key}">${head}${chartHTML(set, r, key)}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
       return `<div class="bd-cards">${cards}</div>`;
     }
@@ -409,15 +413,18 @@
     // Groups daily OHLC points into weekly candles (Monday-start week), matching the
     // desk's own "weekly close" rules — high/low across the week, open of its first day,
     // close of its last, volume summed. Assumes points are sorted ascending by date.
+    function mondayKeyOf(date){
+      const day = date.getUTCDay();
+      const monday = new Date(date);
+      monday.setUTCDate(date.getUTCDate() + (day === 0 ? -6 : 1 - day));
+      return monday.toISOString().slice(0, 10);
+    }
+
     function toWeeklyCandles(points){
       const weeks = [];
       let current = null;
       for (const p of points) {
-        const d = new Date(p.date + "T00:00:00Z");
-        const day = d.getUTCDay();
-        const monday = new Date(d);
-        monday.setUTCDate(d.getUTCDate() + (day === 0 ? -6 : 1 - day));
-        const key = monday.toISOString().slice(0, 10);
+        const key = mondayKeyOf(new Date(p.date + "T00:00:00Z"));
         if (!current || current.date !== key) {
           current = { date: key, open: p.open ?? p.close, high: p.high ?? p.close, low: p.low ?? p.close, close: p.close, volume: p.volume || 0 };
           weeks.push(current);
@@ -429,6 +436,18 @@
         }
       }
       return weeks;
+    }
+
+    // Stop-loss for an open/entered position = the low of the week *before* the entry
+    // week (the base's final consolidation low right before the breakout), not the
+    // static resistance/pivot level. Returns null if that prior week isn't in range.
+    function computePriorWeekLowSL(weeklyCandles, entryDateStr){
+      const entryDate = parseDMY(entryDateStr);
+      if (!entryDate) return null;
+      const entryWeekKey = mondayKeyOf(entryDate);
+      const entryIdx = weeklyCandles.findIndex(c => c.date === entryWeekKey);
+      if (entryIdx <= 0) return null;
+      return weeklyCandles[entryIdx - 1].low;
     }
 
     // Weekly candlestick chart: a wick (high–low) plus a filled body (open–close) per week,
@@ -509,13 +528,25 @@
     }
 
     // Draws the small line chart against its resistance/pivot/stop level for every visible card.
+    // Once a card's history has loaded, replace its static SL field (resistance/pivot)
+    // with the low of the week before entry, if this row actually has an entry.
+    function updateCardSL(key, points){
+      const entry = rowRegistry[key];
+      if (!entry || !entry.r.entryDate || !entry.set.fields.some(f => f.label === "SL")) return;
+      const slValue = computePriorWeekLowSL(toWeeklyCandles(points), entry.r.entryDate);
+      if (slValue == null) return;
+      const valueEl = document.querySelector(`#card-${key} [data-field-label="SL"] .bd-card-value`);
+      if (valueEl) valueEl.textContent = inr(slValue);
+    }
+
     function hydrateCharts(){
       document.querySelectorAll(".bd-chart[data-symbol]").forEach(async (node) => {
-        const { symbol, years = "2", ref, refLabel, mark, markLabel } = node.dataset;
+        const { symbol, years = "2", ref, refLabel, mark, markLabel, key } = node.dataset;
         try {
           const points = await loadHistory(symbol, years);
           if (!points.length) { node.innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
           node.innerHTML = buildSparklineSVG(points, ref ? Number(ref) : null, mark || null, markLabel || null);
+          updateCardSL(key, points);
         } catch (e) {
           node.innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
         }
@@ -526,7 +557,7 @@
     // stock's complete card content plus a bigger price chart and volume chart, with the
     // real site header staying put above it and a back button to return.
     function detailFieldHTML(f, r){
-      return `<div class="bd-detail-item"><span class="bd-detail-item-label">${f.label}</span><span class="bd-detail-item-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
+      return `<div class="bd-detail-item" data-field-label="${esc(f.label)}"><span class="bd-detail-item-label">${f.label}</span><span class="bd-detail-item-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
     }
 
     async function showDetail(key){
@@ -555,6 +586,11 @@
         const weekly = toWeeklyCandles(points);
         $("bd-detail-price").innerHTML = buildCandlestickSVG(weekly, refLevel, markDateStr, markLabel, { W: 900, H: 340, PAD: 14 });
         $("bd-detail-vol").innerHTML = buildWeeklyVolumeSVG(weekly, { W: 900, H: 100 });
+        if (r.entryDate && set.fields.some(f => f.label === "SL")) {
+          const slValue = computePriorWeekLowSL(weekly, r.entryDate);
+          const valueEl = document.querySelector('#bd-detail-grid [data-field-label="SL"] .bd-detail-item-value');
+          if (slValue != null && valueEl) valueEl.textContent = inr(slValue);
+        }
       } catch (e) {
         $("bd-detail-price").innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
       }
