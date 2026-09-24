@@ -1,6 +1,6 @@
 """Momentum Scan, following the rules of the owner's Google Sheet ("Ranked Data"):
 
-Universe: Nifty Total Market (750). A stock is ranked only if it passes three filters:
+Universe: the fixed Nifty Total Market (750) list in nifty750_backtest_list.csv. A stock is ranked only if it passes three filters:
 fall from all-time high < 25%, average daily turnover (close x volume, 252 sessions) > Rs 1 Cr,
 and close above its 233-day SMA. Score ("Av Sharp") = average over 252/184/126/63 sessions of
 (% return over the window) / (annualised volatility of daily returns). The scan lists ranks 1-99.
@@ -15,7 +15,6 @@ from the start of the price history, so the scan, holdings, swap log and backtes
 the same deterministic rules. Standard library only, so the packaged EXE stays small.
 """
 import csv
-import io
 import json
 import math
 import threading
@@ -27,7 +26,9 @@ from array import array
 from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta, timezone
 
-UNIVERSE_URL = "https://www.niftyindices.com/IndexConstituent/ind_niftytotalmarket_list.csv"
+# The tested stocks are fixed: the Nifty Total Market list as published by NSE Indices on
+# 24 Sep 2026 (5 "DUMMY" placeholder rows removed). Never re-downloaded, so reruns test the same list.
+UNIVERSE_FILE = "nifty750_backtest_list.csv"
 INDEX_SYMBOL = "^CRSLDX"  # Nifty 500 on Yahoo
 HISTORY_RANGE = "7y"
 STORE_VERSION = 2  # bump when the cached price format changes
@@ -70,18 +71,14 @@ def _get(url, timeout=20):
         return response.read()
 
 
-def fetch_universe():
-    """[{"symbol", "industry"}] for the Nifty Total Market index."""
-    text = _get(UNIVERSE_URL).decode("utf-8", errors="replace")
-    stocks = {}
-    for row in csv.DictReader(io.StringIO(text)):
-        symbol = (row.get("Symbol") or "").strip()
-        # NSE lists placeholder rows ("DUMMY…") for pending corporate actions.
-        if symbol and not symbol.startswith("DUMMY"):
-            stocks[symbol] = (row.get("Industry") or "").strip() or None
-    if len(stocks) < 500:
-        raise ValueError(f"Universe list looks incomplete ({len(stocks)} symbols).")
-    return [{"symbol": s, "industry": stocks[s]} for s in sorted(stocks)]
+def load_universe(root):
+    """[{"symbol", "industry"}] from the fixed list in UNIVERSE_FILE (never downloaded)."""
+    with open(root / UNIVERSE_FILE, encoding="utf-8", newline="") as handle:
+        stocks = [{"symbol": row["Symbol"].strip(), "industry": row["Industry"].strip() or None}
+                  for row in csv.DictReader(handle) if row.get("Symbol", "").strip()]
+    if not stocks:
+        raise ValueError(f"{UNIVERSE_FILE} is empty.")
+    return stocks
 
 
 def _chart(yahoo_symbol, range_, interval):
@@ -471,21 +468,12 @@ def _save_json(path, data):
 
 
 def run_once(root):
-    """Refreshes universe + prices and rewrites the state file. Returns the new state."""
+    """Refreshes prices for the fixed stock list and rewrites the state file. Returns the new state."""
     if not _run_lock.acquire(blocking=False):
         return None
     STATUS["running"] = True
     try:
-        universe_path = root / "momentum_universe.json"
-        try:
-            universe = fetch_universe()
-            _save_json(universe_path, universe)
-        except FETCH_ERRORS:
-            universe = _load_json(universe_path, None)
-            if not universe:
-                raise
-            if isinstance(universe[0], str):  # older cache without industries
-                universe = [{"symbol": s, "industry": None} for s in universe]
+        universe = load_universe(root)
         prices_path = root / "momentum_prices.json"
         store = _load_json(prices_path, {})
         failures = refresh_prices(store, [u["symbol"] for u in universe])

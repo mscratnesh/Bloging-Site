@@ -10,5 +10,4 @@ dist/
 price_history_cache.json
 fundamentals_cache.json
 momentum_prices.json
-momentum_universe.json
 *.json.tmp
