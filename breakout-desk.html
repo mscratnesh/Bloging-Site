@@ -50,13 +50,30 @@
   .bd-card-label{font:500 10px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
   .bd-card-value{font-family:var(--mono);font-size:14px;font-variant-numeric:tabular-nums}
   .bd-card-value.pos{color:var(--success)} .bd-card-value.neg{color:var(--coral-text)} .bd-card-value.dim{color:var(--muted)}
-  .bd-chart{height:52px;margin-bottom:12px}
+  .bd-chart-wrap{position:relative;margin-bottom:12px}
+  .bd-chart{height:52px}
   .bd-chart svg{display:block;width:100%;height:100%}
   .bd-chart-note{font:11px var(--mono);color:var(--muted)}
+  .bd-chart-expand{position:absolute;top:-2px;right:-2px;width:24px;height:24px;border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:4px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+  .bd-chart-expand:hover{color:var(--ink);border-color:var(--ink)}
   @media(max-width:700px){
     .bd-table{display:none}
     .bd-cards{display:flex}
   }
+
+  .bd-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
+  .bd-modal[hidden]{display:none}
+  .bd-modal-inner{background:var(--paper);width:min(100%,720px);max-height:calc(100vh - 32px);display:flex;flex-direction:column;padding:18px}
+  .bd-modal-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}
+  .bd-modal-sym{font-family:var(--sans);font-weight:700;font-size:18px;display:block}
+  .bd-modal-sub{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .bd-modal-close{border:1px solid var(--line);background:transparent;width:30px;height:30px;border-radius:4px;font-size:15px;cursor:pointer;color:var(--ink);flex-shrink:0}
+  .bd-modal-close:hover{border-color:var(--ink)}
+  .bd-modal-price{height:min(46vh,320px)}
+  .bd-modal-price svg{display:block;width:100%;height:100%}
+  .bd-modal-vol-label{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 4px}
+  .bd-modal-vol{height:90px}
+  .bd-modal-vol svg{display:block;width:100%;height:100%}
 
   .bd-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;border-top:1px solid var(--ink);padding-top:20px}
   .bd-rules h3{font:11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
@@ -141,6 +158,19 @@
       </section>
     </div>
   </main>
+
+  <div class="bd-modal" id="bd-modal" hidden>
+    <div class="bd-modal-inner">
+      <div class="bd-modal-head">
+        <div><span class="bd-modal-sym" id="bd-modal-sym"></span><span class="bd-modal-sub" id="bd-modal-sub"></span></div>
+        <button class="bd-modal-close" id="bd-modal-close" type="button" aria-label="Close chart">✕</button>
+      </div>
+      <div class="bd-modal-price" id="bd-modal-price"></div>
+      <p class="bd-modal-vol-label">Volume</p>
+      <div class="bd-modal-vol" id="bd-modal-vol"></div>
+    </div>
+  </div>
+
   <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is not a SEBI registered financial adviser and is not associated with any agency, company, or brokerage house. Any advice mentioned is not personal advice. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
   <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
   <script src="nav.js"></script>
@@ -243,13 +273,20 @@
       return `<div class="bd-table"><table><thead><tr>${heads.join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
     }
 
+    // Shared data-attribute string for a row's chart, used by both the inline card chart
+    // and its expand button, so the fullscreen modal can rebuild the same chart bigger.
+    function chartAttrs(set, r){
+      const refLevel = set.refLevel ? set.refLevel(r) : null;
+      const markDate = set.markDate ? set.markDate(r) : null;
+      return `data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"`;
+    }
+
     function renderCards(colsKey, rows){
       const set = COLS[colsKey];
       const cards = rows.map(r => {
         const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
-        const refLevel = set.refLevel ? set.refLevel(r) : null;
-        const markDate = set.markDate ? set.markDate(r) : null;
-        const chart = `<div class="bd-chart" data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"><span class="bd-chart-note">Loading chart…</span></div>`;
+        const attrs = chartAttrs(set, r);
+        const chart = `<div class="bd-chart-wrap"><div class="bd-chart" ${attrs}><span class="bd-chart-note">Loading chart…</span></div><button class="bd-chart-expand" type="button" ${attrs} aria-label="Expand chart with volume">⤢</button></div>`;
         return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div>${chart}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
       return `<div class="bd-cards">${cards}</div>`;
@@ -322,9 +359,9 @@
 
     // Renders a simple price line, a dashed reference line (resistance/pivot/stop), and a
     // marker dot on the price line itself at the pivot's formation date (resDate/leftRimDate/entryDate).
-    function buildSparklineSVG(points, ref, markDateStr, markLabel){
+    function buildSparklineSVG(points, ref, markDateStr, markLabel, size){
       const closes = points.map(p => p.close);
-      const W = 300, H = 52, PAD = 4;
+      const W = (size && size.W) || 300, H = (size && size.H) || 52, PAD = (size && size.PAD) || 4;
       const vals = closes.slice();
       if (ref != null) vals.push(ref);
       const min = Math.min(...vals), max = Math.max(...vals);
@@ -351,31 +388,81 @@
       return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Price chart">${refLine}<polyline points="${linePoints}" fill="none" stroke="${lineColor}" stroke-width="1.6"/>${marker}<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.4" fill="${lineColor}"/></svg>`;
     }
 
-    // Fetches (and caches per page load) daily history for every visible card's symbol —
-    // the window is that row's own base length + 1 year (see chartYears) — then draws a
-    // small line chart against its resistance/pivot/stop level.
+    // Volume bars, colored per day by whether that day's close rose or fell from the day before.
+    function buildVolumeSVG(points, size){
+      const W = (size && size.W) || 300, H = (size && size.H) || 52;
+      const vols = points.map(p => p.volume || 0);
+      const max = Math.max(...vols, 1);
+      const n = points.length || 1;
+      const barW = W / n;
+      const bars = points.map((p, i) => {
+        const h = (vols[i] / max) * H;
+        const up = i === 0 || p.close >= points[i - 1].close;
+        const color = up ? "var(--success)" : "var(--coral-text)";
+        return `<rect x="${(i * barW).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${Math.max(barW - 0.4, 0.4).toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.7"/>`;
+      }).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Volume chart">${bars}</svg>`;
+    }
+
+    // Fetches (and caches per page load, keyed by symbol+years) daily history — the window
+    // is that row's own base length + 1 year (see chartYears).
     const historyCache = {};
+    function loadHistory(symbol, years){
+      const cacheKey = symbol + ":" + years;
+      if (!historyCache[cacheKey]) {
+        historyCache[cacheKey] = fetch("/api/breakout-desk/history/" + encodeURIComponent(symbol) + "?years=" + encodeURIComponent(years))
+          .then(r => r.json())
+          .then(result => (result.points || []).filter(p => p.close != null));
+      }
+      return historyCache[cacheKey];
+    }
+
+    // Draws the small line chart against its resistance/pivot/stop level for every visible card.
     function hydrateCharts(){
       document.querySelectorAll(".bd-chart[data-symbol]").forEach(async (node) => {
-        const symbol = node.dataset.symbol;
-        const years = node.dataset.years || "2";
-        const ref = node.dataset.ref ? Number(node.dataset.ref) : null;
-        const markDateStr = node.dataset.mark || null;
-        const markLabel = node.dataset.markLabel || null;
-        const cacheKey = symbol + ":" + years;
+        const { symbol, years = "2", ref, refLabel, mark, markLabel } = node.dataset;
         try {
-          if (!historyCache[cacheKey]) {
-            historyCache[cacheKey] = fetch("/api/breakout-desk/history/" + encodeURIComponent(symbol) + "?years=" + encodeURIComponent(years)).then(r => r.json());
-          }
-          const result = await historyCache[cacheKey];
-          const points = (result.points || []).filter(p => p.close != null);
+          const points = await loadHistory(symbol, years);
           if (!points.length) { node.innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
-          node.innerHTML = buildSparklineSVG(points, ref, markDateStr, markLabel);
+          node.innerHTML = buildSparklineSVG(points, ref ? Number(ref) : null, mark || null, markLabel || null);
         } catch (e) {
           node.innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
         }
       });
     }
+
+    // Fullscreen modal: same chart bigger, plus a volume chart underneath.
+    const modal = $("bd-modal");
+    async function openChartModal(dataset){
+      const { symbol, years = "2", ref, refLabel, mark, markLabel } = dataset;
+      $("bd-modal-sym").textContent = symbol;
+      $("bd-modal-sub").textContent = ref && refLabel ? `${refLabel}: ${inr(Number(ref))}` : "";
+      $("bd-modal-price").innerHTML = '<span class="bd-chart-note">Loading chart…</span>';
+      $("bd-modal-vol").innerHTML = "";
+      modal.hidden = false;
+      document.body.style.overflow = "hidden";
+      try {
+        const points = await loadHistory(symbol, years);
+        if (!points.length) { $("bd-modal-price").innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
+        const priceSize = { W: 800, H: 320, PAD: 12 };
+        $("bd-modal-price").innerHTML = buildSparklineSVG(points, ref ? Number(ref) : null, mark || null, markLabel || null, priceSize);
+        $("bd-modal-vol").innerHTML = buildVolumeSVG(points, { W: 800, H: 90 });
+      } catch (e) {
+        $("bd-modal-price").innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
+      }
+    }
+    function closeChartModal(){
+      modal.hidden = true;
+      document.body.style.overflow = "";
+    }
+    document.addEventListener("click", (event) => {
+      const expandBtn = event.target.closest(".bd-chart-expand");
+      if (expandBtn) { openChartModal(expandBtn.dataset); return; }
+      if (event.target === modal || event.target.closest("#bd-modal-close")) closeChartModal();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !modal.hidden) closeChartModal();
+    });
 
     fetch("/api/breakout-desk").then(r => r.json()).then(render).catch(() => {
       $("stamp").textContent = "Couldn't load the snapshot. Reload the page to try again.";

@@ -135,10 +135,16 @@ def _fetch_symbol_history_yahoo_host(host, symbol, period1, period2):
         payload = json.loads(response.read().decode("utf-8"))
     result = payload["chart"]["result"][0]
     timestamps = result["timestamp"]
-    closes = result["indicators"]["quote"][0]["close"]
+    quote = result["indicators"]["quote"][0]
+    closes = quote["close"]
+    volumes = quote.get("volume") or [None] * len(closes)
     points = [
-        {"date": datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d"), "close": round(close, 2)}
-        for ts, close in zip(timestamps, closes)
+        {
+            "date": datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d"),
+            "close": round(close, 2),
+            "volume": volume,
+        }
+        for ts, close, volume in zip(timestamps, closes, volumes)
         if close is not None
     ]
     if not points:
@@ -163,7 +169,11 @@ def fetch_symbol_history_stooq(symbol, period1, period2):
     if not text or "Date,Open" not in text:
         raise ValueError("Stooq returned no data for this symbol.")
     points = [
-        {"date": row["Date"], "close": round(float(row["Close"]), 2)}
+        {
+            "date": row["Date"],
+            "close": round(float(row["Close"]), 2),
+            "volume": int(row["Volume"]) if row.get("Volume") not in (None, "", "N/D") else None,
+        }
         for row in csv.DictReader(io.StringIO(text))
         if row.get("Close") not in (None, "", "N/D")
     ]
