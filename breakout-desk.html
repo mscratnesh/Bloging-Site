@@ -445,6 +445,11 @@
       const refLine = ref != null
         ? `<line x1="0" y1="${yFor(ref).toFixed(1)}" x2="${W}" y2="${yFor(ref).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3,3" stroke-width="1"/>`
         : "";
+      // Horizontal lines marking the highest high and lowest low across the whole window,
+      // lighter than the resistance/pivot line so that one stays the visually dominant level.
+      const periodHigh = Math.max(...candles.map(c => c.high));
+      const periodLow = Math.min(...candles.map(c => c.low));
+      const highLowLines = `<line x1="0" y1="${yFor(periodHigh).toFixed(1)}" x2="${W}" y2="${yFor(periodHigh).toFixed(1)}" stroke="var(--line)" stroke-dasharray="2,4" stroke-width="1"><title>Period high ${esc(inr(periodHigh))}</title></line><line x1="0" y1="${yFor(periodLow).toFixed(1)}" x2="${W}" y2="${yFor(periodLow).toFixed(1)}" stroke="var(--line)" stroke-dasharray="2,4" stroke-width="1"><title>Period low ${esc(inr(periodLow))}</title></line>`;
       const markDate = parseDMY(markDateStr);
       const markIdx = markDate ? candles.findIndex(c => new Date(c.date) >= markDate) : -1;
       const bars = candles.map((c, i) => {
@@ -464,7 +469,7 @@
         const hitArea = `<rect x="${(cx - slot / 2).toFixed(1)}" y="${yHigh.toFixed(1)}" width="${slot.toFixed(1)}" height="${Math.max(yLow - yHigh, 1).toFixed(1)}" fill="transparent"/>`;
         return `<g><title>${esc(tooltip)}</title>${hitArea}<line x1="${cx.toFixed(1)}" y1="${yHigh.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLow.toFixed(1)}" stroke="${color}" stroke-width="1"/><rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" fill="${color}"/>${marker}</g>`;
       }).join("");
-      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weekly candlestick chart">${refLine}${bars}</svg>`;
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weekly candlestick chart">${highLowLines}${refLine}${bars}</svg>`;
     }
 
     // Weekly volume, aligned to the same candle slots as buildCandlestickSVG.
