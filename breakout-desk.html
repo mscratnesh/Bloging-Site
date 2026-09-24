@@ -191,7 +191,8 @@
           { label: "Resistance", value: r => inr(r.resistance) },
           { label: "Above res.", value: r => pct(r.breakoutPct, true), cls: r => cls(r.breakoutPct) },
           { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" },
-          { label: "vs 30W MA", value: r => pct(vsMA(r), true), cls: r => cls(vsMA(r)) }
+          { label: "vs 30W MA", value: r => pct(vsMA(r), true), cls: r => cls(vsMA(r)) },
+          { label: "SL", value: r => inr(r.stop) }
         ]
       },
       MYB_NEAR: {
@@ -218,7 +219,8 @@
           { label: "Pivot", value: r => inr(r.pivot) },
           { label: "Dist to pivot", value: r => pct(r.distPct, true), cls: r => cls(r.distPct) },
           { label: "Cup / handle depth", value: r => `${r.cupDepth ?? "–"}% / ${r.handleDepth ?? "–"}%` },
-          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" }
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–" },
+          { label: "SL", value: r => inr(r.stop) }
         ]
       },
       HOLDING: {
@@ -231,7 +233,7 @@
           { label: "Entry", value: r => inr(r.entryPrice) },
           { label: "Weekly close", value: r => inr(r.weeklyClose) },
           { label: "P&L", value: r => pct(r.pnlPct, true), cls: r => cls(r.pnlPct) },
-          { label: "Stop", value: r => inr(r.stop) },
+          { label: "SL", value: r => inr(r.stop) },
           { label: "30W MA", value: r => inr(r.ma30) }
         ]
       },
