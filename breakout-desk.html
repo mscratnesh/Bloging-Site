@@ -350,6 +350,13 @@
       return new Date(Date.UTC(Number(m[3]), MONTH_ABBR[m[2]], Number(m[1])));
     }
 
+    // "2026-09-24" -> "24 Sep 2026", for candle tooltips.
+    const MONTH_NAMES = Object.keys(MONTH_ABBR);
+    function formatCandleDate(dateStr){
+      const d = new Date(dateStr + "T00:00:00Z");
+      return `${d.getUTCDate()} ${MONTH_NAMES[d.getUTCMonth()]} ${d.getUTCFullYear()}`;
+    }
+
     // Renders a simple price line, a dashed reference line (resistance/pivot/stop), and a
     // marker dot on the price line itself at the pivot's formation date (resDate/leftRimDate/entryDate).
     function buildSparklineSVG(points, ref, markDateStr, markLabel, size){
@@ -448,9 +455,14 @@
         const bodyTop = Math.min(yFor(c.open), yFor(c.close));
         const bodyH = Math.max(Math.abs(yFor(c.close) - yFor(c.open)), 1);
         const marker = i === markIdx
-          ? `<circle cx="${cx.toFixed(1)}" cy="${(yHigh - 6).toFixed(1)}" r="3" fill="var(--ink)" stroke="var(--paper)" stroke-width="1"><title>${esc(markLabel || "Pivot")} · ${esc(markDateStr)}</title></circle>`
+          ? `<circle cx="${cx.toFixed(1)}" cy="${(yHigh - 6).toFixed(1)}" r="3" fill="var(--ink)" stroke="var(--paper)" stroke-width="1"/>`
           : "";
-        return `<line x1="${cx.toFixed(1)}" y1="${yHigh.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLow.toFixed(1)}" stroke="${color}" stroke-width="1"/><rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" fill="${color}"/>${marker}`;
+        let tooltip = `Week of ${formatCandleDate(c.date)}\nOpen ${inr(c.open)}   High ${inr(c.high)}\nLow ${inr(c.low)}   Close ${inr(c.close)}\nVolume ${c.volume ? Number(c.volume).toLocaleString("en-IN") : "–"}`;
+        if (i === markIdx) tooltip += `\n${markLabel || "Pivot"} formed ${markDateStr}`;
+        // A wider, invisible hit area (full slot width, full high–low height) makes the
+        // tooltip trigger on hover near the candle, not just on its thin wick/body.
+        const hitArea = `<rect x="${(cx - slot / 2).toFixed(1)}" y="${yHigh.toFixed(1)}" width="${slot.toFixed(1)}" height="${Math.max(yLow - yHigh, 1).toFixed(1)}" fill="transparent"/>`;
+        return `<g><title>${esc(tooltip)}</title>${hitArea}<line x1="${cx.toFixed(1)}" y1="${yHigh.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLow.toFixed(1)}" stroke="${color}" stroke-width="1"/><rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" fill="${color}"/>${marker}</g>`;
       }).join("");
       return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weekly candlestick chart">${refLine}${bars}</svg>`;
     }
