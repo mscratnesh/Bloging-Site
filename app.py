@@ -137,14 +137,20 @@ def _fetch_symbol_history_yahoo_host(host, symbol, period1, period2):
     timestamps = result["timestamp"]
     quote = result["indicators"]["quote"][0]
     closes = quote["close"]
+    opens = quote.get("open") or [None] * len(closes)
+    highs = quote.get("high") or [None] * len(closes)
+    lows = quote.get("low") or [None] * len(closes)
     volumes = quote.get("volume") or [None] * len(closes)
     points = [
         {
             "date": datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d"),
+            "open": round(o, 2) if o is not None else close,
+            "high": round(h, 2) if h is not None else close,
+            "low": round(l, 2) if l is not None else close,
             "close": round(close, 2),
             "volume": volume,
         }
-        for ts, close, volume in zip(timestamps, closes, volumes)
+        for ts, o, h, l, close, volume in zip(timestamps, opens, highs, lows, closes, volumes)
         if close is not None
     ]
     if not points:
@@ -168,15 +174,22 @@ def fetch_symbol_history_stooq(symbol, period1, period2):
         text = response.read().decode("utf-8")
     if not text or "Date,Open" not in text:
         raise ValueError("Stooq returned no data for this symbol.")
-    points = [
-        {
+    def parse_num(value, fallback):
+        return round(float(value), 2) if value not in (None, "", "N/D") else fallback
+
+    points = []
+    for row in csv.DictReader(io.StringIO(text)):
+        if row.get("Close") in (None, "", "N/D"):
+            continue
+        close = round(float(row["Close"]), 2)
+        points.append({
             "date": row["Date"],
-            "close": round(float(row["Close"]), 2),
+            "open": parse_num(row.get("Open"), close),
+            "high": parse_num(row.get("High"), close),
+            "low": parse_num(row.get("Low"), close),
+            "close": close,
             "volume": int(row["Volume"]) if row.get("Volume") not in (None, "", "N/D") else None,
-        }
-        for row in csv.DictReader(io.StringIO(text))
-        if row.get("Close") not in (None, "", "N/D")
-    ]
+        })
     if not points:
         raise ValueError("Stooq returned an empty series.")
     return points

@@ -155,9 +155,9 @@
         <span class="bd-detail-sub" id="bd-detail-sub"></span>
       </div>
       <div class="bd-detail-grid" id="bd-detail-grid"></div>
-      <p class="bd-detail-caption">Price</p>
+      <p class="bd-detail-caption">Price · weekly candles</p>
       <div class="bd-detail-price" id="bd-detail-price"></div>
-      <p class="bd-detail-caption">Volume</p>
+      <p class="bd-detail-caption">Volume · weekly</p>
       <div class="bd-detail-vol" id="bd-detail-vol"></div>
     </section>
   </main>
@@ -397,6 +397,82 @@
       return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Volume chart">${bars}</svg>`;
     }
 
+    // Groups daily OHLC points into weekly candles (Monday-start week), matching the
+    // desk's own "weekly close" rules — high/low across the week, open of its first day,
+    // close of its last, volume summed. Assumes points are sorted ascending by date.
+    function toWeeklyCandles(points){
+      const weeks = [];
+      let current = null;
+      for (const p of points) {
+        const d = new Date(p.date + "T00:00:00Z");
+        const day = d.getUTCDay();
+        const monday = new Date(d);
+        monday.setUTCDate(d.getUTCDate() + (day === 0 ? -6 : 1 - day));
+        const key = monday.toISOString().slice(0, 10);
+        if (!current || current.date !== key) {
+          current = { date: key, open: p.open ?? p.close, high: p.high ?? p.close, low: p.low ?? p.close, close: p.close, volume: p.volume || 0 };
+          weeks.push(current);
+        } else {
+          current.high = Math.max(current.high, p.high ?? p.close);
+          current.low = Math.min(current.low, p.low ?? p.close);
+          current.close = p.close;
+          current.volume += p.volume || 0;
+        }
+      }
+      return weeks;
+    }
+
+    // Weekly candlestick chart: a wick (high–low) plus a filled body (open–close) per week,
+    // green when that week closed up, red when it closed down — with the same resistance/
+    // pivot/stop reference line and pivot-formation marker as the sparkline version.
+    function buildCandlestickSVG(candles, ref, markDateStr, markLabel, size){
+      const W = (size && size.W) || 900, H = (size && size.H) || 340, PAD = (size && size.PAD) || 14;
+      const vals = candles.flatMap(c => [c.high, c.low]);
+      if (ref != null) vals.push(ref);
+      const min = Math.min(...vals), max = Math.max(...vals);
+      const span = (max - min) || 1;
+      const yFor = v => H - PAD - ((v - min) / span) * (H - PAD * 2);
+      const n = candles.length || 1;
+      const slot = W / n;
+      const bodyW = Math.max(slot * 0.6, 1.5);
+      const refLine = ref != null
+        ? `<line x1="0" y1="${yFor(ref).toFixed(1)}" x2="${W}" y2="${yFor(ref).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3,3" stroke-width="1"/>`
+        : "";
+      const markDate = parseDMY(markDateStr);
+      const markIdx = markDate ? candles.findIndex(c => new Date(c.date) >= markDate) : -1;
+      const bars = candles.map((c, i) => {
+        const cx = i * slot + slot / 2;
+        const up = c.close >= c.open;
+        const color = up ? "var(--success)" : "var(--coral-text)";
+        const yHigh = yFor(c.high), yLow = yFor(c.low);
+        const bodyTop = Math.min(yFor(c.open), yFor(c.close));
+        const bodyH = Math.max(Math.abs(yFor(c.close) - yFor(c.open)), 1);
+        const marker = i === markIdx
+          ? `<circle cx="${cx.toFixed(1)}" cy="${(yHigh - 6).toFixed(1)}" r="3" fill="var(--ink)" stroke="var(--paper)" stroke-width="1"><title>${esc(markLabel || "Pivot")} · ${esc(markDateStr)}</title></circle>`
+          : "";
+        return `<line x1="${cx.toFixed(1)}" y1="${yHigh.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLow.toFixed(1)}" stroke="${color}" stroke-width="1"/><rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" fill="${color}"/>${marker}`;
+      }).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weekly candlestick chart">${refLine}${bars}</svg>`;
+    }
+
+    // Weekly volume, aligned to the same candle slots as buildCandlestickSVG.
+    function buildWeeklyVolumeSVG(candles, size){
+      const W = (size && size.W) || 900, H = (size && size.H) || 100;
+      const vols = candles.map(c => c.volume || 0);
+      const max = Math.max(...vols, 1);
+      const n = candles.length || 1;
+      const slot = W / n;
+      const barW = Math.max(slot * 0.6, 1.5);
+      const bars = candles.map((c, i) => {
+        const h = (vols[i] / max) * H;
+        const up = c.close >= c.open;
+        const color = up ? "var(--success)" : "var(--coral-text)";
+        const cx = i * slot + slot / 2;
+        return `<rect x="${(cx - barW / 2).toFixed(1)}" y="${(H - h).toFixed(1)}" width="${barW.toFixed(1)}" height="${h.toFixed(1)}" fill="${color}" opacity="0.7"/>`;
+      }).join("");
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weekly volume chart">${bars}</svg>`;
+    }
+
     // Fetches (and caches per page load, keyed by symbol+years) daily history — the window
     // is that row's own base length + 6 months (see chartYears).
     const historyCache = {};
@@ -454,8 +530,9 @@
       try {
         const points = await loadHistory(r.symbol, years);
         if (!points.length) { $("bd-detail-price").innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
-        $("bd-detail-price").innerHTML = buildSparklineSVG(points, refLevel, markDateStr, markLabel, { W: 900, H: 340, PAD: 14 });
-        $("bd-detail-vol").innerHTML = buildVolumeSVG(points, { W: 900, H: 100 });
+        const weekly = toWeeklyCandles(points);
+        $("bd-detail-price").innerHTML = buildCandlestickSVG(weekly, refLevel, markDateStr, markLabel, { W: 900, H: 340, PAD: 14 });
+        $("bd-detail-vol").innerHTML = buildWeeklyVolumeSVG(weekly, { W: 900, H: 100 });
       } catch (e) {
         $("bd-detail-price").innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
       }
