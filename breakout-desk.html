@@ -168,6 +168,8 @@
         sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
         refLevel: r => r.resistance,
         refLabel: "Resistance",
+        markDate: r => r.resDate,
+        markLabel: "High",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
           { label: "Resistance", value: r => inr(r.resistance) },
@@ -180,6 +182,8 @@
         sym: { value: r => r.symbol, sub: r => `base ${r.baseYrs ?? "–"} yrs · high ${r.resDate ?? "–"}` },
         refLevel: r => r.resistance,
         refLabel: "Resistance",
+        markDate: r => r.resDate,
+        markLabel: "High",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
           { label: "Resistance", value: r => inr(r.resistance) },
@@ -191,6 +195,8 @@
         sym: { value: r => r.symbol, sub: r => `cup ${r.cupWks ?? "–"} wks · left rim ${r.leftRimDate ?? "–"}` },
         refLevel: r => r.pivot,
         refLabel: "Pivot",
+        markDate: r => r.leftRimDate,
+        markLabel: "Left rim",
         fields: [
           { label: "CMP", value: r => inr(r.cmp) },
           { label: "Pivot", value: r => inr(r.pivot) },
@@ -203,6 +209,8 @@
         sym: { value: r => r.symbol, sub: r => `${r.setup === "C&H" ? "cup & handle" : "multi-year base"} · since ${r.entryDate ?? "–"}` },
         refLevel: r => r.stop,
         refLabel: "Stop",
+        markDate: r => r.entryDate,
+        markLabel: "Entry",
         fields: [
           { label: "Entry", value: r => inr(r.entryPrice) },
           { label: "Weekly close", value: r => inr(r.weeklyClose) },
@@ -213,6 +221,8 @@
       },
       EXIT: {
         sym: { value: r => r.symbol, sub: r => `in ${r.entryDate ?? "–"}` },
+        markDate: r => r.entryDate,
+        markLabel: "Entry",
         fields: [
           { label: "Entry", value: r => inr(r.entryPrice) },
           { label: "Exit", value: r => `${inr(r.exitPrice)} (${r.exitDate ?? "–"})` },
@@ -238,7 +248,8 @@
       const cards = rows.map(r => {
         const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
         const refLevel = set.refLevel ? set.refLevel(r) : null;
-        const chart = `<div class="bd-chart" data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}"><span class="bd-chart-note">Loading chart…</span></div>`;
+        const markDate = set.markDate ? set.markDate(r) : null;
+        const chart = `<div class="bd-chart" data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"><span class="bd-chart-note">Loading chart…</span></div>`;
         return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div>${chart}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
       return `<div class="bd-cards">${cards}</div>`;
@@ -301,8 +312,18 @@
       hydrateCharts();
     }
 
-    // Renders a simple price line, plus a dashed reference line (resistance/pivot/stop) if given.
-    function buildSparklineSVG(closes, ref){
+    // "23-Aug-2024" -> Date. Returns null if it doesn't parse (missing/unexpected format).
+    const MONTH_ABBR = {Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+    function parseDMY(str){
+      const m = /^(\d{1,2})-([A-Za-z]{3})-(\d{4})$/.exec(str || "");
+      if (!m || !(m[2] in MONTH_ABBR)) return null;
+      return new Date(Date.UTC(Number(m[3]), MONTH_ABBR[m[2]], Number(m[1])));
+    }
+
+    // Renders a simple price line, a dashed reference line (resistance/pivot/stop), and a
+    // marker dot on the price line itself at the pivot's formation date (resDate/leftRimDate/entryDate).
+    function buildSparklineSVG(points, ref, markDateStr, markLabel){
+      const closes = points.map(p => p.close);
       const W = 300, H = 52, PAD = 4;
       const vals = closes.slice();
       if (ref != null) vals.push(ref);
@@ -310,7 +331,7 @@
       const span = (max - min) || 1;
       const yFor = v => H - PAD - ((v - min) / span) * (H - PAD * 2);
       const xFor = i => (i / (closes.length - 1 || 1)) * W;
-      const points = closes.map((c, i) => `${xFor(i).toFixed(1)},${yFor(c).toFixed(1)}`).join(" ");
+      const linePoints = closes.map((c, i) => `${xFor(i).toFixed(1)},${yFor(c).toFixed(1)}`).join(" ");
       const last = closes[closes.length - 1];
       const up = ref != null ? last >= ref : true;
       const lineColor = up ? "var(--success)" : "var(--coral-text)";
@@ -318,7 +339,16 @@
         ? `<line x1="0" y1="${yFor(ref).toFixed(1)}" x2="${W}" y2="${yFor(ref).toFixed(1)}" stroke="var(--muted)" stroke-dasharray="3,3" stroke-width="1"/>`
         : "";
       const lastX = xFor(closes.length - 1), lastY = yFor(last);
-      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Price chart">${refLine}<polyline points="${points}" fill="none" stroke="${lineColor}" stroke-width="1.6"/><circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.4" fill="${lineColor}"/></svg>`;
+      let marker = "";
+      const markDate = parseDMY(markDateStr);
+      if (markDate) {
+        const markIdx = points.findIndex(p => new Date(p.date) >= markDate);
+        if (markIdx >= 0) {
+          const mx = xFor(markIdx), my = yFor(closes[markIdx]);
+          marker = `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="3" fill="var(--ink)" stroke="var(--paper)" stroke-width="1"><title>${esc(markLabel || "Pivot")} · ${esc(markDateStr)}</title></circle>`;
+        }
+      }
+      return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Price chart">${refLine}<polyline points="${linePoints}" fill="none" stroke="${lineColor}" stroke-width="1.6"/>${marker}<circle cx="${lastX.toFixed(1)}" cy="${lastY.toFixed(1)}" r="2.4" fill="${lineColor}"/></svg>`;
     }
 
     // Fetches (and caches per page load) daily history for every visible card's symbol —
@@ -330,15 +360,17 @@
         const symbol = node.dataset.symbol;
         const years = node.dataset.years || "2";
         const ref = node.dataset.ref ? Number(node.dataset.ref) : null;
+        const markDateStr = node.dataset.mark || null;
+        const markLabel = node.dataset.markLabel || null;
         const cacheKey = symbol + ":" + years;
         try {
           if (!historyCache[cacheKey]) {
             historyCache[cacheKey] = fetch("/api/breakout-desk/history/" + encodeURIComponent(symbol) + "?years=" + encodeURIComponent(years)).then(r => r.json());
           }
           const result = await historyCache[cacheKey];
-          const closes = (result.points || []).map(p => p.close).filter(v => v != null);
-          if (!closes.length) { node.innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
-          node.innerHTML = buildSparklineSVG(closes, ref);
+          const points = (result.points || []).filter(p => p.close != null);
+          if (!points.length) { node.innerHTML = '<span class="bd-chart-note">No chart data</span>'; return; }
+          node.innerHTML = buildSparklineSVG(points, ref, markDateStr, markLabel);
         } catch (e) {
           node.innerHTML = '<span class="bd-chart-note">Chart unavailable</span>';
         }
