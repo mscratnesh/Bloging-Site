@@ -65,6 +65,12 @@
   .bd-candle:hover .bd-candle-hl{opacity:1}
   .bd-detail-vol{height:110px}
   .bd-detail-vol svg{display:block;width:100%;height:100%}
+  .bd-fund{margin-top:44px;border-top:1px solid var(--ink);padding-top:22px}
+  .bd-fund-title{display:block;font:600 22px var(--serif);margin-bottom:22px}
+  .bd-fund-group{margin-bottom:30px}
+  .bd-fund-group .bd-detail-grid{margin-bottom:0}
+  .bd-fund-group .bd-detail-item-value{font-size:16px}
+  .bd-fund-src{font:12px var(--mono);color:var(--muted);margin:0}
   @media(max-width:700px){.bd-detail{padding:30px 8vw 70px}}
 
   .bd-rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px 32px;border-top:1px solid var(--ink);padding-top:20px}
@@ -161,6 +167,7 @@
       <div class="bd-detail-price" id="bd-detail-price"></div>
       <p class="bd-detail-caption">Volume · weekly</p>
       <div class="bd-detail-vol" id="bd-detail-vol"></div>
+      <div class="bd-fund" id="bd-fund"></div>
     </section>
   </main>
 
@@ -573,9 +580,40 @@
       return `<div class="bd-detail-item" data-field-label="${esc(f.label)}"><span class="bd-detail-item-label">${f.label}</span><span class="bd-detail-item-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`;
     }
 
+    // Fundamental ratios (Screener.in + Yahoo, merged and cached server-side for 24h),
+    // loaded independently of the chart so a slow source never blocks the price view.
+    const fundamentalsCache = {};
+    let detailSymbol = null;
+    function loadFundamentals(symbol){
+      if (!fundamentalsCache[symbol]) {
+        fundamentalsCache[symbol] = fetch("/api/breakout-desk/fundamentals/" + encodeURIComponent(symbol))
+          .then(r => r.ok ? r.json() : null)
+          .catch(() => null);
+      }
+      return fundamentalsCache[symbol];
+    }
+
+    async function renderFundamentals(symbol){
+      const box = $("bd-fund");
+      box.innerHTML = '<span class="bd-fund-title">Fundamentals</span><span class="bd-chart-note">Loading fundamentals…</span>';
+      const data = await loadFundamentals(symbol);
+      if (detailSymbol !== symbol) return;  // the user already opened another stock
+      if (!data || !data.groups || !data.groups.length) {
+        box.innerHTML = '<span class="bd-fund-title">Fundamentals</span><span class="bd-chart-note">Fundamentals unavailable</span>';
+        return;
+      }
+      const groups = data.groups.map(g => `<div class="bd-fund-group"><p class="bd-detail-caption">${esc(g.title)}</p><div class="bd-detail-grid">${
+        g.items.map(i => `<div class="bd-detail-item"><span class="bd-detail-item-label">${esc(i.label)}</span><span class="bd-detail-item-value">${esc(i.value)}</span></div>`).join("")
+      }</div></div>`).join("");
+      const sources = (data.sources || []).map(s => s === "screener" ? "Screener.in" : "Yahoo Finance").join(" + ");
+      box.innerHTML = `<span class="bd-fund-title">Fundamentals</span>${groups}<p class="bd-fund-src">Source: ${esc(sources)} · refreshed daily${data.stale ? " · showing last saved copy" : ""}</p>`;
+    }
+
     async function showDetail(key){
       const entry = rowRegistry[key];
       if (!entry) return;
+      detailSymbol = entry.r.symbol;
+      renderFundamentals(entry.r.symbol);
       const { set, r } = entry;
       const refLevel = set.refLevel ? set.refLevel(r) : null;
       const markDateStr = set.markDate ? set.markDate(r) : null;

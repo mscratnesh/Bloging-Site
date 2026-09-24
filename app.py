@@ -12,7 +12,10 @@ import secrets
 import sqlite3
 import sys
 import time
+import http.client
+import http.cookiejar
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import datetime, timedelta, timezone
 from http.cookies import SimpleCookie
@@ -24,6 +27,8 @@ BREAKOUT_DATA_PATH = ROOT / "breakout_data.json"
 HISTORY_CACHE_PATH = ROOT / "price_history_cache.json"
 HISTORY_CACHE_TTL_SECONDS = 24 * 3600
 HISTORY_SYMBOL_RE = re.compile(r"^[A-Z0-9&\-]{1,20}$")
+FUNDAMENTALS_CACHE_PATH = ROOT / "fundamentals_cache.json"
+FUNDAMENTALS_CACHE_TTL_SECONDS = 24 * 3600
 BREAKOUT_SHEET_ID = "1gLrCYp_GmRSpEkrCVwwEn_Ec97IQr6YfNo7mvPQLZgk"
 BREAKOUT_SHEET_GID_CH = "649235540"
 BREAKOUT_SHEET_GID_MYB = "1080335833"
@@ -113,18 +118,18 @@ def initialize_database():
             ])
 
 
-def load_history_cache():
-    if not HISTORY_CACHE_PATH.is_file():
+def load_json_cache(path):
+    if not path.is_file():
         return {}
     try:
-        return json.loads(HISTORY_CACHE_PATH.read_text(encoding="utf-8"))
+        return json.loads(path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return {}
 
 
-def save_history_cache(cache):
+def save_json_cache(path, cache):
     try:
-        HISTORY_CACHE_PATH.write_text(json.dumps(cache), encoding="utf-8")
+        path.write_text(json.dumps(cache), encoding="utf-8")
     except OSError:
         pass
 
@@ -219,7 +224,7 @@ def fetch_symbol_history(symbol, years):
 
 def get_symbol_history(symbol, years):
     cache_key = f"{symbol}:{years}y"
-    cache = load_history_cache()
+    cache = load_json_cache(HISTORY_CACHE_PATH)
     entry = cache.get(cache_key)
     now = time.time()
     if entry and now - entry.get("fetchedAt", 0) < HISTORY_CACHE_TTL_SECONDS:
@@ -231,8 +236,131 @@ def get_symbol_history(symbol, years):
             return entry["data"], True
         return None, False
     cache[cache_key] = {"fetchedAt": now, "data": points}
-    save_history_cache(cache)
+    save_json_cache(HISTORY_CACHE_PATH, cache)
     return points, False
+
+
+FUNDAMENTALS_UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"}
+FUNDAMENTALS_FETCH_ERRORS = HISTORY_FETCH_ERRORS + (AttributeError, TypeError, http.client.HTTPException)
+
+
+def fetch_fundamentals_screener(symbol):
+    """Screener.in's headline ratios, as {label: text}. Prefers consolidated figures; companies
+    without consolidated accounts get an empty consolidated page, so fall back to standalone."""
+    ratios = _fetch_screener_ratios(f"https://www.screener.in/company/{urllib.parse.quote(symbol)}/consolidated/")
+    if len(ratios) < 3:
+        ratios = _fetch_screener_ratios(f"https://www.screener.in/company/{urllib.parse.quote(symbol)}/")
+    if not ratios:
+        raise ValueError("Screener returned no ratios.")
+    return ratios
+
+
+def _fetch_screener_ratios(url):
+    request = urllib.request.Request(url, headers=FUNDAMENTALS_UA)
+    with urllib.request.urlopen(request, timeout=8) as response:
+        page = response.read().decode("utf-8", errors="replace")
+    block = re.search(r'<ul id="top-ratios">(.*?)</ul>', page, re.S).group(1)
+    ratios = {}
+    for item in re.findall(r"<li.*?</li>", block, re.S):
+        name = re.search(r'<span class="name">(.*?)</span>', item, re.S)
+        value = re.search(r'<span class="nowrap value">(.*?)</span>\s*</li>', item, re.S)
+        if not name or not value:
+            continue
+        clean = lambda text: re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", " ", text))).strip()
+        text = clean(value.group(1)).replace(" %", "%").replace("Cr.", "Cr")
+        if re.search(r"\d", text):  # blank ratios render as just "₹" / "%" / "Cr."
+            ratios[clean(name.group(1))] = text
+    return ratios
+
+
+def fetch_fundamentals_yahoo(symbol):
+    """Yahoo quoteSummary key statistics, as {field: raw number}. Needs a cookie + crumb."""
+    opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()))
+    try:
+        opener.open(urllib.request.Request("https://fc.yahoo.com", headers=FUNDAMENTALS_UA), timeout=8)
+    except urllib.error.HTTPError:
+        pass  # fc.yahoo.com answers 404 but still sets the session cookie
+    crumb_request = urllib.request.Request("https://query1.finance.yahoo.com/v1/test/getcrumb", headers=FUNDAMENTALS_UA)
+    crumb = opener.open(crumb_request, timeout=8).read().decode("utf-8").strip()
+    url = (f"https://query1.finance.yahoo.com/v10/finance/quoteSummary/{urllib.parse.quote(symbol)}.NS"
+           f"?modules=summaryDetail,defaultKeyStatistics,financialData&crumb={urllib.parse.quote(crumb)}")
+    with opener.open(urllib.request.Request(url, headers=FUNDAMENTALS_UA), timeout=8) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    raw = {}
+    for module in payload["quoteSummary"]["result"][0].values():
+        for key, value in module.items():
+            if isinstance(value, dict) and isinstance(value.get("raw"), (int, float)):
+                raw.setdefault(key, value["raw"])
+    return raw
+
+
+def build_fundamentals(screener, yahoo):
+    """Merges both sources into display groups of {label, value} with pre-formatted text."""
+    def num(value, digits=2, suffix=""):
+        return f"{value:,.{digits}f}{suffix}" if isinstance(value, (int, float)) else None
+
+    def pct(value):
+        return num(value * 100, 1, "%") if isinstance(value, (int, float)) else None
+
+    def crore(value):
+        return f"₹ {value / 1e7:,.0f} Cr" if isinstance(value, (int, float)) else None
+
+    debt_to_equity = yahoo.get("debtToEquity")
+    groups = [
+        ("Valuation", [
+            ("Market cap", screener.get("Market Cap") or crore(yahoo.get("marketCap"))),
+            ("P/E (TTM)", screener.get("Stock P/E") or num(yahoo.get("trailingPE"))),
+            ("Forward P/E", num(yahoo.get("forwardPE"))),
+            ("P/B", num(yahoo.get("priceToBook"))),
+            ("EV/EBITDA", num(yahoo.get("enterpriseToEbitda"))),
+            ("Book value", screener.get("Book Value") or num(yahoo.get("bookValue"))),
+            ("Dividend yield", screener.get("Dividend Yield") or pct(yahoo.get("dividendYield"))),
+        ]),
+        ("Profitability", [
+            ("ROE", screener.get("ROE") or pct(yahoo.get("returnOnEquity"))),
+            ("ROCE", screener.get("ROCE")),
+            ("Operating margin", pct(yahoo.get("operatingMargins"))),
+            ("Net margin", pct(yahoo.get("profitMargins"))),
+            ("EPS (TTM)", num(yahoo.get("trailingEps"))),
+        ]),
+        ("Growth & balance sheet", [
+            ("Revenue growth (YoY)", pct(yahoo.get("revenueGrowth"))),
+            ("Earnings growth (YoY)", pct(yahoo.get("earningsGrowth"))),
+            # Yahoo reports debt/equity as a percentage (7.0 = 0.07x).
+            ("Debt / equity", num(debt_to_equity / 100) if isinstance(debt_to_equity, (int, float)) else None),
+            ("Insider holding", pct(yahoo.get("heldPercentInsiders"))),
+            ("52W high / low", screener.get("High / Low")),
+            ("Face value", screener.get("Face Value")),
+        ]),
+    ]
+    return [
+        {"title": title, "items": [{"label": label, "value": value} for label, value in items if value]}
+        for title, items in groups
+        if any(value for _, value in items)
+    ]
+
+
+def get_symbol_fundamentals(symbol):
+    cache = load_json_cache(FUNDAMENTALS_CACHE_PATH)
+    entry = cache.get(symbol)
+    now = time.time()
+    if entry and now - entry.get("fetchedAt", 0) < FUNDAMENTALS_CACHE_TTL_SECONDS:
+        return entry["data"], False
+    sources = {}
+    for name, fetcher in (("screener", fetch_fundamentals_screener), ("yahoo", fetch_fundamentals_yahoo)):
+        try:
+            sources[name] = fetcher(symbol)
+        except FUNDAMENTALS_FETCH_ERRORS:
+            sources[name] = {}
+    groups = build_fundamentals(sources["screener"], sources["yahoo"])
+    if not groups:
+        if entry:
+            return entry["data"], True
+        return None, False
+    data = {"groups": groups, "sources": [name for name, values in sources.items() if values]}
+    cache[symbol] = {"fetchedAt": now, "data": data}
+    save_json_cache(FUNDAMENTALS_CACHE_PATH, cache)
+    return data, False
 
 
 def format_sitemap_date(value):
@@ -512,6 +640,17 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/breakout-desk":
             self.send_json(fetch_breakout_data())
+            return
+        if route.startswith("/api/breakout-desk/fundamentals/"):
+            symbol = urllib.parse.unquote(route.rsplit("/", 1)[1]).upper()
+            if not HISTORY_SYMBOL_RE.match(symbol):
+                self.send_json({"error": "Invalid symbol."}, 400)
+                return
+            data, stale = get_symbol_fundamentals(symbol)
+            if data is None:
+                self.send_json({"error": "Could not load fundamentals."}, 502)
+                return
+            self.send_json({"symbol": symbol, **data, "stale": stale})
             return
         if route.startswith("/api/breakout-desk/history/"):
             symbol = route.rsplit("/", 1)[1].upper()
