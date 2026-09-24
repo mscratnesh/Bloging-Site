@@ -2,7 +2,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 import base64
+import csv
 import html
+import io
 import json
 import os
 import re
@@ -123,10 +125,11 @@ def save_history_cache(cache):
         pass
 
 
-def fetch_symbol_history(symbol):
-    # Stooq's public CSV endpoint is blocked by a JS anti-bot challenge for server-side
-    # requests as of writing, so this uses Yahoo Finance's unofficial chart endpoint,
-    # confirmed working with real requests during development.
+HISTORY_FETCH_ERRORS = (urllib.error.URLError, TimeoutError, KeyError, IndexError, ValueError, json.JSONDecodeError, csv.Error)
+
+
+def fetch_symbol_history_yahoo(symbol):
+    """Primary source. Confirmed working with real requests during development."""
     url = f"https://query1.finance.yahoo.com/v8/finance/chart/{symbol}.NS?range=1y&interval=1d"
     request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urllib.request.urlopen(request, timeout=6) as response:
@@ -144,6 +147,55 @@ def fetch_symbol_history(symbol):
     return points
 
 
+def fetch_symbol_history_stooq(symbol):
+    """Fallback 1. Blocked by a JS anti-bot challenge from the dev network as of writing —
+    kept as a fallback in case it's reachable from wherever this actually runs."""
+    url = f"https://stooq.com/q/d/l/?s={symbol}.IN&i=d"
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=6) as response:
+        text = response.read().decode("utf-8")
+    if not text or "Date,Open" not in text:
+        raise ValueError("Stooq returned no data for this symbol.")
+    points = [
+        {"date": row["Date"], "close": round(float(row["Close"]), 2)}
+        for row in csv.DictReader(io.StringIO(text))
+        if row.get("Close") not in (None, "", "N/D")
+    ]
+    if not points:
+        raise ValueError("Stooq returned an empty series.")
+    return points
+
+
+def fetch_symbol_history_yahoo_alt(symbol):
+    """Fallback 2. Yahoo's alternate edge host (query2 instead of query1) — cheap extra
+    redundancy against a single Yahoo edge/host having an outage, no new dependency."""
+    url = f"https://query2.finance.yahoo.com/v8/finance/chart/{symbol}.NS?range=1y&interval=1d"
+    request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=6) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+    result = payload["chart"]["result"][0]
+    timestamps = result["timestamp"]
+    closes = result["indicators"]["quote"][0]["close"]
+    points = [
+        {"date": datetime.fromtimestamp(ts, tz=timezone.utc).strftime("%Y-%m-%d"), "close": round(close, 2)}
+        for ts, close in zip(timestamps, closes)
+        if close is not None
+    ]
+    if not points:
+        raise ValueError("Yahoo (query2) returned an empty series.")
+    return points
+
+
+def fetch_symbol_history(symbol):
+    last_error = None
+    for source in (fetch_symbol_history_yahoo, fetch_symbol_history_stooq, fetch_symbol_history_yahoo_alt):
+        try:
+            return source(symbol)
+        except HISTORY_FETCH_ERRORS as error:
+            last_error = error
+    raise last_error
+
+
 def get_symbol_history(symbol):
     cache = load_history_cache()
     entry = cache.get(symbol)
@@ -152,7 +204,7 @@ def get_symbol_history(symbol):
         return entry["data"], False
     try:
         points = fetch_symbol_history(symbol)
-    except (urllib.error.URLError, TimeoutError, KeyError, IndexError, ValueError, json.JSONDecodeError):
+    except HISTORY_FETCH_ERRORS:
         if entry:
             return entry["data"], True
         return None, False
