@@ -219,7 +219,8 @@
           { label: "Below 52W high", value: r => pct(r.pct52w), cls: () => "dim", show: r => r.pct52w != null },
           { label: "Resistance", value: r => inr(r.resistance), show: r => r.resistance != null },
           { label: "Gap to break", value: r => Math.abs(Number(r.breakoutPct) || 0).toFixed(1) + "%", cls: () => "dim", show: r => r.breakoutPct != null },
-          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–", show: r => r.volRatio != null }
+          { label: "Vol ratio", value: r => r.volRatio != null ? Number(r.volRatio).toFixed(2) + "×" : "–", show: r => r.volRatio != null },
+          { label: "SL", value: r => inr(r.stop), show: r => r.stop != null }
         ]
       },
       CH: {

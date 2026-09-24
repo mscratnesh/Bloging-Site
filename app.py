@@ -319,8 +319,21 @@ def parse_breakout_myb_rows(csv_text):
             "cmp": breakout_num(record[1]),
             "base": record[5].strip() or None,
             "pct52w": breakout_num(record[3]),
+            "stop": breakout_num(record[7]) if len(record) > 7 else None,
         })
     return rows
+
+
+def parse_breakout_ch_stops(csv_text):
+    # The MYB tab also lists C&H rows with their SL (column H); the C&H tab has no SL column.
+    stops = {}
+    for record in csv.reader(io.StringIO(csv_text)):
+        if len(record) < 8 or record[6].strip().upper() != "C&H":
+            continue
+        symbol, stop = record[0].strip(), breakout_num(record[7])
+        if symbol and stop is not None:
+            stops[symbol] = stop
+    return stops
 
 
 BREAKOUT_CACHE = {"data": None, "fetched_at": 0.0}
@@ -333,7 +346,11 @@ def fetch_breakout_data():
         return cached
     try:
         ch_rows = parse_breakout_ch_rows(fetch_breakout_sheet_csv(BREAKOUT_SHEET_GID_CH))
-        myb_rows = parse_breakout_myb_rows(fetch_breakout_sheet_csv(BREAKOUT_SHEET_GID_MYB))
+        myb_csv = fetch_breakout_sheet_csv(BREAKOUT_SHEET_GID_MYB)
+        myb_rows = parse_breakout_myb_rows(myb_csv)
+        ch_stops = parse_breakout_ch_stops(myb_csv)
+        for row in ch_rows:
+            row["stop"] = ch_stops.get(row["symbol"])
         data = {
             "updatedAt": datetime.now(IST).isoformat(timespec="seconds"),
             "rows": myb_rows + ch_rows,
