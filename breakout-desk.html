@@ -61,6 +61,8 @@
   .bd-detail-caption{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
   .bd-detail-price{height:min(50vh,380px);margin-bottom:10px}
   .bd-detail-price svg{display:block;width:100%;height:100%}
+  .bd-candle-hl{opacity:0;pointer-events:none;transition:opacity .1s}
+  .bd-candle:hover .bd-candle-hl{opacity:1}
   .bd-detail-vol{height:110px}
   .bd-detail-vol svg{display:block;width:100%;height:100%}
   @media(max-width:700px){.bd-detail{padding:30px 8vw 70px}}
@@ -467,7 +469,10 @@
         // A wider, invisible hit area (full slot width, full high–low height) makes the
         // tooltip trigger on hover near the candle, not just on its thin wick/body.
         const hitArea = `<rect x="${(cx - slot / 2).toFixed(1)}" y="${yHigh.toFixed(1)}" width="${slot.toFixed(1)}" height="${Math.max(yLow - yHigh, 1).toFixed(1)}" fill="transparent"/>`;
-        return `<g><title>${esc(tooltip)}</title>${hitArea}<line x1="${cx.toFixed(1)}" y1="${yHigh.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLow.toFixed(1)}" stroke="${color}" stroke-width="1"/><rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" fill="${color}"/>${marker}</g>`;
+        // Full-width high/low lines for this specific candle, revealed on hover via CSS
+        // (see .bd-candle-hl) so you can line it up against every other candle at a glance.
+        const hoverLines = `<line class="bd-candle-hl" x1="0" y1="${yHigh.toFixed(1)}" x2="${W}" y2="${yHigh.toFixed(1)}" stroke="var(--ink)" stroke-dasharray="2,3" stroke-width="1"/><line class="bd-candle-hl" x1="0" y1="${yLow.toFixed(1)}" x2="${W}" y2="${yLow.toFixed(1)}" stroke="var(--ink)" stroke-dasharray="2,3" stroke-width="1"/>`;
+        return `<g class="bd-candle"><title>${esc(tooltip)}</title>${hitArea}${hoverLines}<line x1="${cx.toFixed(1)}" y1="${yHigh.toFixed(1)}" x2="${cx.toFixed(1)}" y2="${yLow.toFixed(1)}" stroke="${color}" stroke-width="1"/><rect x="${(cx - bodyW / 2).toFixed(1)}" y="${bodyTop.toFixed(1)}" width="${bodyW.toFixed(1)}" height="${bodyH.toFixed(1)}" fill="${color}"/>${marker}</g>`;
       }).join("");
       return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img" aria-label="Weekly candlestick chart">${highLowLines}${refLine}${bars}</svg>`;
     }
