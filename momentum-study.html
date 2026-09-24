@@ -161,6 +161,7 @@
         <li><strong>Results are not knife-edge on the ranking rules.</strong> Lookback choices, score formula and rebalance day all land in a similar range; holding more stocks (15–20) raised returns and lowered drawdowns in this sample. Rebalancing quarterly instead of monthly was clearly worse.</li>
         <li><strong>Costs and tax matter but don't break it; size does.</strong> After Indian capital-gains tax the CAGR drops from ${pct(s.costs.preTax.cagr)} to ${pct(s.costs.afterTax.cagr)}. At ₹10 crore, ${pct(cap.over10pct, false, 0)} of buys would exceed 10% of the stock's daily turnover — this is a strategy for small accounts.</li>
         <li><strong>The ride is rough.</strong> The worst fall was ${pct(s.risk.drawdowns[0].depth)} (${fmtMonth(s.risk.drawdowns[0].peak)} to ${fmtMonth(s.risk.drawdowns[0].trough)}), and only ${pct(t.winRate, false, 0)} of trades made money — the winners were just ${num(t.payoff, 1)}× bigger than the losers.</li>
+        <li><strong>A 10% stop-loss doesn't help.</strong> ${(() => { const pit = s.stopLoss.grid.find(g => g.universe.includes("point-in-time")); return `On the survivorship-free lists, selling any holding that fell 10% within the month cut CAGR from ${pct(pit.cells[0].cagr)} to ${pct(pit.cells[1].cagr)}; it only looked helpful on today's (biased) lists.`; })()} Checking the market filter daily was the better drawdown control.</li>
       </ol></section>`;
     }
 
@@ -280,6 +281,33 @@
       </section>`;
     }
 
+    function stopLossSection(s){
+      const sl = s.stopLoss, cell = c => `${pct(c.cagr)}<br><span class="dim" style="font-size:11px">${pct(c.maxDD)}</span>`;
+      const pit = sl.grid.find(g => g.universe.includes("point-in-time")), today = sl.grid.find(g => g.universe === "Nifty 500, today's list");
+      const effect = g => g.cells[1].cagr - g.cells[0].cagr;
+      const gridRows = sl.grid.map(g => `<tr class="${g === pit ? "base" : ""}"><td>${esc(g.universe)}${g === pit ? " (no bias)" : ""}</td>${g.cells.map(c => `<td>${cell(c)}</td>`).join("")}</tr>`);
+      const thrRows = sl.thresholds.map(t => `<tr><td>${Math.round(t.level * 100)}% below the month-start price</td><td>${pct(t.cagr)}</td><td class="neg">${pct(t.maxDD)}</td><td>${num(t.sharpe)}</td></tr>`);
+      const base = pit.cells[0];
+      thrRows.unshift(`<tr class="base"><td>No stop (base)</td><td>${pct(base.cagr)}</td><td class="neg">${pct(base.maxDD)}</td><td>${num(base.sharpe)}</td></tr>`);
+      const mfRows = sl.marketFilter.map(m => `<tr class="${m.universe.includes("point-in-time") ? "base" : ""}"><td>${esc(m.universe)}</td><td>${cell(m.monthEnd)}</td><td>${cell(m.daily)}</td><td>${cell(m.dailyPlusStop)}</td></tr>`);
+      const a = sl.afterStop;
+      return `<section class="st-section" id="stoploss"><h2>7. Stop-loss test</h2>
+        <p class="sub">Would an extra exit — sell a holding that falls 10% within the month — help? Three versions were tested, each on three stock lists. Money from a stop waits in the liquid fund until the next month-end, when the slot is refilled from the ranking. Everything else is the base case.</p>
+        ${table(["Stock list", ...sl.variants], gridRows, { cls: "st-heat" })}
+        <p class="sub">CAGR, with max drawdown underneath.</p>
+        <p class="st-warn">The stop only looks good because of survivorship bias. On the same Nifty 500, the daily stop adds ${pp(effect(today)).replace("+", "")} a year when today's list is used for every month, but <strong>costs ${pp(-effect(pit)).replace("+", "")} a year</strong> on the lists that were actually in force. Every version loses once the bias is removed.</p>
+        <h3>Does the threshold matter?</h3>
+        <p class="sub">Daily stop from the month-start price, on the point-in-time Nifty 500.</p>
+        ${table(["", "CAGR", "Max drawdown", "Sharpe"], thrRows)}
+        <h3>Does a stop catch real losers?</h3>
+        <p class="body">After the daily stop sold a stock (${a.count} cases), the stock rose by the next month-end ${pct(a.rebounded, false, 0)} of the time and fell further ${pct(a.fellFurther, false, 0)} of the time (median ${pct(a.median, true)}). A 10% dip within the month told you nothing about what came next, so the stop mostly adds trades and costs.</p>
+        <h3>A better way to cut drawdowns: check the market filter daily</h3>
+        <p class="sub">The base case checks Nifty 500 against its 200-day average only at month-end. Checking it every day (and going to the liquid fund the day it closes below) reacts faster to a falling market.</p>
+        ${table(["Stock list", "Market filter at month-end (base)", "Market filter daily", "Daily filter + 10% stop"], mfRows, { cls: "st-heat" })}
+        <p class="st-take">On the unbiased point-in-time list, checking the market filter daily improved both return and drawdown, and adding the 10% stop on top wiped out the whole return gain (ending below the base case) without reducing the drawdown further. If you want less drawdown, a daily market-filter check did far more than a per-stock stop in this period.</p>
+      </section>`;
+    }
+
     function methodSection(s){
       const b = s.base;
       return `<section class="st-section" id="method"><h2>Method and limits</h2><ul class="st-method">
@@ -294,9 +322,9 @@
 
     function render(s){
       $("stamp").textContent = `Study run on data to ${fmtDate(s.asOf)} · fixed snapshot, not updated`;
-      const toc = [["survivorship", "Survivorship bias"], ["luck", "Skill or luck"], ["sensitivity", "Parameters"], ["timing", "Rebalance day"], ["costs", "Costs, tax, capacity"], ["risk", "Risk"], ["method", "Method"]];
+      const toc = [["survivorship", "Survivorship bias"], ["luck", "Skill or luck"], ["sensitivity", "Parameters"], ["timing", "Rebalance day"], ["costs", "Costs, tax, capacity"], ["risk", "Risk"], ["stoploss", "Stop-loss test"], ["method", "Method"]];
       $("st-body").innerHTML = `<nav class="st-toc" aria-label="Sections">${toc.map(([id, label]) => `<a href="#${id}">${label}</a>`).join("")}</nav>` +
-        findings(s) + survivorshipSection(s) + luckSection(s) + sensitivitySection(s) + timingSection(s) + costsSection(s) + riskSection(s) + methodSection(s) +
+        findings(s) + survivorshipSection(s) + luckSection(s) + sensitivitySection(s) + timingSection(s) + costsSection(s) + riskSection(s) + stopLossSection(s) + methodSection(s) +
         `<p class="st-disclaimer">For information and education only. This is research on a rules-based backtest, not a recommendation to buy or sell any security, and not investment advice. Backtests are hypothetical and past performance does not guarantee future results. Price data: Yahoo Finance; index lists: NSE Indices (current and archived via the Wayback Machine).</p>`;
       if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
     }

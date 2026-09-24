@@ -50,6 +50,13 @@ class Params:
     cost: float = 0.0025             # per side
     universe: str = "fixed750"       # "fixed750" | "today500" | "pit500"
     taxes: bool = False
+    # Extra exit: sell a holding that falls `stop_pct` within the month.
+    #   "from_rebalance": daily, close <= (1 - stop_pct) x its close at the last rebalance (or buy price)
+    #   "trailing":       daily, close <= (1 - stop_pct) x its highest close since the last rebalance
+    #   "month_end":      at the rebalance, if it fell stop_pct or more since the previous rebalance
+    # Stopped-out money waits in the liquid fund until the next rebalance refills the slot.
+    stop_mode: str = None
+    stop_pct: float = 0.10
 
 
 BASE = Params()
@@ -319,6 +326,7 @@ def backtest(feat, p, rng=None, record=False):
     liquid_daily = (1 + LIQUID_ANNUAL) ** (1 / TRADING_DAYS) - 1
 
     cash, hold, entry = 1.0, {}, {}
+    ref, peak = {}, {}  # per holding: close at the last rebalance, highest close since then
     tax = Tax() if p.taxes else None
     equity, trades, events, turnover_traded = [], [], [], 0.0
     exposure, positions_log = [], []
@@ -338,6 +346,26 @@ def backtest(feat, p, rng=None, record=False):
                     cash *= scale
                     hold = {j: v * scale for j, v in hold.items()}
                     entry = {j: {**e, "basis": e["basis"] * scale} for j, e in entry.items()}
+
+        # Daily stop within the month (rebalance days are handled by the rebalance itself).
+        if p.stop_mode in ("from_rebalance", "trailing") and hold and t not in rebal_set:
+            stopped = []
+            for j in hold:
+                price = d.close[t, j]
+                if np.isnan(price):
+                    continue
+                peak[j] = max(peak[j], price)
+                level = (peak[j] if p.stop_mode == "trailing" else ref[j]) * (1 - p.stop_pct)
+                if price <= level:
+                    stopped.append(j)
+            for j in stopped:
+                v = hold.pop(j)
+                proceeds = v * (1 - p.cost)
+                _close_trade(trades, entry.pop(j), j, day, proceeds, tax, cal)
+                cash += proceeds
+                turnover_traded += v
+            if stopped:
+                events.append({"date": day, "type": "STOP", "n": len(stopped)})
 
         below = sma is not None and not np.isnan(sma[t]) and d.index[t] < sma[t]
         force_exit = p.market_check == "daily" and below and hold and t not in rebal_set
@@ -361,14 +389,17 @@ def backtest(feat, p, rng=None, record=False):
             else:
                 top = set(order[:p.exit_rank].tolist())
             was_empty = not hold
-            sold = [j for j in hold if j not in top]
+            fell = lambda j: (p.stop_mode == "month_end" and not np.isnan(d.close[t, j])
+                              and d.close[t, j] <= ref[j] * (1 - p.stop_pct))
+            sold = [j for j in hold if j not in top or fell(j)]
             for j in sold:
                 v = hold.pop(j)
                 proceeds = v * (1 - p.cost)
                 _close_trade(trades, entry.pop(j), j, day, proceeds, tax, cal)
                 cash += proceeds
                 turnover_traded += v
-            buys = [j for j in order.tolist() if j not in hold][:p.top_n - len(hold)]
+            fell_now = {j for j in sold if fell(j)}  # don't buy straight back what the stop just sold
+            buys = [j for j in order.tolist() if j not in hold and j not in fell_now][:p.top_n - len(hold)]
             if buys and cash > 0:
                 share = cash * (1 - p.cost) / len(buys)
                 for j in buys:
@@ -380,6 +411,10 @@ def backtest(feat, p, rng=None, record=False):
                 cash = 0.0
             if sold or buys:
                 events.append({"date": day, "type": "ENTER" if was_empty else "SWAP", "n": len(sold) + len(buys)})
+        if t in rebal_set:  # the stop is measured from each rebalance's close
+            for j in hold:
+                price = d.close[t, j]
+                ref[j] = peak[j] = price if not np.isnan(price) else entry[j]["price"]
         total = cash + sum(hold.values())
         equity.append(total)
         if record:
@@ -648,9 +683,63 @@ def main():
         "industry": industry_exposure(feat, run(BASE, record=True)),
     }
     out["curve"] = _curve(dates, {"strategy": eq, "nifty500": bench, "ew750": ew750})
+    out["stopLoss"] = stop_loss_study(feat)
 
     (ROOT / "momentum_study.json").write_text(json.dumps(out, separators=(",", ":"), default=_json_default), encoding="utf-8")
     print_summary(out)
+
+
+STOP_VARIANTS = (
+    (None, "No stop (base)"),
+    ("from_rebalance", "Daily: 10% below the month-start price"),
+    ("trailing", "Daily trailing: 10% below the month's high"),
+    ("month_end", "Month-end: fell 10% or more over the month"),
+)
+UNIVERSES = (("fixed750", "Nifty 750, today's list"), ("today500", "Nifty 500, today's list"),
+             ("pit500", "Nifty 500, point-in-time"))
+
+
+def stop_loss_study(feat):
+    """Tests an extra 'exit if it falls 10% within the month' rule, on biased and unbiased lists."""
+    d = feat.data
+    grid = []
+    for uni, uni_label in UNIVERSES:
+        cells = []
+        for mode, _ in STOP_VARIANTS:
+            s = summary(backtest(feat, replace(BASE, universe=uni, stop_mode=mode)))
+            cells.append({"cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"], "turnover": s["turnoverPerYear"]})
+        grid.append({"universe": uni_label, "cells": cells})
+
+    thresholds = []
+    for level in (0.07, 0.10, 0.15, 0.20):
+        s = summary(backtest(feat, replace(BASE, universe="pit500", stop_mode="from_rebalance", stop_pct=level)))
+        thresholds.append({"level": level, "cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"]})
+
+    # What happened to stocks after the daily stop sold them (until the next rebalance)?
+    after = []
+    for uni in ("fixed750", "pit500"):
+        run = backtest(feat, replace(BASE, universe=uni, stop_mode="from_rebalance"))
+        rebal = run["rebalances"]
+        for tr in run["trades"]:
+            t_exit = d.day_index[tr["exit"]]
+            nxt = next((t for t in rebal if t > t_exit), None)
+            if t_exit not in rebal and nxt is not None:
+                after.append(d.close[nxt, tr["col"]] / d.close[t_exit, tr["col"]] - 1)
+    after = np.array(after)
+
+    market = []
+    for uni, uni_label in UNIVERSES:
+        row = {"universe": uni_label}
+        for key, p in (("monthEnd", BASE), ("daily", replace(BASE, market_check="daily")),
+                       ("dailyPlusStop", replace(BASE, market_check="daily", stop_mode="from_rebalance"))):
+            s = summary(backtest(feat, replace(p, universe=uni)))
+            row[key] = {"cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"]}
+        market.append(row)
+
+    return {"variants": [label for _, label in STOP_VARIANTS], "grid": grid, "thresholds": thresholds,
+            "afterStop": {"count": len(after), "median": float(np.median(after)),
+                          "rebounded": float(np.mean(after > 0)), "fellFurther": float(np.mean(after < 0))},
+            "marketFilter": market}
 
 
 def capacity(feat, run):
