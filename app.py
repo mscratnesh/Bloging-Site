@@ -378,10 +378,10 @@ class BlogHandler(BaseHTTPRequestHandler):
                 self.send_json({"error": "Invalid symbol."}, 400)
                 return
             try:
-                years = int(float(parse_qs(urlparse(self.path).query).get("years", ["2"])[0]))
+                years = float(parse_qs(urlparse(self.path).query).get("years", ["2"])[0])
             except (TypeError, ValueError):
-                years = 2
-            years = max(1, min(15, years))
+                years = 2.0
+            years = round(max(0.5, min(15, years)), 1)
             points, stale = get_symbol_history(symbol, years)
             if points is None:
                 self.send_json({"error": "Could not load price history."}, 502)

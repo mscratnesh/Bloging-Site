@@ -168,11 +168,11 @@
     const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
     const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
     const vsMA = r => r.cmp && r.ma30 ? (r.cmp / r.ma30 - 1) * 100 : null;
-    // Chart window = the base's own length + 1 year, so the whole base plus some
-    // breakout room is visible instead of a fixed, possibly-too-short 1y window.
+    // Chart window = the base's own length + 6 months, so the whole base plus a bit of
+    // breakout room is visible instead of a fixed, possibly-too-short/too-long window.
     const chartYears = r => {
-      if (r.baseYrs != null) return Math.ceil(r.baseYrs) + 1;
-      if (r.cupWks != null) return Math.ceil((r.cupWks + (r.handleWks || 0)) / 52) + 1;
+      if (r.baseYrs != null) return r.baseYrs + 0.5;
+      if (r.cupWks != null) return (r.cupWks + (r.handleWks || 0)) / 52 + 0.5;
       return 2;
     };
 
@@ -255,7 +255,7 @@
     function chartAttrs(set, r){
       const refLevel = set.refLevel ? set.refLevel(r) : null;
       const markDate = set.markDate ? set.markDate(r) : null;
-      return `data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"`;
+      return `data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${Math.round(chartYears(r) * 10) / 10}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"`;
     }
 
     function chartHTML(set, r){
@@ -387,7 +387,7 @@
     }
 
     // Fetches (and caches per page load, keyed by symbol+years) daily history — the window
-    // is that row's own base length + 1 year (see chartYears).
+    // is that row's own base length + 6 months (see chartYears).
     const historyCache = {};
     function loadHistory(symbol, years){
       const cacheKey = symbol + ":" + years;
