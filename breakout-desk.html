@@ -28,19 +28,9 @@
   .bd-section .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
   .bd-subhead{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:22px 0 10px}
   .bd-subhead:first-of-type{margin-top:0}
-  .bd-table{overflow-x:auto;border:1px solid var(--line);margin-bottom:14px}
-  table{border-collapse:collapse;width:100%;min-width:640px}
-  th,td{padding:11px 16px;text-align:right;white-space:nowrap;font-size:13px}
-  th:first-child,td:first-child{text-align:left}
-  th{font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--line)}
-  td{font-family:var(--mono);font-variant-numeric:tabular-nums;border-bottom:1px solid var(--line)}
-  tr:last-child td{border-bottom:0}
-  td.sym{font-family:var(--sans);font-weight:600;font-size:13px}
-  td.sym small{display:block;font-family:var(--mono);font-weight:400;font-size:11px;color:var(--muted)}
-  .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
   .bd-placeholder{padding:14px 16px;color:var(--muted);font:12px var(--mono);border:1px solid var(--line)}
 
-  .bd-cards{display:none;flex-direction:column;gap:10px;margin-bottom:14px}
+  .bd-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;margin-bottom:14px}
   .bd-card{border:1px solid var(--line);padding:14px 16px}
   .bd-card-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--line)}
   .bd-card-sym{font-family:var(--sans);font-weight:700;font-size:15px}
@@ -56,10 +46,6 @@
   .bd-chart-note{font:11px var(--mono);color:var(--muted)}
   .bd-chart-expand{position:absolute;top:-2px;right:-2px;width:24px;height:24px;border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:4px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
   .bd-chart-expand:hover{color:var(--ink);border-color:var(--ink)}
-  @media(max-width:700px){
-    .bd-table{display:none}
-    .bd-cards{display:flex}
-  }
 
   .bd-modal{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:100;display:flex;align-items:center;justify-content:center;padding:16px}
   .bd-modal[hidden]{display:none}
@@ -262,18 +248,7 @@
       }
     };
 
-    function renderTable(colsKey, rows){
-      const set = COLS[colsKey];
-      const heads = [`<th scope="col">Symbol</th>`].concat(set.fields.map(f => `<th scope="col">${f.label}</th>`));
-      const body = rows.map(r => {
-        const symCell = `<td class="sym">${esc(set.sym.value(r))}<small>${esc(set.sym.sub(r))}</small></td>`;
-        const cells = set.fields.map(f => `<td class="${f.cls ? f.cls(r) : ""}">${f.value(r)}</td>`).join("");
-        return `<tr>${symCell}${cells}</tr>`;
-      }).join("");
-      return `<div class="bd-table"><table><thead><tr>${heads.join("")}</tr></thead><tbody>${body}</tbody></table></div>`;
-    }
-
-    // Shared data-attribute string for a row's chart, used by both the inline card chart
+    // Shared data-attribute string for a row's chart, used by the inline table/card chart
     // and its expand button, so the fullscreen modal can rebuild the same chart bigger.
     function chartAttrs(set, r){
       const refLevel = set.refLevel ? set.refLevel(r) : null;
@@ -281,24 +256,25 @@
       return `data-symbol="${esc(r.symbol)}" data-ref="${refLevel ?? ""}" data-ref-label="${esc(set.refLabel ?? "")}" data-years="${chartYears(r)}" data-mark="${markDate ?? ""}" data-mark-label="${esc(set.markLabel ?? "")}"`;
     }
 
+    function chartWrapHTML(set, r){
+      const attrs = chartAttrs(set, r);
+      return `<div class="bd-chart-wrap"><div class="bd-chart" ${attrs}><span class="bd-chart-note">Loading…</span></div><button class="bd-chart-expand" type="button" ${attrs} aria-label="Expand chart with volume">⤢</button></div>`;
+    }
+
+    // Cards are the display for every screen size — a responsive grid on wide screens,
+    // a single column on narrow ones (see .bd-cards in the stylesheet).
     function renderCards(colsKey, rows){
       const set = COLS[colsKey];
       const cards = rows.map(r => {
         const items = set.fields.map(f => `<div class="bd-card-item"><span class="bd-card-label">${f.label}</span><span class="bd-card-value ${f.cls ? f.cls(r) : ""}">${f.value(r)}</span></div>`).join("");
-        const attrs = chartAttrs(set, r);
-        const chart = `<div class="bd-chart-wrap"><div class="bd-chart" ${attrs}><span class="bd-chart-note">Loading chart…</span></div><button class="bd-chart-expand" type="button" ${attrs} aria-label="Expand chart with volume">⤢</button></div>`;
-        return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div>${chart}<div class="bd-card-grid">${items}</div></div>`;
+        return `<div class="bd-card"><div class="bd-card-head"><span class="bd-card-sym">${esc(set.sym.value(r))}</span><span class="bd-card-sub">${esc(set.sym.sub(r))}</span></div>${chartWrapHTML(set, r)}<div class="bd-card-grid">${items}</div></div>`;
       }).join("");
       return `<div class="bd-cards">${cards}</div>`;
     }
 
-    function renderRows(colsKey, rows){
-      return renderTable(colsKey, rows) + renderCards(colsKey, rows);
-    }
-
     // Simple sections that use one column set regardless of setup.
     function simpleSection(id, colsKey, rows, label){
-      $("t-" + id).innerHTML = rows.length ? renderRows(colsKey, rows) : `<div class="bd-placeholder">No ${label} right now.</div>`;
+      $("t-" + id).innerHTML = rows.length ? renderCards(colsKey, rows) : `<div class="bd-placeholder">No ${label} right now.</div>`;
     }
 
     // Mixed sections (Breakout) can contain both MYB and C&H rows — split into sub-groups.
@@ -307,8 +283,8 @@
       const ch = rows.filter(r => r.setup === "C&H");
       if (!rows.length) { $("t-" + id).innerHTML = `<div class="bd-placeholder">No ${label} right now.</div>`; return; }
       let html = "";
-      if (myb.length) html += `<div class="bd-subhead">Multi-year base</div>` + renderRows("MYB_BREAKOUT", myb);
-      if (ch.length) html += `<div class="bd-subhead">Cup &amp; handle</div>` + renderRows("CH", ch);
+      if (myb.length) html += `<div class="bd-subhead">Multi-year base</div>` + renderCards("MYB_BREAKOUT", myb);
+      if (ch.length) html += `<div class="bd-subhead">Cup &amp; handle</div>` + renderCards("CH", ch);
       $("t-" + id).innerHTML = html;
     }
 
