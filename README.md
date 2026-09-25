@@ -35,7 +35,7 @@ The live site (letmoneyearn.in) runs on a Windows VM using the prebuilt `dist/` 
    taskkill /IM LetMoneyEarnAdmin.exe /F
    C:\nginx\nginx.exe -s stop
    ```
-2. Replace the VM's `dist` folder with the new build — **except** `let_money_earn.db` (and `uploads\`, if present). The live database holds real articles, comments, reviews, and questions; never overwrite it with a locally-built copy. Update it in place with targeted SQL instead of replacing the file. Make sure the build includes the market-tool data files (`momentum_teaser.json`, `breakout_data.json`) — see [Building the executables](#building-the-executables).
+2. Replace the VM's `dist` folder with the new build — **except** `let_money_earn.db` (and `uploads\`, if present). The live database holds real articles, comments, reviews, and questions; never overwrite it with a locally-built copy. Update it in place with targeted SQL instead of replacing the file. Make sure the build includes the market-tool data files (`momentum_teaser.json`, `etf_teaser.json`, `breakout_data.json`) — see [Building the executables](#building-the-executables).
 3. Run `dist\setup_all.bat` as Administrator — copies `nginx.conf`, tests it, and starts nginx plus both apps.
 4. Verify at https://www.letmoneyearn.in/.
 
@@ -65,7 +65,7 @@ NSE stocks breaking out of multi-year bases and cup-and-handle patterns.
 
 ### Momentum Study (`momentum-study.html`)
 
-A public **teaser** for the momentum research: a short intro, headline numbers and the equity curve against the Nifty 500, with **no rules**. It reads `momentum_teaser.json` (curve and headline numbers only), a **fixed snapshot** (prices to 24 Sep 2026) that the site never refreshes.
+A public **teaser** for the momentum research: a short intro, headline numbers and the equity curve against the Nifty 500, with **no rules**. It reads `momentum_teaser.json`, plus `etf_teaser.json` for a short ETF momentum section (curves and headline numbers only), a **fixed snapshot** (prices to 24 Sep 2026) that the site never refreshes.
 
 The full study (every rule, stress test and table) is kept out of the site build in `study/momentum-study-full.html`, which reads `momentum_study.json`; it may become paid content later, so don't deploy either file until they sit behind a login. To view it locally, serve the repo root (`py -m http.server`) and open `/study/momentum-study-full.html`.
 
@@ -89,13 +89,27 @@ py study\fetch_extra_prices.py   # only if study\prices_extra.json is missing
 py study\momentum_study.py
 ```
 
+### ETF momentum study (`study/etf_*`)
+
+A momentum rotation across 16 NSE ETFs (index, sector, gold, silver, long gilt; LIQUIDCASE as cash): same score and filters as the stock study, top 5 held as equal slots, sell below rank 7, no market switch. Each ETF is eligible only once it has about a year of prices, so the list grows as it did for a real investor.
+
+- `study/etf_prices.json` — daily prices from Yahoo (`momentum.fetch_daily("<ETF>.NS", "10y")`; `"max"` returns monthly bars). Bad prints (a close under half or over double the last good one) are dropped when loading.
+- `study/etf_study.py` — writes `etf_study.json` (full study) and `etf_teaser.json` (curve and headline numbers for the public page).
+- `study/etf_report.py` — writes `study/etf_report.html`, the month-by-month log (reuses `study/backtest_report_template.html`'s look).
+- `study/etf-study-full.html` — the full ETF study page (reads `etf_study.json`), kept out of the site build like `study/momentum-study-full.html`.
+
+```powershell
+py study\etf_study.py
+py study\etf_report.py
+```
+
 ### Momentum book (`book/`)
 
 "Riding the Winners", a plain-English book (Word, A4) on momentum investing built from the study: what momentum is, its history, why it works, the exact rules, the honest backtest and every stress test. All numbers and charts come from `momentum_study.json`, so rebuild it after rerunning the study. Not part of the site build.
 
 ```powershell
 cd book; npm install; cd ..        # once (installs docx; node_modules is git-ignored)
-py book\make_charts.py             # charts\*.png and book_extra.json
+py book\make_charts.py             # charts\*.png and book_extra.json (needs momentum_study.json and etf_study.json)
 node book\build_book.js            # Momentum_Investing_Book.docx
 ```
 
@@ -110,7 +124,7 @@ py -m PyInstaller --noconfirm LetMoneyEarn.spec
 py -m PyInstaller --noconfirm LetMoneyEarnAdmin.spec
 ```
 
-Then copy the site files next to the executables in `dist\`: every `*.html`, `*.js`, `*.css`, plus `breakout_data.json` and `momentum_teaser.json` (not `momentum_study.json`: it holds the full study). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
+Then copy the site files next to the executables in `dist\`: every `*.html`, `*.js`, `*.css`, plus `breakout_data.json`, `momentum_teaser.json` and `etf_teaser.json` (not `momentum_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
 
 ## Punam Numerology (subdomain site)
 

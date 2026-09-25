@@ -33,6 +33,7 @@
   .st-note{border-left:3px solid var(--success);background:#f1f6ee;padding:10px 14px;font-size:14px;margin:28px 0 0;max-width:760px}
   .st-placeholder{padding:28px;border:1px dashed var(--line);color:var(--muted);font-family:var(--mono);font-size:13px}
   .neg{color:var(--coral-text)}
+  .st-next{border-top:1px solid var(--ink);padding-top:16px;margin-top:44px !important}
   .st-disclaimer{font:12px var(--mono);color:var(--muted);margin-top:36px;max-width:820px}
 </style>
 </head>
@@ -94,11 +95,30 @@
         <p class="sub">Log scale, so equal percentage moves look the same size.</p>
         ${lineChart(s.curve, [{ key: "nifty500", label: "Nifty 500 index", color: "var(--muted)", dash: "4 3" }, { key: "strategy", label: "Momentum strategy", color: "var(--coral-text)", width: 2.4 }], { note: "Growth of ₹1", label: "Growth of 1 rupee: momentum strategy vs Nifty 500" })}
         <p class="body">The strategy grew faster than the market, but it was also a bumpier ride: its worst fall (${pct(st.maxDD)}) was deeper than the index's (${pct(n5.maxDD)}), and there were long stretches below its previous high. Returns like these only come to investors who stick with the rules through the painful periods.</p>
-        <p class="st-note"><strong>Coming soon: the full study.</strong> The exact rules, stress tests against luck and survivorship bias, costs and tax, and month-by-month results.</p>
+        <div id="etf-body"></div>
+        <p class="st-note"><strong>Coming soon: the full studies.</strong> The exact rules for both strategies, stress tests against luck and survivorship bias, costs and tax, and month-by-month results.</p>
         <p class="st-disclaimer">For information and education only. This is research on a rules-based backtest, not a recommendation to buy or sell any security, and not investment advice. Backtests are hypothetical and past performance does not guarantee future results. Price data: Yahoo Finance; index lists: NSE Indices (current and archived via the Wayback Machine).</p>`;
     }
 
-    fetch("momentum_teaser.json").then(r => r.json()).then(render).catch(() => {
+    function renderEtf(e){
+      const st = e.strategy, n = e.nifty, g = e.gold;
+      $("etf-body").innerHTML = `
+        <h2 class="st-next">Momentum with ETFs</h2>
+        <p class="body">The same idea also works with exchange-traded funds. Instead of single stocks, a rotation moves between index, sector, gold, silver and bond ETFs, holding whichever are rising most strongly and steadily, and waiting in a liquid-fund ETF when few are. We tested it from ${fmtMonth(e.from)} to ${fmtMonth(e.to)}, using only ETFs that were already trading at each point.</p>
+        <div class="st-stats">
+          <div class="st-stat"><span class="l">Yearly growth</span><span class="n">${pct(st.cagr)}</span><span class="d">NIFTYBEES ${pct(n.cagr)} · GOLDBEES ${pct(g.cagr)}</span></div>
+          <div class="st-stat"><span class="l">₹1 lakh became</span><span class="n">₹${num(st.multiple)} lakh</span><span class="d">NIFTYBEES ₹${num(n.multiple)} lakh</span></div>
+          <div class="st-stat"><span class="l">Worst fall</span><span class="n neg">${pct(st.maxDD)}</span><span class="d">NIFTYBEES ${pct(n.maxDD)} · GOLDBEES ${pct(g.maxDD)}</span></div>
+          <div class="st-stat"><span class="l">Period</span><span class="n">${fmtMonth(e.from)}</span><span class="d">to ${fmtMonth(e.to)}</span></div>
+        </div>
+        ${lineChart(e.curve, [{ key: "gold", label: "GOLDBEES", color: "#c98500" }, { key: "nifty", label: "NIFTYBEES", color: "var(--muted)", dash: "4 3" }, { key: "strategy", label: "ETF momentum", color: "var(--coral-text)", width: 2.4 }], { note: "Growth of ₹1, log scale", label: "Growth of 1 rupee: ETF momentum vs NIFTYBEES and GOLDBEES" })}
+        <p class="body">The ETF rotation earned less than the stock strategy (over a longer period that started three years earlier), but with a much gentler ride: its worst fall (${pct(st.maxDD)}) was far smaller than the Nifty's (${pct(n.maxDD)}). Gold had an exceptional run in these years; simply holding it did about as well, with bigger swings.</p>`;
+    }
+
+    fetch("momentum_teaser.json").then(r => r.json()).then(s => {
+      render(s);
+      fetch("etf_teaser.json").then(r => r.json()).then(renderEtf).catch(() => { $("etf-body").innerHTML = ""; });
+    }).catch(() => {
       $("stamp").textContent = "Couldn't load the study.";
       $("st-body").innerHTML = '<div class="st-placeholder">Please try again later.</div>';
     });
