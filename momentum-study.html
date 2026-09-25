@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Momentum Study — survivorship bias, parameter sensitivity, costs, taxes, capacity, and risk for the Momentum Scan strategy on Indian stocks.">
+<meta name="description" content="Momentum Study — survivorship bias, parameter sensitivity, costs, taxes, capacity, and risk for a Nifty 750 momentum strategy on Indian stocks.">
 <title>Momentum Study | Let Money Earn</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -69,12 +69,13 @@
 </style>
 </head>
 <body>
-  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><a href="momentum-scan.html">Momentum Scan</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><a href="momentum-study.html">Momentum Study</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
     <section class="st-hero">
       <p class="eyebrow">Research · Indian equities · momentum</p>
       <h1>Momentum Study</h1>
-      <p>How much of the <a href="momentum-scan.html">Momentum Scan</a> backtest is real? This study stress-tests it: survivorship bias, how sensitive it is to each rule, whether the ranking beats random picks, what costs, taxes and fund size do to it, and what the ride actually looks like.</p>
+      <p>A momentum strategy for Indian stocks: from the Nifty Total Market (750), keep stocks near their all-time highs, in a long-term uptrend and liquid enough to trade; rank them by average Sharpe ratio; hold the top 10, replace a holding only when it falls out of the top 30, and move to a liquid fund when the Nifty 500 is below its 200-day average.</p>
+      <p>How much of its backtest is real? This study stress-tests it: survivorship bias, how sensitive it is to each rule, whether the ranking beats random picks, what costs, taxes and fund size do to it, and what the ride actually looks like.</p>
       <p class="st-stamp" id="stamp">Loading…</p>
     </section>
     <div class="st-wrap" id="st-body"><div class="st-placeholder">Loading the study…</div></div>
@@ -170,14 +171,14 @@
       const rows = sv.runs.map(r => `<tr><td>${esc(r.label)}</td><td>${pct(r.cagr)}</td><td class="neg">${pct(r.maxDD)}</td><td>${num(r.sharpe)}</td><td>${pct(r.equalWeight.cagr)}</td><td class="${cls(r.excessOverEW)}">${pp(r.excessOverEW)}</td></tr>`);
       const cov = sv.coverage.map(c => `<tr><td>${fmtDate(c.date)}</td><td>${c.members}</td><td>${c.withPrices}</td><td class="wrap dim">${esc(c.missing.join(", ")) || "–"}</td></tr>`);
       return `<section class="st-section" id="survivorship"><h2>1. Survivorship bias</h2>
-        <p class="sub">The Momentum Scan backtest uses today's list of stocks for every past month. Stocks that crashed, were merged or dropped out of the index are missing, which flatters any backtest. NSE only publishes the current list, so this study rebuilds past Nifty 500 lists from archived copies of NSE's own files (Wayback Machine) and reruns the strategy on the Nifty 500 both ways.</p>
+        <p class="sub">The base backtest uses today's list of stocks for every past month. Stocks that crashed, were merged or dropped out of the index are missing, which flatters any backtest. NSE only publishes the current list, so this study rebuilds past Nifty 500 lists from archived copies of NSE's own files (Wayback Machine) and reruns the strategy on the Nifty 500 both ways.</p>
         ${table(["Stock list", "CAGR", "Max drawdown", "Sharpe", "Equal-weight CAGR", "Strategy vs equal-weight"], rows)}
         ${lineChart(sv.curve, [{ key: "today", label: "Today's list (biased)", color: "var(--muted)" }, { key: "pit", label: "Point-in-time lists", color: "var(--coral-text)", width: 2 }], { log: true, note: "Growth of ₹1, log scale", label: "Survivorship comparison" })}
         <p class="st-take">The bias inflates the strategy by about ${pp(sv.biasCagr).replace("+", "")} a year here — much less than it inflates a buy-everything portfolio, most likely because momentum rules sell falling stocks well before they are dropped from the index. Measured against its own equal-weight universe, the strategy looks better on the honest lists than on the biased ones.</p>
         <h3>Point-in-time lists used</h3>
         <p class="sub">Each month uses the most recent archived list on or before that date. "Missing" are past members with no price data (mostly delisted or merged, e.g. HDFC after its merger); they are left out, so a small bias remains. Gaps between snapshots (e.g. Jul 2020 – May 2022) mean some index changes are picked up late.</p>
         ${table(["Snapshot", "Members", "With prices", "Missing"], cov, { left: [3] })}
-        <p class="st-warn">Only the Nifty 500 could be checked this way: archived lists of the other 250 stocks in the Nifty 750 (the microcaps) don't exist for this period. Survivorship bias is usually larger among small caps, so the Nifty 750 backtest on the Momentum Scan page is likely more inflated than the ${pp(sv.biasCagr).replace("+", "")} measured here.</p>
+        <p class="st-warn">Only the Nifty 500 could be checked this way: archived lists of the other 250 stocks in the Nifty 750 (the microcaps) don't exist for this period. Survivorship bias is usually larger among small caps, so the base Nifty 750 backtest is likely more inflated than the ${pp(sv.biasCagr).replace("+", "")} measured here.</p>
       </section>`;
     }
 
@@ -311,7 +312,7 @@
     function methodSection(s){
       const b = s.base;
       return `<section class="st-section" id="method"><h2>Method and limits</h2><ul class="st-method">
-        <li><strong>Base case</strong> = the <a href="momentum-scan.html">Momentum Scan</a> rules: Nifty 750 list; within ${pct(b.max_fall, false, 0)} of all-time high, turnover above ₹1 crore, above SMA${b.sma_days}; Av Sharp over ${b.lookbacks.join("/")} sessions; hold the top ${b.top_n}, sell below rank ${b.exit_rank}; liquid fund when Nifty 500 is below its ${b.market_ma}-day average at month-end; ${pct(b.cost, false, 2)} cost per side; liquid fund at 6.5% a year.</li>
+        <li><strong>Base case rules:</strong> the 750 stocks of the Nifty Total Market as listed by NSE Indices on 24 Sep 2026 (<a href="nifty750_backtest_list.csv" download>download the list</a>); within ${pct(b.max_fall, false, 0)} of all-time high, turnover above ₹1 crore, above SMA${b.sma_days}; Av Sharp over ${b.lookbacks.join("/")} sessions; hold the top ${b.top_n}, sell below rank ${b.exit_rank}; liquid fund when Nifty 500 is below its ${b.market_ma}-day average at month-end; ${pct(b.cost, false, 2)} cost per side; liquid fund at 6.5% a year.</li>
         <li><strong>Period:</strong> ${fmtDate(s.baseCase.from)} to ${fmtDate(s.baseCase.to)} — about 6 years, mostly a strong bull market for Indian small and mid caps. It contains corrections (2022, and small caps in late 2024–25) but no crash like 2008 or March 2020, so the results say little about how the strategy handles a deep, long bear market.</li>
         <li><strong>Prices:</strong> Yahoo Finance daily closes adjusted for splits but not dividends; one-day moves over 60% are treated as bad data. Benchmarks are price indices (no dividends).</li>
         <li><strong>Trades</strong> happen at the rebalance-day close with no partial fills or market impact beyond the cost assumption.</li>

@@ -544,7 +544,7 @@ def main():
             s.update(extra)
         return s, r
 
-    # --- base case (what the Momentum Scan page shows) + benchmarks
+    # --- base case (the strategy's own rules) + benchmarks
     base_s, base = row("Base case (sheet rules)", BASE, {"taxPaid": 0})
     dates = base["dates"]
     t0 = base["rebalances"][0]
