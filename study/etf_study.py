@@ -36,7 +36,7 @@ class Params:
     sma_days: int = 233             # None = no trend filter
     min_turnover: float = 1e7       # Rs per day, None = no liquidity filter
     top_n: int = 5
-    exit_rank: int = 7
+    exit_rank: int = 9
     cost: float = 0.0025            # per side
     market_ma: int = None           # None = no market switch; else exit to cash when NIFTYBEES < its MA at month-end
 
@@ -317,8 +317,8 @@ def main():
         return {"label": label, **stats(r["dates"], r["equity"]), "trades": sum(1 for t in r["trades"] if t["out"])}
 
     sens = {
-        "ETFs held": [row(f"Top {n}" + (" (base)" if n == BASE.top_n else ""), replace(BASE, top_n=n, exit_rank=max(n, n + 2))) for n in (2, 3, 5, 7)],
-        "Sell when out of": [row(f"Top {k}" + (" (base)" if k == BASE.exit_rank else ""), replace(BASE, exit_rank=k)) for k in (5, 7, 10)],
+        "ETFs held": [row(f"Top {n}" + (" (base)" if n == BASE.top_n else ""), replace(BASE, top_n=n, exit_rank=n + BASE.exit_rank - BASE.top_n)) for n in (2, 3, 5, 7)],
+        "Sell when out of": [row(f"Top {k}" + (" (base)" if k == BASE.exit_rank else ""), replace(BASE, exit_rank=k)) for k in (5, 7, 9, 12)],
         "Filters": [row("All filters (base)", BASE), row("No turnover filter", replace(BASE, min_turnover=None)),
                     row("No all-time-high filter", replace(BASE, max_fall=None)), row("No 233-day trend filter", replace(BASE, sma_days=None)),
                     row("No filters at all", replace(BASE, max_fall=None, sma_days=None, min_turnover=None))],

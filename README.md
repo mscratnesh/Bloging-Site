@@ -91,7 +91,7 @@ py study\momentum_study.py
 
 ### ETF momentum study (`study/etf_*`)
 
-A momentum rotation across 16 NSE ETFs (index, sector, gold, silver, long gilt; LIQUIDCASE as cash): same score and filters as the stock study, top 5 held as equal slots, sell below rank 7, no market switch. Each ETF is eligible only once it has about a year of prices, so the list grows as it did for a real investor.
+A momentum rotation across 16 NSE ETFs (index, sector, gold, silver, long gilt; LIQUIDCASE as cash): same score and filters as the stock study, top 5 held as equal slots, sell below rank 9, no market switch. Each ETF is eligible only once it has about a year of prices, so the list grows as it did for a real investor.
 
 - `study/etf_prices.json` — daily prices from Yahoo (`momentum.fetch_daily("<ETF>.NS", "10y")`; `"max"` returns monthly bars). Bad prints (a close under half or over double the last good one) are dropped when loading.
 - `study/etf_study.py` — writes `etf_study.json` (full study) and `etf_teaser.json` (curve and headline numbers for the public page).
