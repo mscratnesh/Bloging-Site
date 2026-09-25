@@ -12,3 +12,7 @@ fundamentals_cache.json
 momentum_prices.json
 *.json.tmp
 study/prices_extra.json
+
+# momentum book build
+book/node_modules/
+~$*

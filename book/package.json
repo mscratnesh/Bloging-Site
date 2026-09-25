@@ -1,0 +1,8 @@
+{
+  "name": "momentum-book",
+  "private": true,
+  "description": "Builds the Momentum Investing book (.docx) from the study data",
+  "dependencies": {
+    "docx": "^9.7.2"
+  }
+}
