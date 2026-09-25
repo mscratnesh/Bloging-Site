@@ -553,8 +553,8 @@ faq.forEach(([q, a]) => { H3(q); P(a); });
     r_(["Add a NIFTYBEES market switch", pct(E.sensitivity["Market switch"][1].cagr), pct(E.sensitivity["Market switch"][1].maxDD), num(E.sensitivity["Market switch"][1].sharpe)]),
   ], { widths: [2.6, 1, 1, 1], title: "The ETF rotation with one setting changed." });
   bullets([
-    "**Fewer ETFs, bigger swings.** Holding 2 or 3 earned more but fell harder; holding 7 was smoother but earned less. Five is a sensible middle.",
-    "**The filters matter.** Without them the return dropped and the falls deepened. The trend filter did most of the work.",
+    "**Five is a sensible middle.** Holding 2 or 3 earned a little more but gave a less steady ride; holding 7 earned clearly less.",
+    "**The filters matter.** Without them the return dropped sharply. The trend filter did the most work, followed by the turnover filter.",
     "**No market switch needed.** Adding one lowered the return: with gold, bonds and cash on the list, the rotation already steps away from falling shares.",
     "**When to sell and trading costs barely mattered**, because the rotation trades so rarely.",
   ]);
