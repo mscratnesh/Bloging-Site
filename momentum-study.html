@@ -24,6 +24,16 @@
   .st-findings ol{margin:0;padding-left:20px;font-size:15px}
   .st-findings li{margin-bottom:10px}
 
+  .st-plain{border:1px solid var(--line);background:var(--paper);padding:22px 26px;margin-bottom:28px}
+  .st-plain h2{font:600 26px var(--serif);margin:0 0 10px}
+  .st-plain p{font-size:15px;max-width:780px;margin:0 0 12px}
+  .st-plain ol{margin:0 0 12px;padding-left:20px;font-size:15px;max-width:780px}
+  .st-plain li{margin-bottom:6px}
+  .st-gloss{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 28px;margin:14px 0 0;font-size:14px;max-width:880px}
+  .st-gloss dt{font-weight:700}
+  .st-gloss dd{margin:2px 0 0;color:var(--muted)}
+  @media(max-width:700px){.st-gloss{grid-template-columns:minmax(0,1fr)}}
+
   .st-section{border-top:1px solid var(--ink);padding-top:16px;margin-bottom:56px;min-width:0}
   .st-section h2{font:600 30px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
   .st-section h3{font:600 19px var(--serif);margin:28px 0 8px}
@@ -74,8 +84,8 @@
     <section class="st-hero">
       <p class="eyebrow">Research · Indian equities · momentum</p>
       <h1>Momentum Study</h1>
-      <p>A momentum strategy for Indian stocks: from the Nifty Total Market (750), keep stocks near their all-time highs, in a long-term uptrend and liquid enough to trade; rank them by average Sharpe ratio; hold the top 10, replace a holding only when it falls out of the top 30, and move to a liquid fund when the Nifty 500 is below its 200-day average.</p>
-      <p>How much of its backtest is real? This study stress-tests it: survivorship bias, how sensitive it is to each rule, whether the ranking beats random picks, what costs, taxes and fund size do to it, and what the ride actually looks like.</p>
+      <p>A simple idea: buy Indian stocks that are already rising steadily, and sell them once they stop. On paper, this strategy grew money much faster than the market over the last six years.</p>
+      <p>But are those results real, or partly a trick of how the test was run? This study puts the strategy through seven tough checks and explains, in plain words, what holds up and what doesn't.</p>
       <p class="st-stamp" id="stamp">Loading…</p>
     </section>
     <div class="st-wrap" id="st-body"><div class="st-placeholder">Loading the study…</div></div>
@@ -149,20 +159,44 @@
     }
 
     // ---------- sections ----------
+    function plainIntro(s){
+      const b = s.baseCase, n5 = s.benchmarks[0];
+      return `<section class="st-plain" id="how"><h2>How the strategy works</h2>
+        <p>Once a month, the strategy follows five steps:</p>
+        <ol>
+          <li><strong>Start with about 750 Indian stocks</strong> (the Nifty Total Market index).</li>
+          <li><strong>Remove the weak ones.</strong> A stock stays only if it is within 25% of its all-time high, is in a long-term uptrend, and trades at least ₹1 crore a day, so it's easy to buy and sell.</li>
+          <li><strong>Rank what's left</strong> by how strongly and smoothly each stock has risen over the past year.</li>
+          <li><strong>Hold the top 10.</strong> A stock isn't sold just for slipping to 11th place. It stays until it drops out of the top 30, which avoids needless trading.</li>
+          <li><strong>Safety switch:</strong> if the overall market (Nifty 500) falls below its 200-day average, sell everything and park the money in a liquid fund (similar to a savings account) until the market recovers.</li>
+        </ol>
+        <p>Tested from ${fmtMonth(b.from)} to ${fmtMonth(b.to)}, ₹1 grew to about ₹${num(b.multiple, 1)}, which is <strong>${pct(b.cagr, false, 0)} a year</strong>. The Nifty 500 grew ${pct(n5.cagr, false, 0)} a year over the same period. The rest of this page asks how much of that is real.</p>
+        <h3 style="font:600 17px var(--serif);margin:18px 0 0">Words used on this page</h3>
+        <dl class="st-gloss">
+          <div><dt>CAGR</dt><dd>Average growth per year. 20% means money grew by about a fifth each year.</dd></div>
+          <div><dt>Max drawdown</dt><dd>The biggest fall from a high point to a later low. −40% means ₹100 dropped to ₹60 at the worst moment.</dd></div>
+          <div><dt>Sharpe</dt><dd>Return for the amount of bumpiness. Higher is better; above 1 is good.</dd></div>
+          <div><dt>Turnover / yr</dt><dd>How often the whole portfolio is replaced in a year. 2× means every stock is swapped about twice.</dd></div>
+          <div><dt>Backtest</dt><dd>Running the rules on past prices to see what <em>would</em> have happened. It isn't real trading.</dd></div>
+          <div><dt>Equal-weight</dt><dd>Owning every stock in the list in equal amounts. It's the "do nothing clever" comparison.</dd></div>
+        </dl>
+      </section>`;
+    }
+
     function findings(s){
       const b = s.baseCase, sv = s.survivorship.runs, today = sv[0], pit = sv[1];
       const mf = s.sensitivity.find(g => g.group.startsWith("Market")).rows;
-      const noFilter = mf.find(r => r.label.startsWith("No market")), daily = mf.find(r => r.label.includes("daily"));
+      const daily = mf.find(r => r.label.includes("daily"));
       const cap = s.capacity.find(c => c.capital === 1e8);
       const t = s.risk.trades;
-      return `<section class="st-findings"><h2>Key findings</h2><ol>
-        <li><strong>Survivorship bias is real but smaller for the strategy than for the market.</strong> On the Nifty 500, using today's list for every month lifts the strategy's CAGR by ${pp(s.survivorship.biasCagr).replace("+", "")} (${pct(today.cagr)} vs ${pct(pit.cagr)} on point-in-time lists), while it lifts a plain equal-weight portfolio by ${pp(today.equalWeight.cagr - pit.equalWeight.cagr).replace("+", "")}. On the honest point-in-time lists the strategy still beat equal-weight by ${pp(pit.excessOverEW)} a year and the Nifty 500 index by ${pp(pit.cagr - s.benchmarks[0].cagr)}.</li>
-        <li><strong>The ranking adds value beyond the filters.</strong> Picking at random from the same filtered list, with the same holding discipline, gave a median CAGR of ${pct(s.luck.percentiles["50"])}; the ranked strategy's ${pct(b.cagr)} beat ${Math.round(s.luck.shareBeaten * s.luck.runs)} of ${s.luck.runs} random portfolios.</li>
-        <li><strong>The month-end market filter hurt in this period.</strong> Without it, CAGR was ${pct(noFilter.cagr)} with a max drawdown of ${pct(noFilter.maxDD)} (vs ${pct(b.cagr)} / ${pct(b.maxDD)}): it exited and re-entered at bad moments in 2022–23. Checking it daily instead cut the worst drawdown to ${pct(daily.maxDD)}.</li>
-        <li><strong>Results are not knife-edge on the ranking rules.</strong> Lookback choices, score formula and rebalance day all land in a similar range; holding more stocks (15–20) raised returns and lowered drawdowns in this sample. Rebalancing quarterly instead of monthly was clearly worse.</li>
-        <li><strong>Costs and tax matter but don't break it; size does.</strong> After Indian capital-gains tax the CAGR drops from ${pct(s.costs.preTax.cagr)} to ${pct(s.costs.afterTax.cagr)}. At ₹10 crore, ${pct(cap.over10pct, false, 0)} of buys would exceed 10% of the stock's daily turnover — this is a strategy for small accounts.</li>
-        <li><strong>The ride is rough.</strong> The worst fall was ${pct(s.risk.drawdowns[0].depth)} (${fmtMonth(s.risk.drawdowns[0].peak)} to ${fmtMonth(s.risk.drawdowns[0].trough)}), and only ${pct(t.winRate, false, 0)} of trades made money — the winners were just ${num(t.payoff, 1)}× bigger than the losers.</li>
-        <li><strong>A 10% stop-loss doesn't help.</strong> ${(() => { const pit = s.stopLoss.grid.find(g => g.universe.includes("point-in-time")); return `On the survivorship-free lists, selling any holding that fell 10% within the month cut CAGR from ${pct(pit.cells[0].cagr)} to ${pct(pit.cells[1].cagr)}; it only looked helpful on today's (biased) lists.`; })()} Checking the market filter daily was the better drawdown control.</li>
+      return `<section class="st-findings"><h2>Key findings in brief</h2><ol>
+        <li><strong>The headline number is a bit too rosy, but the strategy still wins.</strong> Testing with today's stock list quietly leaves out companies that crashed or disappeared. Re-testing on the Nifty 500 with the real lists from each past date lowers the return by about ${pp(s.survivorship.biasCagr).replace("+", "")} a year (${pct(today.cagr)} down to ${pct(pit.cagr)}). Even then, it beat simply owning every stock by ${pp(pit.excessOverEW)} a year, and beat the Nifty 500 by ${pp(pit.cagr - s.benchmarks[0].cagr)}.</li>
+        <li><strong>It's skill, not luck.</strong> ${s.luck.runs} copies of the strategy that picked stocks at random averaged ${pct(s.luck.percentiles["50"])} a year. The real strategy (${pct(b.cagr)}) beat ${Math.round(s.luck.shareBeaten * s.luck.runs)} of them.</li>
+        <li><strong>The monthly safety switch misfired in this period.</strong> In 2022–23 it sold just before rebounds and bought back just before falls. Checking it every day instead of once a month worked better: the worst fall shrank from ${pct(b.maxDD)} to ${pct(daily.maxDD)}.</li>
+        <li><strong>It doesn't depend on one lucky setting.</strong> Changing most of the rules a little, or trading on a different day, gives similar results. Holding 15–20 stocks instead of 10 did slightly better. Trading only every three months did clearly worse.</li>
+        <li><strong>Tax takes a bite, and it only suits small accounts.</strong> After capital-gains tax, the return drops from ${pct(s.costs.preTax.cagr)} to ${pct(s.costs.afterTax.cagr)} a year. With ₹10 crore or more, many buys would be too big for these stocks' daily trading, so buying would push their prices up.</li>
+        <li><strong>Holding it is uncomfortable.</strong> At its worst, the portfolio fell ${pct(-s.risk.drawdowns[0].depth, false, 0)} (${fmtMonth(s.risk.drawdowns[0].peak)} to ${fmtMonth(s.risk.drawdowns[0].trough)}). Only ${pct(t.winRate, false, 0)} of trades made money. It works because the winners were about ${num(t.payoff, 1)}× bigger than the losers.</li>
+        <li><strong>A stop-loss makes it worse.</strong> ${(() => { const pit = s.stopLoss.grid.find(g => g.universe.includes("point-in-time")); return `Selling any stock that fell 10% within the month cut the honest return from ${pct(pit.cells[0].cagr)} to ${pct(pit.cells[1].cagr)} a year.`; })()} The daily market check is a much better way to limit losses.</li>
       </ol></section>`;
     }
 
@@ -170,15 +204,15 @@
       const sv = s.survivorship;
       const rows = sv.runs.map(r => `<tr><td>${esc(r.label)}</td><td>${pct(r.cagr)}</td><td class="neg">${pct(r.maxDD)}</td><td>${num(r.sharpe)}</td><td>${pct(r.equalWeight.cagr)}</td><td class="${cls(r.excessOverEW)}">${pp(r.excessOverEW)}</td></tr>`);
       const cov = sv.coverage.map(c => `<tr><td>${fmtDate(c.date)}</td><td>${c.members}</td><td>${c.withPrices}</td><td class="wrap dim">${esc(c.missing.join(", ")) || "–"}</td></tr>`);
-      return `<section class="st-section" id="survivorship"><h2>1. Survivorship bias</h2>
-        <p class="sub">The base backtest uses today's list of stocks for every past month. Stocks that crashed, were merged or dropped out of the index are missing, which flatters any backtest. NSE only publishes the current list, so this study rebuilds past Nifty 500 lists from archived copies of NSE's own files (Wayback Machine) and reruns the strategy on the Nifty 500 both ways.</p>
+      return `<section class="st-section" id="survivorship"><h2>1. Is the stock list rigged?</h2>
+        <p class="sub">The main test uses <em>today's</em> list of stocks for every past month. That quietly leaves out companies that crashed, merged or were dropped from the index, like judging a school only by the students who graduated. This is called <strong>survivorship bias</strong>. NSE only publishes the current list, so this study rebuilt the real past Nifty 500 lists from archived copies of NSE's files and ran the strategy both ways.</p>
         ${table(["Stock list", "CAGR", "Max drawdown", "Sharpe", "Equal-weight CAGR", "Strategy vs equal-weight"], rows)}
         ${lineChart(sv.curve, [{ key: "today", label: "Today's list (biased)", color: "var(--muted)" }, { key: "pit", label: "Point-in-time lists", color: "var(--coral-text)", width: 2 }], { log: true, note: "Growth of ₹1, log scale", label: "Survivorship comparison" })}
-        <p class="st-take">The bias inflates the strategy by about ${pp(sv.biasCagr).replace("+", "")} a year here — much less than it inflates a buy-everything portfolio, most likely because momentum rules sell falling stocks well before they are dropped from the index. Measured against its own equal-weight universe, the strategy looks better on the honest lists than on the biased ones.</p>
-        <h3>Point-in-time lists used</h3>
-        <p class="sub">Each month uses the most recent archived list on or before that date. "Missing" are past members with no price data (mostly delisted or merged, e.g. HDFC after its merger); they are left out, so a small bias remains. Gaps between snapshots (e.g. Jul 2020 – May 2022) mean some index changes are picked up late.</p>
+        <p class="st-take"><strong>In short:</strong> the rigged list adds about ${pp(sv.biasCagr).replace("+", "")} a year to the strategy's result. That's small, probably because the strategy sells falling stocks long before they are removed from the index. Owning every stock gets a much bigger boost from the rigged list, so on the honest lists the strategy's lead over it actually grows.</p>
+        <h3>Past lists used</h3>
+        <p class="sub">Each month uses the latest archived list available at that time. "Missing" means past members whose prices couldn't be found (mostly delisted or merged companies, such as HDFC). They are left out, so a small bias remains. Where archives are far apart (e.g. Jul 2020 – May 2022), some index changes are picked up late.</p>
         ${table(["Snapshot", "Members", "With prices", "Missing"], cov, { left: [3] })}
-        <p class="st-warn">Only the Nifty 500 could be checked this way: archived lists of the other 250 stocks in the Nifty 750 (the microcaps) don't exist for this period. Survivorship bias is usually larger among small caps, so the base Nifty 750 backtest is likely more inflated than the ${pp(sv.biasCagr).replace("+", "")} measured here.</p>
+        <p class="st-warn"><strong>Caution:</strong> only the Nifty 500 could be checked. No old lists exist for the other 250 (smallest) stocks in the Nifty 750. Small companies fail more often, so the main 750-stock result is probably inflated by more than the ${pp(sv.biasCagr).replace("+", "")} measured here.</p>
       </section>`;
     }
 
@@ -186,12 +220,12 @@
       const l = s.luck, b = s.baseCase;
       const bench = s.benchmarks.map(x => `<tr><td>${esc(x.label)}</td><td>${pct(x.cagr)}</td><td class="neg">${pct(x.maxDD)}</td><td>${num(x.sharpe)}</td><td>–</td></tr>`);
       return `<section class="st-section" id="luck"><h2>2. Skill or luck?</h2>
-        <p class="sub">${l.runs} random portfolios use the same stock list, the same three filters, the same market filter, costs and "keep while it qualifies" discipline — but pick stocks at random instead of by Av Sharp. If the ranking had no value, the strategy would sit in the middle of this range.</p>
+        <p class="sub">We ran ${l.runs} copies of the strategy with the same rules, filters and costs. The only difference is that they pick stocks <em>at random</em> instead of using the ranking. If the ranking were worthless, the real strategy (red line) would land somewhere in the middle of these grey bars.</p>
         ${histogram(l.histogram, l.binEdges, b.cagr, { markerLabel: "Strategy " + pct(b.cagr), label: "CAGR of random portfolios", colorBy: () => "var(--muted)" })}
-        <p class="sub">CAGR of random portfolios: 5th percentile ${pct(l.percentiles["5"])}, median ${pct(l.percentiles["50"])}, 95th percentile ${pct(l.percentiles["95"])}.</p>
-        <h3>Against simple benchmarks</h3>
+        <p class="sub">Yearly return of the random copies: worst 5% below ${pct(l.percentiles["5"])}, typical ${pct(l.percentiles["50"])}, best 5% above ${pct(l.percentiles["95"])}.</p>
+        <h3>Compared with simply owning the market</h3>
         ${table(perfHead, [perfRow({ ...b, label: "Strategy (base case)", isBase: true }), ...bench])}
-        <p class="st-take">The strategy beat ${Math.round(l.shareBeaten * l.runs)} of ${l.runs} random portfolios, so the ranking itself — not just the filters or the market's rise — drove most of the result. The equal-weight Nifty 750 is the fairer benchmark (it shares the same biased list); the strategy beat it by ${pp(b.cagr - s.benchmarks[1].cagr)} a year, but with a much deeper drawdown.</p>
+        <p class="st-take"><strong>In short:</strong> the strategy beat ${Math.round(l.shareBeaten * l.runs)} of ${l.runs} random copies, so the ranking really works. It wasn't just a rising market. The fairest comparison is owning all 750 stocks equally, since that uses the same list. The strategy beat it by ${pp(b.cagr - s.benchmarks[1].cagr)} a year, but its falls along the way were much deeper.</p>
       </section>`;
     }
 
@@ -205,22 +239,22 @@
       const cagrs = s.grid.map(g => g.cagr), lo = Math.min(...cagrs), hi = Math.max(...cagrs);
       const shade = v => `background:rgba(47,107,70,${(0.08 + 0.5 * (v - lo) / ((hi - lo) || 1)).toFixed(2)})`;
       const heatRows = ns.map(n => `<tr><td>Top ${n}</td>${ks.map(k => { const g = s.grid.find(x => x.topN === n && x.exitRank === k); return g ? `<td class="cell" style="${shade(g.cagr)}" title="Max drawdown ${pct(g.maxDD)}, Sharpe ${num(g.sharpe)}">${pct(g.cagr)}<br><span class="dim" style="font-weight:400;font-size:11px">${pct(g.maxDD)}</span></td>` : '<td class="cell dim">–</td>'; }).join("")}</tr>`);
-      return `<section class="st-section" id="sensitivity"><h2>3. Parameter sensitivity</h2>
-        <p class="sub">Each row changes one rule from the base case (highlighted) and keeps everything else the same. A robust strategy should give similar results across reasonable choices; if only the exact base settings work, the backtest is probably overfitted. All runs use the fixed Nifty 750 list, so they share its survivorship bias — compare rows with each other, not with the index.</p>
+      return `<section class="st-section" id="sensitivity"><h2>3. Does it depend on one lucky setting?</h2>
+        <p class="sub">Each row changes one rule and keeps everything else the same. The highlighted row is the original strategy. If only the exact original settings worked, the result would probably be a fluke of fitting the past. A sturdy strategy gives similar results across sensible choices. Compare the rows with each other: they all share the same slightly rigged stock list.</p>
         ${table(perfHead, rows)}
-        <h3>Stocks held × exit rank</h3>
-        <p class="sub">CAGR, with max drawdown underneath. Darker = higher CAGR.</p>
+        <h3>How many stocks to hold vs. when to sell</h3>
+        <p class="sub">Yearly return, with the worst fall underneath. Darker green = higher return.</p>
         ${table(["", ...ks.map(k => "Exit: out of top " + k)], heatRows, { cls: "st-heat" })}
-        <p class="st-take">The ranking rules are not fragile: lookbacks and score formula shift CAGR by a few points, not tens. The biggest levers are how many stocks you hold (more was better here), how quickly you sell (no buffer earned more but traded more) and the market filter.</p>
-        <p class="st-warn">Two filters barely mattered: the SMA233 trend filter never changed the top 30 in any month (stocks that strong and that close to their highs are always above their average), and the market filter's month-end check whipsawed in 2022–23 — it sold before rebounds and bought before falls. A single 6-year sample can't tell whether that is bad luck or a flaw, so treat the "no filter" row with caution; its drawdown protection may matter more in a long bear market than this period contained.</p>
+        <p class="st-take"><strong>In short:</strong> tweaking the ranking moves results by a few points, not tens, so the strategy isn't fragile. Three things mattered most: how many stocks you hold (more was better here), how quickly you sell (selling sooner earned more but meant more trading), and the market safety switch.</p>
+        <p class="st-warn"><strong>Caution:</strong> the long-term uptrend filter never changed anything, because stocks this strong are always in an uptrend anyway. Removing the market safety switch looks better here, since in 2022–23 it sold just before rebounds and bought just before falls. But six years is too short to tell whether that was bad luck. In a long crash the switch could save a lot, so don't drop it on the strength of this one period.</p>
       </section>`;
     }
 
     function timingSection(s){
-      return `<section class="st-section" id="timing"><h2>4. Rebalance-day luck</h2>
-        <p class="sub">Would the result survive rebalancing on a different day? Same rules, different rebalance day each month.</p>
+      return `<section class="st-section" id="timing"><h2>4. Was the trading day lucky?</h2>
+        <p class="sub">The strategy trades once a month. Would it still work if you traded on a different day? Same rules, different day each month.</p>
         ${table(perfHead, s.timing.map(r => perfRow({ ...r, isBase: r.label.includes("(base)") })))}
-        <p class="st-take">CAGR stays within a few points whichever day you trade, so the backtest isn't the product of one lucky calendar date.</p>
+        <p class="st-take"><strong>In short:</strong> results stay within a few points whichever day you trade, so no lucky date is behind them.</p>
       </section>`;
     }
 
@@ -232,17 +266,17 @@
         `<tr><td>After capital-gains tax</td><td>${pct(c.afterTax.cagr)}</td><td>₹${num(c.afterTax.multiple, 2)}</td></tr>`,
       ];
       const capRows = s.capacity.map(r => `<tr><td>${crore(r.capital)}</td><td>${pct(r.medianShareOfAdv)}</td><td>${pct(r.p90ShareOfAdv)}</td><td class="${r.over10pct > 0.1 ? "neg" : ""}">${pct(r.over10pct, false, 0)}</td><td class="${r.over25pct > 0.05 ? "neg" : ""}">${pct(r.over25pct, false, 0)}</td></tr>`);
-      return `<section class="st-section" id="costs"><h2>5. Costs, taxes and capacity</h2>
+      return `<section class="st-section" id="costs"><h2>5. Costs, tax and how much money it can handle</h2>
         <h3>Trading costs</h3>
-        <p class="sub">Cost per buy or sell (brokerage, STT, exchange charges, stamp duty and the bid–ask spread together). Base case: 0.25%.</p>
+        <p class="sub">Every buy and sell costs something: brokerage, taxes like STT and stamp duty, and the small gap between buying and selling prices. The main test assumes 0.25% per trade.</p>
         ${table(["Cost per side", "CAGR", "Max drawdown", "Sharpe"], costRows)}
         <h3>Tax</h3>
-        <p class="sub">Indian capital-gains tax on every realised gain, settled each financial year: short-term (held under a year) 15%, long-term 10% until 23 Jul 2024, then 20% and 12.5%. Losses offset gains and carry forward. The yearly LTCG exemption is ignored. With a median holding period of ${Math.round(s.risk.trades.medianHoldDays)} days, most gains are short-term.</p>
+        <p class="sub">Indian capital-gains tax is applied to every profit, year by year. Stocks held under a year are taxed at 15% (20% from 23 Jul 2024); longer holdings at 10% (12.5% from 23 Jul 2024). Losses reduce the tax. A typical stock is held only about ${Math.round(s.risk.trades.medianHoldDays)} days, so most profits get the higher short-term rate.</p>
         ${table(["", "CAGR", "₹1 grew to"], taxRows)}
         <h3>How much money can it handle?</h3>
-        <p class="sub">Each buy compared with the stock's average daily traded value over the previous month, if the strategy had started with this much money (position sizes then grow with the portfolio). Above roughly 10% of daily turnover, buying without moving the price becomes hard; above 25% it takes several days.</p>
+        <p class="sub">A big buy order in a small stock pushes its price up before you finish buying. This table compares each purchase with how much of that stock normally trades in a day, for different starting amounts. Buying more than about 10% of a day's trading is hard to do without moving the price. Above 25%, it takes several days.</p>
         ${table(["Starting capital", "Median buy / daily turnover", "90th percentile", "Buys over 10%", "Buys over 25%"], capRows)}
-        <p class="st-take">Costs up to 0.5% per side cost a couple of points of CAGR; tax costs about ${pp(c.preTax.cagr - c.afterTax.cagr).replace("+", "")} a year. The real limit is size: it trades comfortably up to about ₹1 crore, gets difficult around ₹10 crore, and doesn't work at ₹100 crore in these stocks.</p>
+        <p class="st-take"><strong>In short:</strong> higher trading costs take a couple of points a year, and tax takes about ${pp(c.preTax.cagr - c.afterTax.cagr).replace("+", "")}. The real limit is size. It works comfortably up to about ₹1 crore, gets difficult around ₹10 crore, and doesn't work at ₹100 crore.</p>
       </section>`;
     }
 
@@ -252,33 +286,33 @@
       const best = t.best.map(x => `<tr><td>${esc(x.symbol)}</td><td>${fmtMonth(x.entry)}</td><td>${fmtMonth(x.exit)}</td><td class="pos">${pct(x.ret, true, 0)}</td></tr>`);
       const worst = t.worst.map(x => `<tr><td>${esc(x.symbol)}</td><td>${fmtMonth(x.entry)}</td><td>${fmtMonth(x.exit)}</td><td class="neg">${pct(x.ret, true, 0)}</td></tr>`);
       const ind = r.industry.avgWeights.map(w => `<tr><td>${esc(w.industry)}</td><td>${pct(w.weight, false, 0)}</td></tr>`);
-      return `<section class="st-section" id="risk"><h2>6. Risk and the ride</h2>
+      return `<section class="st-section" id="risk"><h2>6. What it feels like to hold</h2>
         <div class="st-stats">
           <div class="st-stat"><span class="l">Worst drawdown</span><span class="n neg">${pct(r.drawdowns[0].depth)}</span><span class="d">${fmtMonth(r.drawdowns[0].peak)} – ${fmtMonth(r.drawdowns[0].trough)}</span></div>
-          <div class="st-stat"><span class="l">Below previous peak</span><span class="n">${pct(r.timeUnderwater, false, 0)}</span><span class="d">of trading days</span></div>
+          <div class="st-stat"><span class="l">Below its last high</span><span class="n">${pct(r.timeUnderwater, false, 0)}</span><span class="d">of trading days</span></div>
           <div class="st-stat"><span class="l">Positive months</span><span class="n">${pct(m.positive, false, 0)}</span><span class="d">incl. liquid-fund months · best ${pct(m.best, true)}, worst ${pct(m.worst)}</span></div>
           <div class="st-stat"><span class="l">Beat Nifty 500</span><span class="n">${pct(m.beatNifty, false, 0)}</span><span class="d">of months</span></div>
         </div>
-        <h3>Growth of ₹1</h3>
+        <h3>How ₹1 would have grown</h3>
         ${lineChart(s.curve, [{ key: "strategy", label: "Strategy", color: "var(--coral-text)", width: 2 }, { key: "ew750", label: "Equal-weight Nifty 750", color: "var(--success)" }, { key: "nifty500", label: "Nifty 500", color: "var(--muted)" }], { log: true, note: "log scale", label: "Growth of 1 rupee" })}
-        <h3>Worst drawdowns</h3>
+        <h3>Biggest falls</h3>
         ${table(["Peak", "Bottom", "Recovered", "Fall", "Days falling", "Days to recover"], dd)}
-        <h3>Rolling 12-month return</h3>
-        <p class="sub">Return over the previous 12 months at each point — what an investor who started a year earlier would have seen.</p>
+        <h3>Return over any 12 months</h3>
+        <p class="sub">Each point shows what someone who had invested exactly one year earlier would have gained or lost. Below the black line means a loss.</p>
         ${lineChart(r.rolling12, [{ key: "strategy", label: "Strategy", color: "var(--coral-text)", width: 2 }, { key: "nifty500", label: "Nifty 500", color: "var(--muted)" }], { zero: true, pct: true, h: 260, label: "Rolling 12-month return" })}
-        <h3>Monthly returns</h3>
-        <p class="sub">${m.count} months. The tall bar just above 0% is mostly months spent in the liquid fund (about 0.5% a month).</p>
+        <h3>How each month went</h3>
+        <p class="sub">${m.count} months. Red bars are losing months, green are winning months. The tall bar just above 0% is mostly months spent safely in the liquid fund (about 0.5% a month).</p>
         ${histogram(m.histogram, m.binEdges, null, { label: "Distribution of monthly returns", colorBy: (a) => a < 0 ? "var(--coral-text)" : "var(--success)" })}
         <h3>Trades</h3>
-        <p class="sub">${t.count} closed positions. ${pct(t.winRate, false, 0)} made money; the average winner gained ${pct(t.avgWin, true, 0)} and the average loser lost ${pct(t.avgLoss, false, 0)} (a payoff ratio of ${num(t.payoff, 1)}). The five best trades made ${pct(t.top5ShareOfGains, false, 0)} of all gross gains. Median holding: ${Math.round(t.medianHoldDays)} days.</p>
+        <p class="sub">${t.count} completed trades. Only ${pct(t.winRate, false, 0)} made money, close to a coin flip. But the average winner gained ${pct(t.avgWin, true, 0)} while the average loser lost only ${pct(t.avgLoss, false, 0)}, so winners were about ${num(t.payoff, 1)}× bigger. The five best trades made ${pct(t.top5ShareOfGains, false, 0)} of all profits. A typical stock was held about ${Math.round(t.medianHoldDays)} days.</p>
         <div class="st-grid2">
           <div><p class="sub">Best trades</p>${table(["Stock", "Bought", "Sold", "Return"], best)}</div>
           <div><p class="sub">Worst trades</p>${table(["Stock", "Bought", "Sold", "Return"], worst)}</div>
         </div>
-        <h3>Concentration</h3>
-        <p class="sub">On average the largest single industry was ${pct(r.industry.avgMaxIndustryWeight, false, 0)} of the portfolio, peaking at ${pct(r.industry.peakIndustryWeight, false, 0)}. There's no industry cap, so the portfolio can become a sector bet. Average weights:</p>
+        <h3>Eggs in one basket?</h3>
+        <p class="sub">No rule limits how much goes into one industry. On average the biggest industry was ${pct(r.industry.avgMaxIndustryWeight, false, 0)} of the portfolio, and at one point it reached ${pct(r.industry.peakIndustryWeight, false, 0)}. So the portfolio can end up as a big bet on one sector. Average share by industry:</p>
         ${table(["Industry", "Average weight"], ind)}
-        <p class="st-take">Expect long stretches below a previous high, a win rate near a coin flip, and a handful of big winners doing most of the work. The strategy only works if you keep taking the signals through the losing streaks.</p>
+        <p class="st-take"><strong>In short:</strong> expect long stretches below your last high point, lose on about half your trades, and rely on a few big winners. The strategy only pays off if you keep following the rules through the painful stretches. Most people who quit, quit at the bottom.</p>
       </section>`;
     }
 
@@ -292,40 +326,40 @@
       thrRows.unshift(`<tr class="base"><td>No stop (base)</td><td>${pct(base.cagr)}</td><td class="neg">${pct(base.maxDD)}</td><td>${num(base.sharpe)}</td></tr>`);
       const mfRows = sl.marketFilter.map(m => `<tr class="${m.universe.includes("point-in-time") ? "base" : ""}"><td>${esc(m.universe)}</td><td>${cell(m.monthEnd)}</td><td>${cell(m.daily)}</td><td>${cell(m.dailyPlusStop)}</td></tr>`);
       const a = sl.afterStop;
-      return `<section class="st-section" id="stoploss"><h2>7. Stop-loss test</h2>
-        <p class="sub">Would an extra exit — sell a holding that falls 10% within the month — help? Three versions were tested, each on three stock lists. Money from a stop waits in the liquid fund until the next month-end, when the slot is refilled from the ranking. Everything else is the base case.</p>
+      return `<section class="st-section" id="stoploss"><h2>7. Would a stop-loss help?</h2>
+        <p class="sub">A stop-loss means: sell a stock as soon as it falls 10% during the month. Three versions were tested, each on three stock lists. Money from a sold stock waits in the liquid fund until the next monthly trade. Everything else stays the same.</p>
         ${table(["Stock list", ...sl.variants], gridRows, { cls: "st-heat" })}
-        <p class="sub">CAGR, with max drawdown underneath.</p>
-        <p class="st-warn">The stop only looks good because of survivorship bias. On the same Nifty 500, the daily stop adds ${pp(effect(today)).replace("+", "")} a year when today's list is used for every month, but <strong>costs ${pp(-effect(pit)).replace("+", "")} a year</strong> on the lists that were actually in force. Every version loses once the bias is removed.</p>
+        <p class="sub">Yearly return, with the worst fall underneath.</p>
+        <p class="st-warn"><strong>Watch out:</strong> the stop-loss only looks good on the rigged list. There it adds ${pp(effect(today)).replace("+", "")} a year. On the honest past lists it <strong>costs ${pp(-effect(pit)).replace("+", "")} a year</strong>. Every version does worse once the bias is removed.</p>
         <h3>Does the threshold matter?</h3>
-        <p class="sub">Daily stop from the month-start price, on the point-in-time Nifty 500.</p>
+        <p class="sub">Different stop levels, tested on the honest Nifty 500 lists.</p>
         ${table(["", "CAGR", "Max drawdown", "Sharpe"], thrRows)}
         <h3>Does a stop catch real losers?</h3>
-        <p class="body">After the daily stop sold a stock (${a.count} cases), the stock rose by the next month-end ${pct(a.rebounded, false, 0)} of the time and fell further ${pct(a.fellFurther, false, 0)} of the time (median ${pct(a.median, true)}). A 10% dip within the month told you nothing about what came next, so the stop mostly adds trades and costs.</p>
-        <h3>A better way to cut drawdowns: check the market filter daily</h3>
-        <p class="sub">The base case checks Nifty 500 against its 200-day average only at month-end. Checking it every day (and going to the liquid fund the day it closes below) reacts faster to a falling market.</p>
+        <p class="body">In ${a.count} cases the stop sold a stock. By the next month-end, the stock had bounced back ${pct(a.rebounded, false, 0)} of the time and fallen further ${pct(a.fellFurther, false, 0)} of the time. It was a coin flip. A 10% dip didn't predict anything, so the stop mostly added extra trades and costs.</p>
+        <h3>A better way to limit losses: check the market every day</h3>
+        <p class="sub">The original strategy checks the market safety switch only once a month. Checking it every day, and moving to the liquid fund the same day the market drops below its 200-day average, reacts faster to a falling market.</p>
         ${table(["Stock list", "Market filter at month-end (base)", "Market filter daily", "Daily filter + 10% stop"], mfRows, { cls: "st-heat" })}
-        <p class="st-take">On the unbiased point-in-time list, checking the market filter daily improved both return and drawdown, and adding the 10% stop on top wiped out the whole return gain (ending below the base case) without reducing the drawdown further. If you want less drawdown, a daily market-filter check did far more than a per-stock stop in this period.</p>
+        <p class="st-take"><strong>In short:</strong> on the honest list, checking the market every day improved both the return and the worst fall. Adding a stop-loss on top wiped out that gain and didn't reduce losses any further. To limit losses, the daily market check beats a stop-loss.</p>
       </section>`;
     }
 
     function methodSection(s){
       const b = s.base;
-      return `<section class="st-section" id="method"><h2>Method and limits</h2><ul class="st-method">
-        <li><strong>Base case rules:</strong> the 750 stocks of the Nifty Total Market as listed by NSE Indices on 24 Sep 2026 (<a href="nifty750_backtest_list.csv" download>download the list</a>); within ${pct(b.max_fall, false, 0)} of all-time high, turnover above ₹1 crore, above SMA${b.sma_days}; Av Sharp over ${b.lookbacks.join("/")} sessions; hold the top ${b.top_n}, sell below rank ${b.exit_rank}; liquid fund when Nifty 500 is below its ${b.market_ma}-day average at month-end; ${pct(b.cost, false, 2)} cost per side; liquid fund at 6.5% a year.</li>
+      return `<section class="st-section" id="method"><h2>How the test was done, and its limits</h2><ul class="st-method">
+        <li><strong>Exact rules tested:</strong> the 750 stocks of the Nifty Total Market as listed by NSE Indices on 24 Sep 2026 (<a href="nifty750_backtest_list.csv" download>download the list</a>); ${[b.max_fall != null && `within ${pct(b.max_fall, false, 0)} of all-time high`, b.min_turnover && "turnover above ₹1 crore", b.sma_days && `above SMA${b.sma_days}`].filter(Boolean).join(", ") || "no other stock filters"}; ranked by Av Sharpe (${b.annualise ? "annualised" : "plain %"} return ÷ annualised volatility, averaged over ${b.lookbacks.join("/")} sessions, 90% price data needed); hold the top ${b.top_n}, sell below rank ${b.exit_rank}; liquid fund when Nifty 500 is below its ${b.market_ma}-day average at month-end; ${pct(b.cost, false, 2)} cost per side; liquid fund at 6.5% a year.</li>
         <li><strong>Period:</strong> ${fmtDate(s.baseCase.from)} to ${fmtDate(s.baseCase.to)} — about 6 years, mostly a strong bull market for Indian small and mid caps. It contains corrections (2022, and small caps in late 2024–25) but no crash like 2008 or March 2020, so the results say little about how the strategy handles a deep, long bear market.</li>
         <li><strong>Prices:</strong> Yahoo Finance daily closes adjusted for splits but not dividends; one-day moves over 60% are treated as bad data. Benchmarks are price indices (no dividends).</li>
         <li><strong>Trades</strong> happen at the rebalance-day close with no partial fills or market impact beyond the cost assumption.</li>
-        <li><strong>Many variants were tested on the same data.</strong> The best-looking row in any table is partly luck; the value of this study is in the patterns, not in picking the top row.</li>
+        <li><strong>Many versions were tested on the same data.</strong> The best-looking row in any table is partly luck. Trust the overall patterns, not the single best number.</li>
         <li><strong>Reproduce it:</strong> the code is in the <a href="https://github.com/mscratnesh/Bloging-Site/tree/main/study">study folder</a> of this site's repository (<code>momentum_study.py</code>, plus the scripts that fetched the archived index lists and prices).</li>
       </ul></section>`;
     }
 
     function render(s){
       $("stamp").textContent = `Study run on data to ${fmtDate(s.asOf)} · fixed snapshot, not updated`;
-      const toc = [["survivorship", "Survivorship bias"], ["luck", "Skill or luck"], ["sensitivity", "Parameters"], ["timing", "Rebalance day"], ["costs", "Costs, tax, capacity"], ["risk", "Risk"], ["stoploss", "Stop-loss test"], ["method", "Method"]];
+      const toc = [["how", "How it works"], ["survivorship", "Rigged list?"], ["luck", "Skill or luck"], ["sensitivity", "Lucky settings?"], ["timing", "Trading day"], ["costs", "Costs & tax"], ["risk", "The ride"], ["stoploss", "Stop-loss"], ["method", "Method"]];
       $("st-body").innerHTML = `<nav class="st-toc" aria-label="Sections">${toc.map(([id, label]) => `<a href="#${id}">${label}</a>`).join("")}</nav>` +
-        findings(s) + survivorshipSection(s) + luckSection(s) + sensitivitySection(s) + timingSection(s) + costsSection(s) + riskSection(s) + stopLossSection(s) + methodSection(s) +
+        plainIntro(s) + findings(s) + survivorshipSection(s) + luckSection(s) + sensitivitySection(s) + timingSection(s) + costsSection(s) + riskSection(s) + stopLossSection(s) + methodSection(s) +
         `<p class="st-disclaimer">For information and education only. This is research on a rules-based backtest, not a recommendation to buy or sell any security, and not investment advice. Backtests are hypothetical and past performance does not guarantee future results. Price data: Yahoo Finance; index lists: NSE Indices (current and archived via the Wayback Machine).</p>`;
       if (location.hash) document.querySelector(location.hash)?.scrollIntoView();
     }
