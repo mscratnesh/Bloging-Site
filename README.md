@@ -35,7 +35,7 @@ The live site (letmoneyearn.in) runs on a Windows VM using the prebuilt `dist/` 
    taskkill /IM LetMoneyEarnAdmin.exe /F
    C:\nginx\nginx.exe -s stop
    ```
-2. Replace the VM's `dist` folder with the new build — **except** `let_money_earn.db` (and `uploads\`, if present). The live database holds real articles, comments, reviews, and questions; never overwrite it with a locally-built copy. Update it in place with targeted SQL instead of replacing the file. Make sure the build includes the market-tool data files (`momentum_study.json`, `nifty750_backtest_list.csv`, `breakout_data.json`) — see [Building the executables](#building-the-executables).
+2. Replace the VM's `dist` folder with the new build — **except** `let_money_earn.db` (and `uploads\`, if present). The live database holds real articles, comments, reviews, and questions; never overwrite it with a locally-built copy. Update it in place with targeted SQL instead of replacing the file. Make sure the build includes the market-tool data files (`momentum_teaser.json`, `breakout_data.json`) — see [Building the executables](#building-the-executables).
 3. Run `dist\setup_all.bat` as Administrator — copies `nginx.conf`, tests it, and starts nginx plus both apps.
 4. Verify at https://www.letmoneyearn.in/.
 
@@ -65,12 +65,14 @@ NSE stocks breaking out of multi-year bases and cup-and-handle patterns.
 
 ### Momentum Study (`momentum-study.html`)
 
-A research page on a momentum strategy for the Nifty Total Market (750), as a **fixed snapshot** (prices to 24 Sep 2026) that the site never refreshes. It reads `momentum_study.json`.
+A public **teaser** for the momentum research: a short intro, headline numbers and the equity curve against the Nifty 500, with **no rules**. It reads `momentum_teaser.json` (curve and headline numbers only), a **fixed snapshot** (prices to 24 Sep 2026) that the site never refreshes.
 
-- **Strategy (base case):** a stock must be within 25% of its all-time high, trade above ₹1 Cr average daily turnover and close above its SMA233; ranked by average Sharpe (plain % return ÷ annualised volatility) over 252/184/126/63 sessions. Hold the top 10, sell a holding only when it leaves the top 30, move to a liquid fund when Nifty 500 closes below its 200-day SMA at month-end.
-- **What it tests:** survivorship bias (on point-in-time Nifty 500 lists), skill vs luck (random portfolios), parameter sensitivity, rebalance-day timing, costs, Indian capital-gains tax, capacity, risk, and a 10% stop-loss.
-- **Stocks tested** are fixed in `nifty750_backtest_list.csv` (the NSE list of 24 Sep 2026), linked from the page.
-- **Google Sheet scanner:** `apps-script/MomentumScan.gs` is the Apps Script behind the owner's Momentum Sharpe Scan sheet. It uses the same rules and formulas as the base case (checked stock-by-stock against `momentum.py`'s `Scanner`), so keep the two in sync when either changes.
+The full study (every rule, stress test and table) is kept out of the site build in `study/momentum-study-full.html`, which reads `momentum_study.json`; it may become paid content later, so don't deploy either file until they sit behind a login. To view it locally, serve the repo root (`py -m http.server`) and open `/study/momentum-study-full.html`.
+
+- **Strategy (base case):** a stock must be within 25% of its all-time high, trade above ₹1 Cr average daily turnover and close above its SMA233; ranked by average Sharpe (plain % return ÷ annualised volatility) over 252/184/126/63 sessions. Hold the top 10, sell a holding only when it leaves the top 30, rebalance at month-end. Market filter (checked daily): move everything to a liquid fund on the day Nifty 500 completes 3 closes in a row below its 200-day SMA (`Params.market_check = "daily"`, `confirm_days = 3`); buy back at a month-end above the SMA.
+- **What it tests:** survivorship bias (point-in-time vs today's list), skill vs luck (random portfolios), parameter sensitivity, rebalance-day timing, costs, Indian capital-gains tax, capacity, risk, a 10% stop-loss, gold (GOLDBEES) instead of the liquid fund, and the 50/100/150/200-day average behind the market filter.
+- **Stocks tested:** every result uses the point-in-time Nifty 500 lists in `study/constituents/` (`Params.universe = "pit500"`). `nifty750_backtest_list.csv` (the NSE list of 24 Sep 2026) is used only for the biased comparison runs, and is linked from the page.
+- **Google Sheet scanner:** `apps-script/MomentumScan.gs` is the Apps Script behind the owner's Momentum Sharpe Scan sheet. It uses the same stock rules and formulas as the base case (checked stock-by-stock against `momentum.py`'s `Scanner`), so keep the two in sync when either changes. Exception: the sheet and `momentum.py` still apply the market filter only at month-end; the study's base case now exits after 3 daily closes in a row below the 200-day SMA.
 
 There used to be a separate Momentum Scan page (`momentum-scan.html`) showing the latest ranked list; it was removed from the site and can be restored from git history if needed. `momentum.py` (the backtest engine behind it) is kept: it builds the local price cache `momentum_prices.json` (git-ignored) that the study reads, and reads its stocks only from `nifty750_backtest_list.csv`, so reruns always test the same 750 stocks. Its output `momentum_state.json` is no longer shown on the site.
 
@@ -78,12 +80,26 @@ Everything to reproduce the study is in `study/` (run `py momentum.py` first if 
 
 - `study/fetch_constituents.py` — downloads archived Nifty 500 constituent lists from the Wayback Machine into `study/constituents/` (already done; the lists are committed).
 - `study/fetch_extra_prices.py` — fetches prices for past index members outside the 750 into `study/prices_extra.json` (git-ignored). `study/renames.py` maps renamed NSE symbols; `study/prices_missing.json` lists past members with no price data (mostly delisted or merged).
-- `study/momentum_study.py` — runs every variant offline (needs `numpy`, ~30 seconds) and writes `momentum_study.json`.
+- `study/prices_cash.json` — GOLDBEES daily prices for the "gold instead of the liquid fund" test (fetched with `momentum.fetch_daily("GOLDBEES.NS", "7y")`).
+- `study/backtest_report.py` — writes `study/backtest_report.html`, a detailed month-by-month backtest on the point-in-time Nifty 500 lists (template: `study/backtest_report_template.html`).
+- `study/momentum_study.py` — runs every variant offline (needs `numpy`, ~30 seconds) and writes `momentum_study.json` (full study) and `momentum_teaser.json` (public page).
 
 ```powershell
 py study\fetch_extra_prices.py   # only if study\prices_extra.json is missing
 py study\momentum_study.py
 ```
+
+### Momentum book (`book/`)
+
+"Riding the Winners", a plain-English book (Word, A4) on momentum investing built from the study: what momentum is, its history, why it works, the exact rules, the honest backtest and every stress test. All numbers and charts come from `momentum_study.json`, so rebuild it after rerunning the study. Not part of the site build.
+
+```powershell
+cd book; npm install; cd ..        # once (installs docx; node_modules is git-ignored)
+py book\make_charts.py             # charts\*.png and book_extra.json
+node book\build_book.js            # Momentum_Investing_Book.docx
+```
+
+Open the .docx in Word and update the table of contents (right-click it > Update Field) after rebuilding.
 
 ## Building the executables
 
@@ -94,7 +110,7 @@ py -m PyInstaller --noconfirm LetMoneyEarn.spec
 py -m PyInstaller --noconfirm LetMoneyEarnAdmin.spec
 ```
 
-Then copy the site files next to the executables in `dist\`: every `*.html`, `*.js`, `*.css`, plus `breakout_data.json`, `momentum_study.json` and `nifty750_backtest_list.csv`. Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
+Then copy the site files next to the executables in `dist\`: every `*.html`, `*.js`, `*.css`, plus `breakout_data.json` and `momentum_teaser.json` (not `momentum_study.json`: it holds the full study). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
 
 ## Punam Numerology (subdomain site)
 
