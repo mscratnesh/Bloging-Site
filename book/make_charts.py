@@ -185,6 +185,33 @@ ax.set_ylabel("Price (₹, started at 100)")
 ax.legend(loc="upper left")
 save(fig, "08_concept.png")
 
+# 9. ETF rotation vs NIFTYBEES and GOLDBEES (from etf_study.json)
+E = json.loads((ROOT / "etf_study.json").read_text(encoding="utf-8"))
+xe = [d(p["date"]) for p in E["curve"]]
+fig, ax = plt.subplots(figsize=(6.5, 3.2))
+ax.plot(xe, [p["gold"] for p in E["curve"]], color=AMBER, lw=1.3, label="GOLDBEES (bought and held)")
+ax.plot(xe, [p["nifty"] for p in E["curve"]], color=NIFTY, lw=1.2, ls="--", label="NIFTYBEES (bought and held)")
+ax.plot(xe, [p["strategy"] for p in E["curve"]], color=STRAT, lw=2.2, label="ETF momentum rotation")
+log_axis(ax, ticks=(0.75, 1, 1.5, 2, 3, 4, 5))
+year_axis(ax)
+ax.set_ylabel("Growth of ₹1 (log scale)")
+ax.legend(loc="upper left")
+save(fig, "09_etf_growth.png")
+
+# 10. months each ETF was held
+held = E["monthsHeld"]
+never = [k for k in E["listed"] if k not in held]
+names = list(held) + never
+vals = [held.get(k, 0) for k in names]
+fig, ax = plt.subplots(figsize=(6.5, 3.4))
+ax.barh(names[::-1], vals[::-1], color=[STRAT if v else "#d9ddd5" for v in vals[::-1]], height=0.65)
+for i, v in enumerate(vals[::-1]):
+    ax.annotate(f"{v}" if v else "never", (v, i), xytext=(4, 0), textcoords="offset points", va="center", fontsize=8, color=INK if v else MUTED)
+ax.set_xlabel(f"Months held, out of {E['months']}")
+ax.grid(axis="y", visible=False)
+ax.set_xlim(0, E["months"] * 1.08)
+save(fig, "10_etf_held.png")
+
 # numbers the book text needs that are not in momentum_study.json
 extra = {
     "spells": [{"from": a, "to": None if end else b} for a, b, end in spells],

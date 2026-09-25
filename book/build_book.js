@@ -11,6 +11,7 @@ const {
 const ROOT = path.resolve(__dirname, "..");
 const S = JSON.parse(fs.readFileSync(path.join(ROOT, "momentum_study.json"), "utf8"));
 const X = JSON.parse(fs.readFileSync(path.join(__dirname, "book_extra.json"), "utf8"));
+const E = JSON.parse(fs.readFileSync(path.join(ROOT, "etf_study.json"), "utf8"));
 
 // ------------------------------------------------------------------ formatting helpers
 const pct = (v, dp = 1, sign = false) => (v == null ? "–" : (sign && v > 0 ? "+" : "") + (v * 100).toFixed(dp) + "%");
@@ -151,7 +152,7 @@ P("Most of us were taught one rule about the stock market: **buy low, sell high*
 P("That sounds like chasing. It is, a little. But it is chasing with rules. You don't buy a stock because it's on the news or because a friend made money on it. You buy it because, measured calmly, it has risen more strongly and more steadily than almost everything else, and you sell it the moment it no longer does.");
 P(`Does it work? For more than a hundred years, traders have said yes. For the last thirty, academic research has agreed: in markets all over the world, stocks that have done well over the past several months tend to keep doing well for a while longer. This book tests the idea on Indian stocks, carefully and honestly. From ${fmonth(B.from)} to ${fmonth(B.to)}, a simple set of momentum rules on the Nifty 500 grew **₹1 lakh into about ${lakh(B.multiple)}**, or **${pct(B.cagr)} a year**. The Nifty 500 index grew ₹1 lakh into ${lakh(N.multiple)} (${pct(N.cagr)} a year) over the same period.`);
 P("But the numbers are only half the story. The other half is what it feels like: the long months below your last high, the trades that lose, the times the rules sell right before the market bounces. A strategy only works if you can stick with it. So this book spends as much time on the pain as on the gain.");
-callout("How to read this book.", "Chapters 1 to 3 explain what momentum is, where it came from and why it works. Chapters 4 to 9 describe our exact rules and put them through tough tests. Chapters 10 to 12 are practical: what holding it feels like, how to run it yourself, and the mistakes to avoid. If you only have ten minutes, read this introduction, Chapter 6 and Chapter 12.");
+callout("How to read this book.", "Chapters 1 to 3 explain what momentum is, where it came from and why it works. Chapters 4 to 9 describe our exact rules and put them through tough tests. Chapters 10 to 12 are practical: what holding it feels like, how to run it yourself, and the mistakes to avoid. Chapter 13 applies the same idea to ETFs. If you only have ten minutes, read this introduction, Chapter 6 and Chapter 12.");
 figure("01_growth.png", `Growth of ₹1 with the momentum rules in this book, against the Nifty 500 index (${fmonth(B.from)} to ${fmonth(B.to)}). Log scale: equal percentage moves look the same size.`);
 
 // Chapter 1
@@ -489,6 +490,89 @@ const faq = [
 faq.forEach(([q, a]) => { H3(q); P(a); });
 
 // Appendix
+// Chapter 13: ETFs
+{
+  const es = E.stats[0], en = E.stats[1], eg = E.stats[2], eb = E.base, et = E.trades, sl = E.sinceAllListed;
+  const eyears = Object.keys(E.yearly.strategy);
+  const WHAT = {
+    AUTOBEES: "Auto companies (Nifty Auto)", CPSEETF: "Central public-sector companies (Nifty CPSE)", FMCGIETF: "Consumer goods companies (Nifty FMCG)",
+    GOLDBEES: "Gold", HEALTHY: "Healthcare companies", INFRAIETF: "Infrastructure companies (Nifty Infrastructure)",
+    LTGILTBEES: "Long-term government bonds", METALIETF: "Metal companies (Nifty Metal)", MODEFENCE: "Defence companies (Nifty India Defence)",
+    MOREALTY: "Real-estate companies (Nifty Realty)", NIFTYBEES: "India's 50 largest companies (Nifty 50)", PHARMABEES: "Pharma companies (Nifty Pharma)",
+    PSUBNKBEES: "Public-sector banks (Nifty PSU Bank)", PVTBANIETF: "Private-sector banks (Nifty Private Bank)", SILVERBEES: "Silver",
+  };
+  const sensE = (g, l) => E.sensitivity[g].find(r => r.label.startsWith(l));
+  const never = Object.keys(E.listed).filter(k => !E.monthsHeld[k]);
+  const lastLeft = Object.fromEntries(E.log[E.log.length - 1].left.map(x => [x.s, x.why]));
+  const closedE = E.trades.list.filter(t => t.out);
+  const bestE = [...closedE].sort((a, b) => b.ret - a.ret).slice(0, 5);
+  const yrsE = (new Date(es.to) - new Date(es.from)) / 3.15576e10, yrsS = (new Date(B.to) - new Date(B.from)) / 3.15576e10;
+
+  H1("13. Momentum with ETFs");
+  P("Everything so far has been about individual stocks. The same idea works with **exchange-traded funds (ETFs)**: funds that trade on the exchange like a share and track an index, a sector, or a commodity such as gold. Instead of picking the 10 strongest stocks, you pick the strongest few ETFs, and let the rotation move between Indian shares, sectors, gold, silver and government bonds.");
+  H2("Why use ETFs?");
+  bullets([
+    "**They can't go bust.** An ETF holds a whole basket. A single company can collapse; a Nifty 50 ETF can't vanish overnight.",
+    "**They are already diversified**, so you need only a handful of holdings instead of ten or more stocks.",
+    "**They cover more than shares.** Gold, silver and government-bond ETFs let the rotation step away from equities when shares are weak, without a separate market switch.",
+    "**Trading is cheap and rare.** ETFs have low costs, and the rotation in this chapter changed its holdings only a couple of times a year.",
+    "**The drawbacks:** fewer choices, many sector ETFs are only a few years old, and some trade thinly.",
+  ]);
+  H2("The ETFs tested");
+  table(["ETF", "What it tracks", "Trading since"], [...Object.keys(E.listed).sort().map(k => r_([k, WHAT[k] || "", fmonth(E.listed[k])])), r_(["LIQUIDCASE", "Overnight money-market rates (used as cash)", "Jan 2024"])],
+    { widths: [1.2, 3, 1.1], leftCols: [1], title: "The 16 ETFs in the rotation." });
+  P("An ETF only enters the ranking once it has traded for about a year (the score needs a year of prices). So the list grew over time, exactly as it did for a real investor: in 2017 only NIFTYBEES, GOLDBEES, CPSEETF and PSUBNKBEES were eligible; the full list was only available from late 2025.");
+  H2("The rules");
+  table(["", "Stock strategy (Chapters 4 to 9)", "ETF rotation"], [
+    r_(["Universe", "Nifty 500, as it stood each month", `The ${Object.keys(E.listed).length} ETFs above, once each had a year of prices`]),
+    r_(["Score and filters", "Return ÷ volatility; near all-time high, above 233-day average, ₹1 crore turnover", "The same"]),
+    r_(["Holdings", "Top 10", `Top ${eb.top_n}, each a 1/${eb.top_n} slot`]),
+    r_(["When to sell", "Out of the top 30, or fails a filter", `Out of the top ${eb.exit_rank}, or fails a filter`]),
+    r_(["Market safety switch", "Yes: 3 closes below the Nifty 500's 200-day average", "None: gold, bonds and cash take over on their own"]),
+    r_(["Waiting money", "Liquid fund", "LIQUIDCASE (6.5% a year assumed before it existed)"]),
+    r_(["Costs", "0.25% per trade", "0.25% per trade"]),
+  ], { widths: [1.3, 2.3, 2.3], leftCols: [1, 2], title: "Stock strategy and ETF rotation, side by side." });
+  H2("The results");
+  table(["", "CAGR", "Worst fall", "Volatility", "Sharpe", "₹1 lakh became"], E.stats.map((x, i) => r_([x.label, pct(x.cagr), pct(x.maxDD), pct(x.vol), num(x.sharpe), lakh(x.multiple)], i === 0)),
+    { widths: [2.4, 0.9, 0.9, 0.9, 0.8, 1.2], title: `ETF rotation from ${fdate(es.from)} to ${fdate(es.to)}. Before tax, after costs.` });
+  figure("09_etf_growth.png", "Growth of ₹1 with the ETF rotation, against simply holding NIFTYBEES or GOLDBEES.");
+  P(`The rotation earned **${pct(es.cagr)} a year** with a worst fall of only **${pct(es.maxDD)}** and volatility of ${pct(es.vol)}, lower than even the Nifty's. NIFTYBEES earned ${pct(en.cagr)} with a worst fall of ${pct(en.maxDD)} (the March 2020 crash). Simply holding **GOLDBEES earned ${pct(eg.cagr)}**, a little more than the rotation, because these were exceptional years for gold. The rotation's advantage is that it doesn't depend on gold continuing: it moves on when gold stops rising.`);
+  P(`Its early years were quiet, because only a few ETFs existed and money often sat in cash (${pct(E.avgCash, 0)} on average over the whole period). Since all the ETFs were trading (${fmonth(sl.from)}), it earned **${pct(sl.strategy.cagr)} a year** while NIFTYBEES earned ${pct(sl.nifty.cagr)}.`);
+  table(["Year", "ETF rotation", "NIFTYBEES", "GOLDBEES"], eyears.map(y => r_([y + (y === eyears[0] || y === eyears[eyears.length - 1] ? " (part)" : ""), pct(E.yearly.strategy[y], 1, true), pct(E.yearly.nifty[y], 1, true), pct(E.yearly.gold[y], 1, true)])),
+    { widths: [1, 1.2, 1.2, 1.2], title: "Returns by calendar year." });
+  H2("What it held");
+  figure("10_etf_held.png", `Months each ETF spent in the portfolio, out of ${E.months}.`);
+  P(`Gold and the Nifty were the backbone, joined by PSU banks and CPSE companies during their long rally, and by silver, bonds, pharma and metals more recently. ${never.join(", ")} were never picked. At the last month-end, for example: ${never.map(k => `${k}: ${(lastLeft[k] || "ranked below the top " + eb.top_n).toLowerCase()}`).join("; ")}.`);
+  P(`There were only **${et.count} completed trades**, and **${pct(et.winRate, 0)} made money**. The average winner gained ${pct(et.avgWin, 0, true)}, the average loser lost just ${pct(et.avgLoss, 0)}, and a typical ETF was held for about ${Math.round(et.medianDays / 30)} months.`);
+  table(["Best trades", "Bought", "Sold", "Return"], bestE.map(t => r_([t.s, fmonth(t.in), fmonth(t.out), pct(t.ret, 0, true)])), { widths: [1.6, 1, 1, 1], title: "The five best ETF trades." });
+  H2("Does it depend on the settings?");
+  table(["Change", "CAGR", "Worst fall", "Sharpe"], [
+    ...E.sensitivity["ETFs held"].map(r => r_([`Hold ${r.label.replace(" (base)", "").replace("Top", "top")}${r.label.includes("base") ? " (our rule)" : ""}`, pct(r.cagr), pct(r.maxDD), num(r.sharpe)], r.label.includes("base"))),
+    r_(["No filters at all", pct(sensE("Filters", "No filters").cagr), pct(sensE("Filters", "No filters").maxDD), num(sensE("Filters", "No filters").sharpe)]),
+    r_(["No 233-day trend filter", pct(sensE("Filters", "No 233").cagr), pct(sensE("Filters", "No 233").maxDD), num(sensE("Filters", "No 233").sharpe)]),
+    r_(["Add a NIFTYBEES market switch", pct(E.sensitivity["Market switch"][1].cagr), pct(E.sensitivity["Market switch"][1].maxDD), num(E.sensitivity["Market switch"][1].sharpe)]),
+  ], { widths: [2.6, 1, 1, 1], title: "The ETF rotation with one setting changed." });
+  bullets([
+    "**Fewer ETFs, bigger swings.** Holding 2 or 3 earned more but fell harder; holding 7 was smoother but earned less. Five is a sensible middle.",
+    "**The filters matter.** Without them the return dropped and the falls deepened. The trend filter did most of the work.",
+    "**No market switch needed.** Adding one lowered the return: with gold, bonds and cash on the list, the rotation already steps away from falling shares.",
+    "**When to sell and trading costs barely mattered**, because the rotation trades so rarely.",
+  ]);
+  H2("Stocks or ETFs?");
+  table(["", "Stock strategy", "ETF rotation"], [
+    r_(["Period tested", `${fmonth(B.from)} to ${fmonth(B.to)} (${yrsS.toFixed(1)} years)`, `${fmonth(es.from)} to ${fmonth(es.to)} (${yrsE.toFixed(1)} years)`]),
+    r_(["Yearly growth (CAGR)", pct(B.cagr), pct(es.cagr)]),
+    r_(["Worst fall", pct(B.maxDD), pct(es.maxDD)]),
+    r_(["Volatility", pct(B.vol), pct(es.vol)]),
+    r_(["Sharpe", num(B.sharpe), num(es.sharpe)]),
+    r_(["Completed trades", String(B.trades), String(et.count)]),
+    r_(["Holdings", "10 stocks", `${eb.top_n} ETFs`]),
+    r_(["Main risk", "Deep falls in small and mid caps", "Depends heavily on gold; few ETFs in early years"]),
+  ], { widths: [1.6, 2, 2], leftCols: [1, 2], title: "The two approaches compared. The periods differ, so compare the character, not the exact numbers." });
+  P("The stock strategy aims for higher returns and asks you to sit through deeper falls. The ETF rotation is gentler: fewer holdings, far fewer trades, smaller falls, and it can hold gold and bonds when shares are weak. Many investors could reasonably use the ETF rotation on its own, or run both side by side.");
+  callout("Be careful with this result.", "The ETF list was chosen today, with some knowledge of which themes did well, and no ETF that closed down in the past can appear in it. Until 2021 only a handful of ETFs were eligible. And these were exceptional years for gold and, in 2025, silver. Treat the ETF numbers as more flattering, and less certain, than the stock study's.");
+}
+
 H1("Appendix A: Glossary");
 table(["Term", "Meaning"], [
   ["Backtest", "Running a strategy's rules on past prices to see what would have happened. Hypothetical, not real trading."],
@@ -568,7 +652,7 @@ const doc = new Document({
 });
 
 Packer.toBuffer(doc).then(buf => {
-  const out = path.join(__dirname, "Momentum_Investing_Book.docx");
+  const out = process.argv[2] || path.join(__dirname, "Momentum_Investing_Book.docx");  // optional output path
   fs.writeFileSync(out, buf);
   console.log("wrote", out, (buf.length / 1024).toFixed(0), "KB,", figNo, "figures,", tableNo, "tables");
 });
