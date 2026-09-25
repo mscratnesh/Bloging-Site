@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Momentum Backtest Report</title>
+<meta name="description" content="Month-by-month backtest of the momentum strategy on point-in-time Nifty 500 lists: equity curve, drawdowns, returns, change log and every trade.">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1; --surface: #fcfcfb; --surface-2: #f0efec; --border: #e2e0da;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7873;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #c98500;
+  --pos: #2a78d6; --neg: #d03b3b; --mid: #f0efec;
+  --good: #0a7d0a; --bad: #b3261e;
+  --grid: #e7e5df;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #33332f;
+    --text: #ffffff; --text-2: #c3c2b7; --muted: #8f8d85;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #eda100;
+    --pos: #3987e5; --neg: #e66767; --mid: #383835;
+    --good: #4cc74c; --bad: #ff8a80;
+    --grid: #2c2c29;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #33332f;
+  --text: #ffffff; --text-2: #c3c2b7; --muted: #8f8d85;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #eda100;
+  --pos: #3987e5; --neg: #e66767; --mid: #383835;
+  --good: #4cc74c; --bad: #ff8a80;
+  --grid: #2c2c29;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 28px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+h2 { font-size: 21px; margin: 44px 0 6px; padding-top: 8px; }
+h3 { font-size: 16px; margin: 22px 0 8px; }
+p { margin: 6px 0 12px; }
+.sub { color: var(--text-2); margin: 0 0 16px; max-width: 760px; }
+.num, td.n, th.n { font-variant-numeric: tabular-nums; }
+a { color: var(--s1); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 12px 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.tile .k { font-size: 12px; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+.tile .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.tile .c { font-size: 12.5px; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); font-weight: 600; white-space: nowrap; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tr.hl td { background: var(--surface-2); font-weight: 600; }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+.muted { color: var(--muted); }
+.nav { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--border); margin: 0 -16px; padding: 8px 16px; display: flex; gap: 6px; overflow-x: auto; }
+.nav a { white-space: nowrap; font-size: 13px; text-decoration: none; color: var(--text-2); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); }
+.nav a:hover { color: var(--text); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-2); margin: 0 0 8px; }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; min-width: 170px; z-index: 3; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; }
+.tip b { font-weight: 600; }
+.tip .sw { display: inline-block; width: 10px; height: 2px; margin-right: 6px; vertical-align: middle; }
+.heat td.n { text-align: center; min-width: 52px; font-size: 12.5px; }
+.rules li { margin: 4px 0; }
+.note { border-left: 3px solid var(--s2); padding: 8px 12px; background: var(--surface); border-radius: 0 8px 8px 0; color: var(--text-2); font-size: 14px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 4px; font-size: 13px; }
+.filters select, .filters input { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.month { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 14px 0; break-inside: avoid; page-break-inside: avoid; }
+.mhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; }
+.mhead h3 { margin: 0; font-size: 18px; }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 650; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); vertical-align: 3px; margin-left: 8px; }
+.badge.EXIT { color: var(--bad); border-color: currentColor; background: transparent; }
+.badge.ENTER { color: var(--good); border-color: currentColor; background: transparent; }
+.mmeta { font-size: 13px; color: var(--text-2); margin: 6px 0 4px; }
+.mret { font-size: 14px; }
+.mret b { font-size: 17px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.chip { font-size: 12px; padding: 2px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.chip.on { outline: 1.5px solid var(--s1); color: var(--text); }
+.tag { font-size: 11px; color: var(--s1); font-weight: 650; margin-left: 4px; }
+.why { color: var(--text-2); }
+.co { color: var(--muted); font-size: 12px; display: block; }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+@media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } h1 { font-size: 23px; } .tile .v { font-size: 22px; } }
+th.sort { cursor: pointer; }
+th.sort:hover { color: var(--text); }
+.theme-btn { float: right; font: inherit; font-size: 13px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); cursor: pointer; }
+@media print {
+  body { background: #fff; font-size: 12px; }
+  .nav, .filters, .theme-btn { display: none !important; }
+  .wrap { max-width: none; padding: 0; }
+  h2 { break-before: page; page-break-before: always; margin-top: 0; }
+  h2.first { break-before: auto; page-break-before: auto; }
+  .month { break-before: page; page-break-before: always; border: none; padding: 0; }
+  .card, .tile { border-color: #ccc; }
+  .tip { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const DATA = /*__DATA__*/null;
+
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = (v, dp = 1, sign = false) => v == null || isNaN(v) ? "–" : (sign && v > 0 ? "+" : "") + (v * 100).toFixed(dp) + "%";
+const pp = v => (v > 0 ? "+" : "") + (v * 100).toFixed(1) + " pts";
+const cls = v => v > 0 ? "pos" : v < 0 ? "neg" : "";
+const spct = (v, dp = 1) => `<span class="${cls(v)}">${pct(v, dp, true)}</span>`;
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const fdate = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : "–";
+const fmonth = d => `${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}`;
+const inr = v => "₹" + v.toLocaleString("en-IN", { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+const STATUS = {
+  ENTER: "Bought after sitting in cash",
+  SWAP: "Some stocks sold and replaced",
+  HOLD: "No change: every holding still qualified",
+  EXIT: "Sold everything: the market safety switch turned off",
+  CASH: "Stayed in the liquid fund",
+};
+
+function render() {
+  const D = DATA, S = D.stats, s = S[0], b = S[1], R = D.rules;
+  const years = ((new Date(D.to) - new Date(D.from)) / 3.15576e10).toFixed(1);
+  const h = [];
+  h.push(`<button class="theme-btn" id="theme" type="button">Theme</button>
+  <h1>Momentum strategy: detailed backtest</h1>
+  <p class="sub">Nifty 500 stocks, using the index list that was actually in force each month. ${fdate(D.from)} to ${fdate(D.to)} (${years} years), prices as of ${fdate(D.asOf)}.</p>
+  <nav class="nav">
+    <a href="#summary">Summary</a><a href="#curve">Equity curve</a><a href="#years">Yearly</a><a href="#months">Monthly</a>
+    <a href="#dd">Drawdowns</a><a href="#tradestats">Trades</a><a href="#log">Month-by-month log</a><a href="#alltrades">All trades</a><a href="#gold">Liquid vs gold</a><a href="#method">Data & method</a>
+  </nav>`);
+
+  // ---- summary
+  h.push(`<h2 id="summary" class="first">1. Summary</h2>
+  <p class="sub">₹1 lakh invested on ${fdate(D.from)} would be worth about <b>${inr(s.multiple)} lakh</b> today. The same money in the Nifty 500 index would be ${inr(b.multiple)} lakh.</p>
+  <div class="tiles">
+    <div class="tile"><div class="k">CAGR</div><div class="v">${pct(s.cagr)}</div><div class="c">Nifty 500: ${pct(b.cagr)}</div></div>
+    <div class="tile"><div class="k">Worst fall</div><div class="v">${pct(s.maxDD)}</div><div class="c">Nifty 500: ${pct(b.maxDD)}</div></div>
+    <div class="tile"><div class="k">Sharpe</div><div class="v">${s.sharpe.toFixed(2)}</div><div class="c">Nifty 500: ${b.sharpe.toFixed(2)}</div></div>
+    <div class="tile"><div class="k">₹1 became</div><div class="v">${inr(s.multiple)}</div><div class="c">Nifty 500: ${inr(b.multiple)}</div></div>
+    <div class="tile"><div class="k">Trades</div><div class="v">${s.trades}</div><div class="c">${pct(s.winRate, 0)} winners, median hold ${D.tradeStats.medianDays} days</div></div>
+  </div>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th></th><th class="n">CAGR</th><th class="n">Worst fall</th><th class="n">Volatility</th><th class="n">Sharpe</th><th class="n">Sortino</th><th class="n">Calmar</th><th class="n">₹1 became</th></tr></thead>
+    <tbody>${S.map((x, i) => `<tr class="${i ? "" : "hl"}"><td>${esc(x.label)}</td><td class="n">${pct(x.cagr)}</td><td class="n">${pct(x.maxDD)}</td><td class="n">${pct(x.vol)}</td><td class="n">${x.sharpe.toFixed(2)}</td><td class="n">${x.sortino.toFixed(2)}</td><td class="n">${x.calmar.toFixed(2)}</td><td class="n">${inr(x.multiple)}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <p class="muted" style="font-size:13px">Sharpe and Sortino use the ${pct(R.liquid)} liquid-fund return as the risk-free rate.</p>
+  <h3>The rules tested</h3>
+  <div class="card"><ul class="rules" style="margin:0;padding-left:20px">
+    <li><b>Stocks:</b> Nifty 500 members on the most recent archived list dated on or before each rebalance day.</li>
+    <li><b>Filters:</b> within ${pct(R.maxFall, 0)} of the all-time high, closing above the ${R.sma}-day average, and average daily turnover above ₹1 crore.</li>
+    <li><b>Ranking:</b> for each of ${R.lookbacks.join(", ")} trading days, return ÷ annualised volatility. The score is the average of the four.</li>
+    <li><b>Portfolio:</b> hold the top ${R.topN}, equal amounts at purchase. Keep a stock until its rank falls below ${R.exitRank} or it fails a filter.</li>
+    <li><b>Rebalance:</b> last trading day of each month.</li>
+    <li><b>Market filter:</b> ${R.marketCheck === "daily" ? `checked every day. If the Nifty 500 closes below its ${R.marketMa}-day average ${R.confirmDays} days in a row, sell everything that day and hold a liquid fund (${pct(R.liquid)} a year). Buy back at a month-end when the Nifty 500 is above its average.` : `if the Nifty 500 closes below its ${R.marketMa}-day average at month-end, sell everything and hold a liquid fund (${pct(R.liquid)} a year).`}</li>
+    <li><b>Costs:</b> ${pct(R.cost, 2)} on every buy and every sell. No tax.</li>
+  </ul></div>`);
+
+  // ---- equity curve
+  h.push(`<h2 id="curve">2. Equity curve and drawdowns</h2>
+  <p class="sub">Growth of ₹1 on a log scale, so equal percentage moves look the same size. Flat stretches in the strategy line are months spent in the liquid fund.</p>
+  <div class="card"><div class="legend">
+    <span><i style="background:var(--s1);height:3px"></i>Strategy</span><span><i style="background:var(--s2)"></i>Nifty 500</span>
+  </div><div class="chart" id="eqChart"></div></div>
+  <h3>Drawdown: how far below its previous high</h3>
+  <div class="card"><div class="legend"><span><i style="background:var(--s1);height:3px"></i>Strategy</span><span><i style="background:var(--s2)"></i>Nifty 500</span></div>
+  <div class="chart" id="ddChart"></div></div>`);
+
+  // ---- yearly
+  const yrs = Object.keys(D.yearly.Strategy);
+  h.push(`<h2 id="years">3. Year by year</h2>
+  <p class="sub">${fdate(D.from).slice(-4)} and ${D.to.slice(0, 4)} are part-years (from ${fdate(D.from)} and up to ${fdate(D.to)}).</p>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>Year</th><th class="n">Strategy</th><th class="n">Nifty 500</th><th class="n">Strategy vs Nifty 500</th></tr></thead>
+    <tbody>${yrs.map(y => { const a = D.yearly.Strategy[y], bb = D.yearly["Nifty 500"][y];
+      return `<tr><td>${y}</td><td class="n">${spct(a)}</td><td class="n">${spct(bb)}</td><td class="n">${spct(a - bb)}</td></tr>`; }).join("")}</tbody>
+  </table></div>`);
+
+  // ---- monthly heatmap
+  const mm = {}, bm = Object.fromEntries(D.monthly.bench);
+  D.monthly.strategy.forEach(([m, v]) => (mm[m] = v));
+  const myears = [...new Set(D.monthly.strategy.map(([m]) => m.slice(0, 4)))];
+  const cell = v => {
+    if (v == null) return `<td class="n muted">·</td>`;
+    const a = Math.min(Math.abs(v) / 0.15, 1);
+    const col = v >= 0 ? "var(--pos)" : "var(--neg)";
+    return `<td class="n" style="background:color-mix(in srgb, ${col} ${Math.round(a * 55)}%, var(--mid))" title="${pct(v, 2, true)}">${pct(v, 1, true)}</td>`;
+  };
+  const ms = D.monthly.strategy.map(m => m[1]);
+  const up = ms.filter(v => v > 0).length, beat = D.monthly.strategy.filter(([m, v]) => v > (bm[m] ?? 0)).length;
+  h.push(`<h2 id="months">4. Month by month returns</h2>
+  <p class="sub">${up} of ${ms.length} months were positive, and ${beat} beat the Nifty 500. Best month ${pct(Math.max(...ms), 1, true)}, worst ${pct(Math.min(...ms), 1, true)}. Blue is a gain, red a loss; darker means bigger.</p>
+  <div class="card tbl-wrap"><table class="heat">
+    <thead><tr><th>Year</th>${MON.map(m => `<th class="n">${m}</th>`).join("")}<th class="n">Year</th></tr></thead>
+    <tbody>${myears.map(y => `<tr><td>${y}</td>${MON.map((_, i) => cell(mm[`${y}-${String(i + 1).padStart(2, "0")}`])).join("")}<td class="n"><b>${spct(D.yearly.Strategy[y])}</b></td></tr>`).join("")}</tbody>
+  </table></div>
+  <h3>Nifty 500, same months</h3>
+  <div class="card tbl-wrap"><table class="heat">
+    <thead><tr><th>Year</th>${MON.map(m => `<th class="n">${m}</th>`).join("")}<th class="n">Year</th></tr></thead>
+    <tbody>${myears.map(y => `<tr><td>${y}</td>${MON.map((_, i) => cell(bm[`${y}-${String(i + 1).padStart(2, "0")}`])).join("")}<td class="n"><b>${spct(D.yearly["Nifty 500"][y])}</b></td></tr>`).join("")}</tbody>
+  </table></div>`);
+
+  // ---- drawdowns
+  const ddRow = x => `<tr><td>${fdate(x.peak)}</td><td>${fdate(x.trough)}</td><td class="n">${spct(x.depth)}</td><td class="n">${x.daysDown}</td><td>${x.recovered ? fdate(x.recovered) : "<span class='muted'>not yet</span>"}</td><td class="n">${x.daysToRecover ?? "–"}</td></tr>`;
+  h.push(`<h2 id="dd">5. Biggest falls</h2>
+  <p class="sub">Each row is a fall from a high, the lowest point reached, and when the strategy got back to that high. Days are calendar days.</p>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>From high on</th><th>Lowest on</th><th class="n">Fall</th><th class="n">Days falling</th><th>Back to high</th><th class="n">Days to recover</th></tr></thead>
+    <tbody>${D.drawdowns.map(ddRow).join("")}</tbody></table></div>
+  <h3>Nifty 500's biggest falls, same period</h3>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>From high on</th><th>Lowest on</th><th class="n">Fall</th><th class="n">Days falling</th><th>Back to high</th><th class="n">Days to recover</th></tr></thead>
+    <tbody>${D.benchDrawdowns.map(ddRow).join("")}</tbody></table></div>`);
+
+  // ---- trade stats + per stock
+  const T = D.tradeStats;
+  h.push(`<h2 id="tradestats">6. Trades</h2>
+  <div class="tiles">
+    <div class="tile"><div class="k">Closed trades</div><div class="v">${T.count}</div><div class="c">${D.open.length} still open</div></div>
+    <div class="tile"><div class="k">Winners</div><div class="v">${pct(T.winRate, 0)}</div><div class="c">of closed trades</div></div>
+    <div class="tile"><div class="k">Average win</div><div class="v pos">${pct(T.avgWin, 1, true)}</div><div class="c">best ${pct(T.best, 0, true)}</div></div>
+    <div class="tile"><div class="k">Average loss</div><div class="v neg">${pct(T.avgLoss, 1, true)}</div><div class="c">worst ${pct(T.worst, 0, true)}</div></div>
+    <div class="tile"><div class="k">Median hold</div><div class="v">${T.medianDays}</div><div class="c">calendar days</div></div>
+  </div>
+  <p class="sub">About half the trades lose, but the average win is about ${(T.avgWin / -T.avgLoss).toFixed(1)}× the average loss. A few big winners carry the result, which is typical of momentum.</p>
+  <h3>Open positions on ${fdate(D.to)}</h3>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>Stock</th><th>Industry</th><th>Bought</th><th class="n">Days</th><th class="n">Weight</th><th class="n">Return so far</th></tr></thead>
+    <tbody>${D.open.map(o => `<tr><td><b>${esc(o.s)}</b><span class="co">${esc(o.n)}</span></td><td>${esc(o.ind)}</td><td>${fdate(o.in)}</td><td class="n">${o.days}</td><td class="n">${pct(o.w)}</td><td class="n">${spct(o.ret)}</td></tr>`).join("")}</tbody></table></div>
+  <h3>By stock: every stock the strategy traded</h3>
+  <p class="sub">Combined return compounds all of a stock's closed trades. Click a column to sort.</p>
+  <div class="card tbl-wrap"><table id="stockTbl">
+    <thead><tr><th class="sort" data-k="s">Stock</th><th class="sort" data-k="ind">Industry</th><th class="sort n" data-k="trades">Trades</th><th class="sort n" data-k="wins">Wins</th><th class="sort n" data-k="days">Days held</th><th class="sort n" data-k="comp">Combined return</th></tr></thead>
+    <tbody></tbody></table></div>`);
+
+  // ---- month log
+  h.push(`<h2 id="log">7. Month-by-month change log</h2>
+  <p class="sub">One entry per month-end rebalance, plus one for each day the market safety switch sold everything mid-month. Each shows the market check, the index list in force, what was sold and why, what was bought and at which rank, and the portfolio held until the next entry, with each stock's return over that period.</p>
+  <div class="filters">
+    <label>Year <select id="fYear"><option value="">All</option>${myears.map(y => `<option>${y}</option>`).join("")}</select></label>
+    <label>Action <select id="fStatus"><option value="">All</option>${Object.keys(STATUS).map(k => `<option value="${k}">${k}</option>`).join("")}</select></label>
+    <label>Stock <input id="fStock" placeholder="e.g. DIXON" size="12"></label>
+    <span class="muted" id="fCount"></span>
+  </div>
+  <div id="monthLog"></div>`);
+
+  // ---- all trades
+  h.push(`<h2 id="alltrades">8. All closed trades</h2>
+  <p class="sub">Returns are after the ${pct(R.cost, 2)} cost on both the buy and the sell. Click a column to sort.</p>
+  <div class="card tbl-wrap"><table id="tradeTbl">
+    <thead><tr><th class="sort n" data-k="i">#</th><th class="sort" data-k="s">Stock</th><th class="sort" data-k="ind">Industry</th><th class="sort" data-k="in">Bought</th><th class="sort" data-k="out">Sold</th><th class="sort n" data-k="days">Days</th><th class="sort n" data-k="ret">Return</th></tr></thead>
+    <tbody></tbody></table></div>`);
+
+  // ---- liquid vs gold
+  const G = D.goldCompare, gy = G.yearly;
+  h.push(`<h2 id="gold">9. Waiting in gold instead of the liquid fund</h2>
+  <p class="sub">Same rules and same stocks. The only change: when the market filter says stay out, the money goes into GOLDBEES (Nippon India gold ETF) instead of a liquid fund earning ${pct(R.liquid)}. Moving into and out of GOLDBEES costs ${pct(R.cost, 2)} each way.</p>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>Money waits in</th><th class="n">CAGR</th><th class="n">Worst fall</th><th class="n">Volatility</th><th class="n">Sharpe</th><th class="n">Calmar</th><th class="n">₹1 became</th></tr></thead>
+    <tbody>${G.rows.map((x, i) => `<tr class="${i ? "" : "hl"}"><td>${esc(x.label)}</td><td class="n">${pct(x.cagr)}</td><td class="n">${pct(x.maxDD)}</td><td class="n">${pct(x.vol)}</td><td class="n">${x.sharpe.toFixed(2)}</td><td class="n">${x.calmar.toFixed(2)}</td><td class="n">${inr(x.multiple)}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <div class="card"><div class="legend"><span><i style="background:var(--s1);height:3px"></i>Strategy, liquid fund</span><span><i style="background:var(--s4);height:3px"></i>Strategy, GOLDBEES</span></div>
+  <div class="chart" id="goldChart"></div></div>
+  <h3>Each time the strategy was out of the market</h3>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>Sold everything on</th><th>Bought back on</th><th class="n">GOLDBEES</th><th class="n">Liquid fund</th><th class="n">Gold minus liquid</th></tr></thead>
+    <tbody>${G.spells.map(x => `<tr><td>${fdate(x.from)}</td><td>${x.to ? fdate(x.to) : "<span class='muted'>still out</span>"}</td><td class="n">${spct(x.gold)}</td><td class="n">${spct(x.liquid)}</td><td class="n">${spct(x.gold - x.liquid)}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <h3>Year by year</h3>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>Year</th><th class="n">With liquid fund</th><th class="n">With GOLDBEES</th><th class="n">Difference</th><th class="n">Gold itself</th></tr></thead>
+    <tbody>${Object.keys(gy.liquid).map(y => `<tr><td>${y}</td><td class="n">${spct(gy.liquid[y])}</td><td class="n">${spct(gy.goldbees[y])}</td><td class="n">${spct(gy.goldbees[y] - gy.liquid[y])}</td><td class="n muted">${pct(gy.gold[y], 1, true)}</td></tr>`).join("")}</tbody>
+  </table></div>
+  <div class="note"><b>Reading this.</b> GOLDBEES added ${pp(G.rows[1].cagr - G.rows[0].cagr)} a year but made the ride bumpier (volatility ${pct(G.rows[1].vol)} vs ${pct(G.rows[0].vol)}, Sharpe ${G.rows[1].sharpe.toFixed(2)} vs ${G.rows[0].sharpe.toFixed(2)}). The strategy was out of the market only ${G.spells.length} times, so the result depends mostly on what gold did in those few spells. The worst fall happened while the money was in stocks, so gold could not soften it. The liquid fund is the safe place to wait; gold is a second bet.</div>`);
+
+  // ---- method
+  h.push(`<h2 id="method">10. Data and method</h2>
+  <h3>Index lists used</h3>
+  <p class="sub">NSE publishes only the current Nifty 500 list. Past lists come from Wayback Machine (web.archive.org) copies of NSE's own file <code>ind_nifty500list.csv</code>. On each rebalance day the backtest uses the latest list dated on or before that day.</p>
+  <div class="card tbl-wrap"><table>
+    <thead><tr><th>List dated</th><th class="n">Members</th><th class="n">With price data</th><th class="n">Missing</th></tr></thead>
+    <tbody>${D.lists.map(l => `<tr><td>${fdate(l.date)}</td><td class="n">${l.members}</td><td class="n">${l.withPrices}</td><td class="n">${l.members - l.withPrices}</td></tr>`).join("")}</tbody></table></div>
+  <div class="note"><b>Limits of this test.</b>
+    <ul style="margin:6px 0 0;padding-left:20px">
+      <li><b>Gaps between lists:</b> no archived copy exists between Jul 2020 and May 2022, or between Oct 2022 and Feb 2024. In those months the older list stays in use, so some index changes show up late.</li>
+      <li><b>Missing prices:</b> a few past members (mostly merged or delisted companies) have no price history on Yahoo Finance and are left out. Those are often weak stocks, so the true result may be slightly lower.</li>
+      <li><b>Prices:</b> Yahoo Finance daily closes, adjusted for splits but not dividends. Dividends would add a little to every line.</li>
+      <li><b>Execution:</b> trades happen at the month-end close with a flat ${pct(R.cost, 2)} cost. Real fills, slippage on smaller stocks, and capital-gains tax would lower the result.</li>
+    </ul></div>`);
+
+  $("#app").innerHTML = h.join("");
+  sortableTable("#stockTbl", D.stocks, "comp", -1, x => `<tr><td><b>${esc(x.s)}</b><span class="co">${esc(x.n)}</span></td><td>${esc(x.ind)}</td><td class="n">${x.trades}</td><td class="n">${x.wins}</td><td class="n">${x.days}</td><td class="n">${spct(x.comp)}</td></tr>`);
+  sortableTable("#tradeTbl", D.trades.map((t, i) => ({ ...t, i: i + 1 })), "i", 1, t => `<tr><td class="n muted">${t.i}</td><td><b>${esc(t.s)}</b><span class="co">${esc(t.n)}</span></td><td>${esc(t.ind)}</td><td>${fdate(t.in)}</td><td>${fdate(t.out)}</td><td class="n">${t.days}</td><td class="n">${spct(t.ret)}</td></tr>`);
+  renderMonths();
+  ["#fYear", "#fStatus"].forEach(id => $(id).addEventListener("change", renderMonths));
+  $("#fStock").addEventListener("input", renderMonths);
+  drawCharts();
+  $("#theme").addEventListener("click", () => {
+    const dark = getComputedStyle(document.documentElement).colorScheme.includes("dark");
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    try { localStorage.setItem("bt-theme", document.documentElement.dataset.theme); } catch (e) {}
+    drawCharts();
+  });
+}
+
+function sortableTable(sel, rows, key, dir, rowFn) {
+  const tbl = $(sel);
+  const paint = () => {
+    const sorted = [...rows].sort((a, b) => (a[key] > b[key] ? 1 : a[key] < b[key] ? -1 : 0) * dir);
+    tbl.tBodies[0].innerHTML = sorted.map(rowFn).join("");
+  };
+  tbl.querySelectorAll("th.sort").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    dir = k === key ? -dir : (typeof rows[0][k] === "number" ? -1 : 1);
+    key = k;
+    paint();
+  }));
+  paint();
+}
+
+function monthCard(m) {
+  const sold = m.sold.length ? `<h3>Sold (${m.sold.length})</h3><div class="tbl-wrap"><table>
+    <thead><tr><th>Stock</th><th>Bought</th><th class="n">Days</th><th class="n">Trade return</th><th>Why sold</th></tr></thead>
+    <tbody>${m.sold.map(x => `<tr><td><b>${esc(x.s)}</b><span class="co">${esc(x.n)}</span></td><td>${fdate(x.in)}</td><td class="n">${x.days ?? "–"}</td><td class="n">${spct(x.ret)}</td><td class="why">${esc(x.why)}</td></tr>`).join("")}</tbody></table></div>` : "";
+  const bought = m.bought.length ? `<h3>Bought (${m.bought.length})</h3><div class="tbl-wrap"><table>
+    <thead><tr><th>Stock</th><th>Industry</th><th class="n">Rank</th><th class="n">Score</th><th class="n">Price</th></tr></thead>
+    <tbody>${m.bought.map(x => `<tr><td><b>${esc(x.s)}</b><span class="co">${esc(x.n)}</span></td><td>${esc(x.ind)}</td><td class="n">${x.rank}</td><td class="n">${x.score.toFixed(2)}</td><td class="n">${x.px.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td></tr>`).join("")}</tbody></table></div>` : "";
+  const held = m.held.length ? `<h3>Portfolio until ${fdate(m.until)}</h3><div class="tbl-wrap"><table>
+    <thead><tr><th>Stock</th><th>Industry</th><th class="n">Rank now</th><th class="n">Weight</th><th class="n">Return to next rebalance</th></tr></thead>
+    <tbody>${m.held.map(x => `<tr><td><b>${esc(x.s)}</b>${x.new ? '<span class="tag">NEW</span>' : ""}<span class="co">${esc(x.n)}</span></td><td>${esc(x.ind)}</td><td class="n">${x.rank ?? "–"}</td><td class="n">${pct(x.w)}</td><td class="n">${spct(x.pr)}</td></tr>`).join("")}</tbody></table></div>`
+    : `<p class="mmeta">Whole portfolio in the liquid fund until ${fdate(m.until)}.</p>`;
+  const ranked = m.out ? "" : `<h3>Top ${m.ranked.length} ranked this month</h3><div class="chips">${m.ranked.map(r => `<span class="chip ${r.held ? "on" : ""}" title="score ${r.score.toFixed(2)}">${r.rank}. ${esc(r.s)}</span>`).join("")}</div><p class="muted" style="font-size:12px;margin-top:6px">Outlined = held after this rebalance.</p>`;
+  const gap = m.nifty / m.sma - 1;
+  return `<div class="month" data-y="${m.date.slice(0, 4)}" data-st="${m.status}">
+    <div class="mhead"><h3>${m.mid ? fdate(m.date) : fmonth(m.date)}<span class="badge ${m.status}">${m.status}</span>${m.mid ? '<span class="badge">MID-MONTH</span>' : ""}</h3>
+      <div class="mret">Until next entry: <b>${spct(m.periodRet)}</b> <span class="muted">· Nifty 500 ${pct(m.benchRet, 1, true)}</span></div></div>
+    <div class="mmeta">${fdate(m.date)} · ${STATUS[m.status]}.</div>
+    <div class="mmeta">Market check: Nifty 500 ${m.nifty.toLocaleString("en-IN", { maximumFractionDigits: 0 })} vs 200-day average ${m.sma.toLocaleString("en-IN", { maximumFractionDigits: 0 })} (${pct(gap, 1, true)}${m.below ? `, <b class='neg'>below for ${m.streak} close${m.streak > 1 ? "s" : ""} in a row</b>` : ", above"}).
+      Index list dated ${fdate(m.list)} (${m.listSize} stocks with prices), ${m.eligible} passed the filters. Portfolio value ₹${m.value.toFixed(3)} per ₹1 started.</div>
+    ${sold}${bought}${held}${ranked}
+  </div>`;
+}
+
+function renderMonths() {
+  const y = $("#fYear").value, st = $("#fStatus").value, q = $("#fStock").value.trim().toUpperCase();
+  const list = DATA.log.filter(m => (!y || m.date.startsWith(y)) && (!st || m.status === st) &&
+    (!q || [...m.sold, ...m.bought, ...m.held].some(x => x.s.includes(q))));
+  $("#monthLog").innerHTML = list.map(monthCard).join("") || `<p class="muted">No rebalances match.</p>`;
+  $("#fCount").textContent = `${list.length} of ${DATA.log.length} entries`;
+}
+
+// ---------------------------------------------------------------- charts
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function lineChart(el, { series, log, fmtY, ticksY, height, area }) {
+  const W = Math.max(320, el.clientWidth), H = height, m = { l: 48, r: 14, t: 10, b: 26 };
+  const pts = DATA.curve, n = pts.length;
+  const vals = series.flatMap(s => pts.map(p => p[s.k]));
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const f = log ? Math.log : v => v;
+  if (!log) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  const x = i => m.l + (i / (n - 1)) * (W - m.l - m.r);
+  const y = v => m.t + (1 - (f(v) - f(lo)) / (f(hi) - f(lo))) * (H - m.t - m.b);
+  const ticks = ticksY(lo, hi);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${series.map(s => s.name).join(", ")}">`;
+  ticks.forEach(t => { svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}" stroke="${css("--grid")}" stroke-width="1"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${fmtY(t)}</text>`; });
+  let lastYear = "";
+  pts.forEach((p, i) => { const yr = p.d.slice(0, 4); if (yr !== lastYear) { if (lastYear) svg += `<line x1="${x(i)}" x2="${x(i)}" y1="${H - m.b}" y2="${H - m.b + 4}" stroke="${css("--muted")}"/><text x="${x(i)}" y="${H - 6}" text-anchor="middle">${yr}</text>`; lastYear = yr; } });
+  [...series].reverse().forEach(s => {
+    const d = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[s.k]).toFixed(1)}`).join("");
+    if (area && s.fill) svg += `<path d="${d}L${x(n - 1)},${y(0)}L${x(0)},${y(0)}Z" fill="${css(s.c)}" opacity="0.14"/>`;
+    svg += `<path d="${d}" fill="none" stroke="${css(s.c)}" stroke-width="${s.w || 1.5}" stroke-linejoin="round"/>`;
+  });
+  svg += `<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="${css("--muted")}" stroke-dasharray="3 3" visibility="hidden"/>`;
+  series.forEach((s, k) => svg += `<circle class="dot" data-k="${k}" r="4" fill="${css(s.c)}" stroke="${css("--surface")}" stroke-width="2" visibility="hidden"/>`);
+  svg += `<rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent"/></svg><div class="tip"></div>`;
+  el.innerHTML = svg;
+  const sv = el.querySelector("svg"), tip = el.querySelector(".tip"), xh = sv.querySelector("#xh"), dots = sv.querySelectorAll(".dot");
+  const move = ev => {
+    const r = sv.getBoundingClientRect(), px = (ev.clientX - r.left) * (W / r.width);
+    const i = Math.max(0, Math.min(n - 1, Math.round((px - m.l) / (W - m.l - m.r) * (n - 1)))), p = pts[i];
+    xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible");
+    dots.forEach((dt, k) => { dt.setAttribute("cx", x(i)); dt.setAttribute("cy", y(p[series[k].k])); dt.setAttribute("visibility", "visible"); });
+    tip.innerHTML = `<b>${fdate(p.d)}</b>` + series.map(s => `<div class="row"><span><span class="sw" style="background:${css(s.c)}"></span>${s.name}</span><b>${s.fmt(p[s.k])}</b></div>`).join("");
+    tip.style.display = "block";
+    const left = x(i) / W * r.width;
+    tip.style.left = (left > r.width / 2 ? left - tip.offsetWidth - 12 : left + 12) + "px";
+    tip.style.top = "8px";
+  };
+  sv.addEventListener("pointermove", move);
+  sv.addEventListener("pointerleave", () => { tip.style.display = "none"; xh.setAttribute("visibility", "hidden"); dots.forEach(d => d.setAttribute("visibility", "hidden")); });
+}
+
+function drawCharts() {
+  const multTicks = (lo, hi) => [0.5, 0.75, 1, 1.5, 2, 3, 4, 5, 6, 8, 10].filter(t => t >= lo * 0.98 && t <= hi * 1.02);
+  lineChart($("#eqChart"), {
+    height: 340, log: true, ticksY: multTicks, fmtY: t => t + "×",
+    series: [
+      { k: "s", name: "Strategy", c: "--s1", w: 2.5, fmt: v => "₹" + v.toFixed(2) },
+      { k: "b", name: "Nifty 500", c: "--s2", fmt: v => "₹" + v.toFixed(2) },
+    ],
+  });
+  lineChart($("#ddChart"), {
+    height: 220, log: false, area: true,
+    ticksY: lo => { const out = []; for (let t = 0; t >= lo - 0.001; t -= 0.1) out.push(+t.toFixed(1)); return out; },
+    fmtY: t => Math.round(t * 100) + "%",
+    series: [
+      { k: "dd", name: "Strategy", c: "--s1", w: 2, fill: true, fmt: v => pct(v) },
+      { k: "bdd", name: "Nifty 500", c: "--s2", fmt: v => pct(v) },
+    ],
+  });
+  lineChart($("#goldChart"), {
+    height: 300, log: true, ticksY: multTicks, fmtY: t => t + "×",
+    series: [
+      { k: "s", name: "Liquid fund", c: "--s1", w: 2, fmt: v => "₹" + v.toFixed(2) },
+      { k: "g", name: "GOLDBEES", c: "--s4", w: 2, fmt: v => "₹" + v.toFixed(2) },
+    ],
+  });
+}
+
+try { const t = localStorage.getItem("bt-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+render();
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawCharts, 150); });
+if (matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawCharts);
+</script>
+</body>
+</html>

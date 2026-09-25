@@ -5,7 +5,8 @@ Inputs (all local, no downloads):
   momentum_prices.json            price cache built by momentum.py (the 750 tested stocks + Nifty 500)
   study/prices_extra.json         past Nifty 500 members outside the 750 (study/fetch_extra_prices.py)
   study/constituents/*.csv        point-in-time Nifty 500 lists (study/fetch_constituents.py)
-  nifty750_backtest_list.csv      the fixed 750 list
+  nifty750_backtest_list.csv      today's fixed 750 list (biased comparison runs only)
+  study/constituents_raw/*.csv    archived NSE files, for past members' industries
 Output:
   momentum_study.json             everything the study page (momentum-study.html) shows
 
@@ -45,10 +46,11 @@ class Params:
     top_n: int = 10
     exit_rank: int = 30
     market_ma: int = 200             # None = never go to the liquid fund
-    market_check: str = "monthly"    # "monthly" | "daily"
+    market_check: str = "daily"      # "monthly" (month-end close only) | "daily"
+    confirm_days: int = 3            # daily check: exit after this many closes in a row below the MA
     rebalance: str = "month_end"     # "month_end" | "offset:k" (k trading days before) | "mid_month" | "quarterly"
     cost: float = 0.0025             # per side
-    universe: str = "fixed750"       # "fixed750" | "today500" | "pit500"
+    universe: str = "pit500"         # "pit500" (point-in-time Nifty 500 lists) | "today500" | "fixed750"
     taxes: bool = False
     # Extra exit: sell a holding that falls `stop_pct` within the month.
     #   "from_rebalance": daily, close <= (1 - stop_pct) x its close at the last rebalance (or buy price)
@@ -57,6 +59,9 @@ class Params:
     # Stopped-out money waits in the liquid fund until the next rebalance refills the slot.
     stop_mode: str = None
     stop_pct: float = 0.10
+    # Where money waits when the market filter is out: None = liquid fund at LIQUID_ANNUAL, or an ETF
+    # from study/prices_cash.json (e.g. "GOLDBEES"), bought and sold at `cost` per side.
+    cash_asset: str = None
 
 
 BASE = Params()
@@ -105,6 +110,24 @@ class Data:
         self.turnover_daily = close * volume  # only on days with a real bar
         self.ath = np.fmax.accumulate(np.vstack([high_before[None, :], np.fmax(high, close)]), axis=0)[1:]
         self._universes()
+        self.cash_ret = self._cash_assets()
+
+    def _cash_assets(self):
+        """Daily returns of the ETFs in study/prices_cash.json, on the stock calendar (0 on gaps)."""
+        path = HERE / "prices_cash.json"
+        out = {}
+        for symbol, bars in (json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}).items():
+            close = np.full(len(self.calendar), np.nan)
+            for d, (c, _, _) in bars.items():
+                if d in self.day_index:
+                    close[self.day_index[d]] = c
+            for i in range(1, len(close)):
+                if np.isnan(close[i]):
+                    close[i] = close[i - 1]
+            with np.errstate(invalid="ignore", divide="ignore"):
+                r = np.concatenate([[0.0], close[1:] / close[:-1] - 1])
+            out[symbol] = np.nan_to_num(r)
+        return out
 
     def _universes(self):
         fixed = [row["Symbol"] for row in csv.DictReader((ROOT / "nifty750_backtest_list.csv").open(encoding="utf-8"))]
@@ -324,8 +347,14 @@ def backtest(feat, p, rng=None, record=False):
     rebal_set = set(rebal)
     sma = market_sma(d.index, p.market_ma) if p.market_ma else None
     liquid_daily = (1 + LIQUID_ANNUAL) ** (1 / TRADING_DAYS) - 1
+    streak = np.zeros(len(cal), dtype=int)  # closes in a row below the market MA, up to each day
+    if sma is not None:
+        for i in range(len(cal)):
+            if not np.isnan(sma[i]) and d.index[i] < sma[i]:
+                streak[i] = (streak[i - 1] if i else 0) + 1
 
     cash, hold, entry = 1.0, {}, {}
+    in_asset = False  # cash currently parked in p.cash_asset
     ref, peak = {}, {}  # per holding: close at the last rebalance, highest close since then
     tax = Tax() if p.taxes else None
     equity, trades, events, turnover_traded = [], [], [], 0.0
@@ -337,7 +366,7 @@ def backtest(feat, p, rng=None, record=False):
             for j in hold:
                 r = d.ret[t, j]
                 hold[j] *= 1 + (0.0 if np.isnan(r) else r)
-            cash *= 1 + liquid_daily
+            cash *= 1 + (d.cash_ret[p.cash_asset][t] if p.cash_asset else liquid_daily)
             if tax and day[5:7] == "04" and cal[t - 1][5:7] == "03":  # new financial year
                 due = tax.settle()
                 total = cash + sum(hold.values())
@@ -368,8 +397,13 @@ def backtest(feat, p, rng=None, record=False):
                 events.append({"date": day, "type": "STOP", "n": len(stopped)})
 
         below = sma is not None and not np.isnan(sma[t]) and d.index[t] < sma[t]
-        force_exit = p.market_check == "daily" and below and hold and t not in rebal_set
-        if (t in rebal_set and below) or force_exit:
+        # Monthly: exit at a rebalance that closes below the MA. Daily: exit on any day that completes
+        # `confirm_days` closes in a row below it. Either way, only buy back at a rebalance above the MA.
+        if p.market_check == "daily":
+            exit_now = streak[t] >= p.confirm_days and (hold or t in rebal_set)
+        else:
+            exit_now = t in rebal_set and below
+        if exit_now or (t in rebal_set and below and not hold):
             if hold:
                 for j, v in hold.items():
                     proceeds = v * (1 - p.cost)
@@ -378,6 +412,9 @@ def backtest(feat, p, rng=None, record=False):
                     turnover_traded += v
                 events.append({"date": day, "type": "EXIT", "n": len(hold)})
                 hold = {}
+                if p.cash_asset:  # buy the ETF with the proceeds
+                    cash *= 1 - p.cost
+                    in_asset = True
         elif t in rebal_set:
             universe = d.universe_mask(p.universe, day)
             order = feat.ranking(t, p, universe)
@@ -401,6 +438,9 @@ def backtest(feat, p, rng=None, record=False):
             fell_now = {j for j in sold if fell(j)}  # don't buy straight back what the stop just sold
             buys = [j for j in order.tolist() if j not in hold and j not in fell_now][:p.top_n - len(hold)]
             if buys and cash > 0:
+                if in_asset:  # sell the ETF to fund the buys
+                    cash *= 1 - p.cost
+                    in_asset = False
                 share = cash * (1 - p.cost) / len(buys)
                 for j in buys:
                     hold[j] = share
@@ -509,22 +549,6 @@ def rolling(dates, eq, bench, window_days):
     return out
 
 
-def equal_weight_universe(feat, universe_name, t0):
-    """Equal-weight, monthly-rebalanced portfolio of every stock in the universe (same bias)."""
-    d = feat.data
-    rebal = set(rebalance_days(d.calendar, "month_end", t0))
-    value, weights, curve = 1.0, None, []
-    for t in range(t0, len(d.calendar)):
-        if weights is not None:
-            r = d.ret[t][weights]
-            value *= 1 + float(np.nanmean(r)) if np.any(~np.isnan(r)) else 1
-        if t == t0 or t in rebal:
-            mask = d.universe_mask(universe_name, d.calendar[t]) & ~np.isnan(d.close[t])
-            weights = np.flatnonzero(mask)
-        curve.append(value)
-    return np.array(curve)
-
-
 # ---------------------------------------------------------------- study
 
 def main():
@@ -549,11 +573,9 @@ def main():
     dates = base["dates"]
     t0 = base["rebalances"][0]
     bench = data.index[t0:] / data.index[t0]
-    ew750 = equal_weight_universe(feat, "fixed750", t0)
     out["baseCase"] = base_s
     out["benchmarks"] = [
         {"label": "Nifty 500 (price index)", **stats(dates, bench)},
-        {"label": "Equal-weight Nifty 750 (same stock list)", **stats(dates, ew750)},
     ]
 
     # --- 1. survivorship bias
@@ -562,9 +584,6 @@ def main():
     for label, uni in (("Today's Nifty 500 list, used for every month", "today500"),
                        ("Point-in-time Nifty 500 lists", "pit500")):
         s, r = row(label, replace(BASE, universe=uni))
-        ew = equal_weight_universe(feat, uni, r["rebalances"][0])
-        s["equalWeight"] = stats(r["dates"], ew)
-        s["excessOverEW"] = s["cagr"] - s["equalWeight"]["cagr"]
         surv.append(s)
         curves[uni] = r
     out["survivorship"] = {
@@ -595,9 +614,12 @@ def main():
         "Trend filter": [(label, replace(BASE, sma_days=v)) for label, v in
                          (("Above SMA233 (sheet)", 233), ("Above SMA200", 200), ("Above SMA100", 100), ("No trend filter", None))],
         "Market filter (Nifty 500)": [
-            ("200-DMA, checked at month-end (base)", BASE),
-            ("200-DMA, checked daily", replace(BASE, market_check="daily")),
-            ("100-DMA, checked at month-end", replace(BASE, market_ma=100)),
+            ("200-DMA, exit after 3 closes in a row below (base)", BASE),
+            ("200-DMA, exit after 1 close below", replace(BASE, confirm_days=1)),
+            ("200-DMA, exit after 2 closes in a row below", replace(BASE, confirm_days=2)),
+            ("200-DMA, exit after 5 closes in a row below", replace(BASE, confirm_days=5)),
+            ("200-DMA, checked at month-end only", replace(BASE, market_check="monthly")),
+            ("100-DMA, exit after 3 closes in a row below", replace(BASE, market_ma=100)),
             ("No market filter (always invested)", replace(BASE, market_ma=None)),
         ],
         "Rebalance frequency": [
@@ -615,15 +637,19 @@ def main():
         sens.append({"group": group, "rows": rows})
     out["sensitivity"] = sens
 
-    # heat map: top N x exit rank
-    grid = []
-    for n in (5, 10, 15, 20):
-        for k in (10, 20, 30, 50):
-            if k < n:
-                continue
-            s = summary(run(replace(BASE, top_n=n, exit_rank=k)))
-            grid.append({"topN": n, "exitRank": k, "cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"]})
-    out["grid"] = grid
+    # heat map: top N x exit rank, on the base lists and (for comparison) today's fixed 750 list
+    def hold_sell_grid(universe):
+        grid = []
+        for n in (5, 10, 15, 20):
+            for k in (10, 20, 30, 50):
+                if k < n:
+                    continue
+                s = summary(run(replace(BASE, universe=universe, top_n=n, exit_rank=k)))
+                grid.append({"topN": n, "exitRank": k, "cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"],
+                             "turnover": s["turnoverPerYear"]})
+        return grid
+    out["grid"] = hold_sell_grid(BASE.universe)
+    out["grid750"] = hold_sell_grid("fixed750")
 
     # --- 3. timing luck: which day of the month you rebalance on
     timing = []
@@ -682,10 +708,18 @@ def main():
         "trades": trade_stats(base["trades"], data),
         "industry": industry_exposure(feat, run(BASE, record=True)),
     }
-    out["curve"] = _curve(dates, {"strategy": eq, "nifty500": bench, "ew750": ew750})
+    out["curve"] = _curve(dates, {"strategy": eq, "nifty500": bench})
     out["stopLoss"] = stop_loss_study(feat)
+    out["goldCash"] = gold_cash_study(feat)
+    out["marketMa"] = market_ma_study(feat)
 
     (ROOT / "momentum_study.json").write_text(json.dumps(out, separators=(",", ":"), default=_json_default), encoding="utf-8")
+    # The public teaser page gets only the equity curve and headline numbers, no rules or settings.
+    head = lambda x: {"cagr": x["cagr"], "maxDD": x["maxDD"], "multiple": x["multiple"]}
+    teaser = {"asOf": out["asOf"], "from": base_s["from"], "to": base_s["to"],
+              "strategy": head(base_s), "nifty500": head(out["benchmarks"][0]),
+              "curve": [{"date": p["date"], "strategy": p["strategy"], "nifty500": p["nifty500"]} for p in out["curve"]]}
+    (ROOT / "momentum_teaser.json").write_text(json.dumps(teaser, separators=(",", ":"), default=_json_default), encoding="utf-8")
     print_summary(out)
 
 
@@ -730,8 +764,8 @@ def stop_loss_study(feat):
     market = []
     for uni, uni_label in UNIVERSES:
         row = {"universe": uni_label}
-        for key, p in (("monthEnd", BASE), ("daily", replace(BASE, market_check="daily")),
-                       ("dailyPlusStop", replace(BASE, market_check="daily", stop_mode="from_rebalance"))):
+        for key, p in (("monthEnd", replace(BASE, market_check="monthly")), ("daily", BASE),
+                       ("dailyPlusStop", replace(BASE, stop_mode="from_rebalance"))):
             s = summary(backtest(feat, replace(p, universe=uni)))
             row[key] = {"cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"]}
         market.append(row)
@@ -740,6 +774,65 @@ def stop_loss_study(feat):
             "afterStop": {"count": len(after), "median": float(np.median(after)),
                           "rebounded": float(np.mean(after > 0)), "fellFurther": float(np.mean(after < 0))},
             "marketFilter": market}
+
+
+def gold_cash_study(feat, asset="GOLDBEES"):
+    """Parks the money in a gold ETF instead of the liquid fund while the market filter is out."""
+    d = feat.data
+    grid = []
+    for uni, uni_label in UNIVERSES:
+        cells = []
+        for cash_asset in (None, asset):
+            s = summary(backtest(feat, replace(BASE, universe=uni, cash_asset=cash_asset)))
+            cells.append({"cagr": s["cagr"], "maxDD": s["maxDD"], "sharpe": s["sharpe"], "vol": s["vol"]})
+        grid.append({"universe": uni_label, "cells": cells})
+
+    run = backtest(feat, replace(BASE, universe="pit500"))
+    t0, ret = run["rebalances"][0], d.cash_ret[asset]
+    gold = np.cumprod(1 + ret[t0:])
+    spells, out_since = [], None
+    for ev in run["events"] + [{"type": "END", "date": d.calendar[-1]}]:
+        if ev["type"] == "EXIT":
+            out_since = ev["date"]
+        elif ev["type"] in ("ENTER", "END") and out_since:
+            a, b = d.day_index[out_since], d.day_index[ev["date"]]
+            spells.append({"from": out_since, "to": ev["date"] if ev["type"] == "ENTER" else None,
+                           "gold": float(np.prod(1 + ret[a + 1:b + 1]) - 1),
+                           "nifty500": float(d.index[b] / d.index[a] - 1),
+                           "liquid": (1 + LIQUID_ANNUAL) ** ((b - a) / TRADING_DAYS) - 1})
+            out_since = None
+    return {"asset": asset, "grid": grid, "spells": spells, "goldOnly": stats(run["dates"], gold)}
+
+
+def yearly_returns(dates, eq):
+    out, start = {}, 0
+    for i, day in enumerate(dates):
+        if i == len(dates) - 1 or dates[i + 1][:4] != day[:4]:
+            out[day[:4]] = float(eq[i] / eq[start] - 1)
+            start = i
+    return out
+
+
+def market_ma_study(feat, lengths=(50, 100, 150, 200)):
+    """The same strategy with a faster or slower moving average behind the market safety switch."""
+    d = feat.data
+    rows, curves, yearly = [], {}, {}
+    for n in lengths:
+        p = replace(BASE, market_ma=n)
+        run = backtest(feat, p, record=True)
+        s = summary(run)
+        s.update({"ma": n, "isBase": p == BASE,
+                  "exits": sum(1 for e in run["events"] if e["type"] == "EXIT"),
+                  "invested": float(np.mean([bool(h) for _, h, _ in run["exposure"]])),
+                  "afterTax": summary(backtest(feat, replace(p, taxes=True)))["cagr"]})
+        rows.append(s)
+        curves[f"ma{n}"] = run["equity"]
+        yearly[str(n)] = yearly_returns(run["dates"], run["equity"])
+    dates = run["dates"]
+    t0 = run["rebalances"][0]
+    bench = d.index[t0:] / d.index[t0]
+    yearly["nifty500"] = yearly_returns(dates, bench)
+    return {"rows": rows, "yearly": yearly, "curve": _curve(dates, {**curves, "nifty500": bench})}
 
 
 def capacity(feat, run):
@@ -779,8 +872,13 @@ def trade_stats(trades, data):
 
 
 def industry_exposure(feat, run):
-    industry = {row["Symbol"]: row["Industry"] for row in csv.DictReader((ROOT / "nifty750_backtest_list.csv").open(encoding="utf-8"))}
     d = feat.data
+    industry = {row["Symbol"]: row["Industry"] for row in csv.DictReader((ROOT / "nifty750_backtest_list.csv").open(encoding="utf-8"))}
+    for path in sorted((HERE / "constituents_raw").glob("ind_nifty500list_*.csv")):  # past members too
+        for r in csv.DictReader(path.open(encoding="utf-8")):
+            c = d.canonical((r.get("Symbol") or "").strip())
+            if c and r.get("Industry"):
+                industry.setdefault(c, r["Industry"].strip())
     max_share, counts, samples = [], {}, 0
     for t, hold, cash in run["exposure"][::21]:
         total = cash + sum(hold.values())
@@ -821,7 +919,7 @@ def print_summary(out):
         print(f"  bench {x['label']}: CAGR {pct(x['cagr'])} maxDD {pct(x['maxDD'])}")
     print("SURVIVORSHIP:")
     for s in out["survivorship"]["runs"]:
-        print(f"  {s['label']}: CAGR {pct(s['cagr'])} maxDD {pct(s['maxDD'])} | EW {pct(s['equalWeight']['cagr'])} excess {pct(s['excessOverEW'])}")
+        print(f"  {s['label']}: CAGR {pct(s['cagr'])} maxDD {pct(s['maxDD'])}")
     print(f"  bias (CAGR) {pct(out['survivorship']['biasCagr'])}; coverage {[(c['date'], c['withPrices'], c['members']) for c in out['survivorship']['coverage']]}")
     for g in out["sensitivity"]:
         print(g["group"])
@@ -837,6 +935,11 @@ def print_summary(out):
     print("MONTHLY:", {k: v for k, v in rk["monthly"].items() if k not in ("histogram", "binEdges", "table")})
     print("TRADES:", {k: v for k, v in rk["trades"].items() if k not in ("best", "worst")})
     print("INDUSTRY:", rk["industry"])
+    g = out["goldCash"]
+    print("GOLD CASH:", [(r["universe"], pct(r["cells"][0]["cagr"]), pct(r["cells"][1]["cagr"])) for r in g["grid"]],
+          "spells", [(s["from"], pct(s["gold"]), pct(s["liquid"])) for s in g["spells"]])
+    print("MARKET MA:", [(r["ma"], pct(r["cagr"]), pct(r["maxDD"]), round(r["sharpe"], 2), r["exits"], pct(r["invested"]),
+                          pct(r["afterTax"])) for r in out["marketMa"]["rows"]])
 
 
 if __name__ == "__main__":
