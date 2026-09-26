@@ -2,8 +2,8 @@
 /**
  * MOMENTUM SCAN — Google Apps Script (live scan + month-end rebalance plan)
  *
- * Same rules as the site's backtest (momentum.py / Momentum Study base case):
- *   Universe   Nifty Total Market (750) from MasterData.
+ * Same rules as the Momentum Study base case (study/momentum_study.py, Params / BASE):
+ *   Universe   today's Nifty 500 list from MasterData (the backtest uses the list in force each month).
  *   Filters    a stock is ranked only if ALL three pass:
  *                1. within 25% of its all-time high      (ATH - close) / ATH < 25%
  *                2. average daily turnover > Rs 1 crore  mean(close x volume) over 252 sessions
@@ -14,10 +14,11 @@
  *   Prices     Yahoo close (split-adjusted, NOT dividend-adjusted), aligned to the Nifty 500
  *              calendar, gaps up to 5 sessions carried forward, one-day moves > 60% ignored.
  *   Portfolio  top 10; keep a holding while it ranks 1-30 (failing a filter = not ranked = sell);
- *              refill with sale money split equally; Nifty 500 below its 200-day SMA at
- *              month-end = sell all, 100% liquid fund.
+ *              refill with sale money split equally; rebalance on the last trading day of the month.
+ *   Market     checked every day: 3 closes in a row with the Nifty 500 below its 200-day SMA = sell
+ *              everything that day, 100% liquid fund. Buy back only at a month-end above the SMA.
  *
- * TABS CREATED:  Momentum Rank, Portfolio, Rebalance Plan, _ScanWork (hidden)
+ * TABS CREATED:  Rules, Momentum Rank, Portfolio, Rebalance Plan, _ScanWork (hidden)
  */
 
 // ------------------------------- SETTINGS ---------------------------------
@@ -28,6 +29,7 @@ var CFG = {
   BAD_RET: 0.60,
   FFILL_LIMIT: 5,
   SMA_LEN: 200,                     // market filter (Nifty 500)
+  CONFIRM_DAYS: 3,                  // exit after this many closes in a row below the SMA
   STOCK_SMA: 233,                   // trend filter
   TURNOVER_DAYS: 252,
   MIN_TURNOVER: 1e7,                // Rs 1 crore
@@ -40,12 +42,14 @@ var CFG = {
   TZ: 'Asia/Kolkata'
 };
 
-var SH_RANK = 'Momentum Rank', SH_PORT = 'Portfolio', SH_PLAN = 'Rebalance Plan', SH_WORK = '_ScanWork';
+var SH_RULES = 'Rules', SH_RANK = 'Momentum Rank', SH_PORT = 'Portfolio', SH_PLAN = 'Rebalance Plan', SH_WORK = '_ScanWork';
 var WORK_COLS = 13;                 // results in A:M
 var STORE_COL = 21;                 // universe in U:V, index calendar in W:X
+var RANK_HDR = 9;                   // Momentum Rank: summary in A1:B7, table header on row 9
 
 function onOpen() {
   SpreadsheetApp.getUi().createMenu('Momentum')
+    .addItem('Show rules', 'writeRules')
     .addItem('Update universe (upload NSE CSV)', 'updateUniverseFromNSE')
     .addItem('Run scan now', 'startScan')
     .addItem('Build rebalance plan', 'buildRebalancePlan')
@@ -56,14 +60,14 @@ function onOpen() {
 }
 
 // ------------------------------- DATA -------------------------------------
-// Nifty Total Market (Nifty 750) constituents from niftyindices.com, downloaded 24-Sep-2026
-// (DUMMY rows removed). Used only if MasterData and Universe tabs are both missing.
+// Nifty 500 constituents from niftyindices.com, downloaded 24-Sep-2026 (DUMMY rows removed).
+// Used only if MasterData and Universe tabs are both missing.
 var UNIVERSE_AS_OF = '24-Sep-2026';
 var UNIVERSE_INDUSTRIES = ["Financial Services","Diversified","Capital Goods","Construction Materials","Power","Automobile and Auto Components","Fast Moving Consumer Goods","Healthcare","Chemicals","Metals & Mining","Services","Oil Gas & Consumable Fuels","Consumer Services","Realty","Construction","Information Technology","Textiles","Consumer Durables","Telecommunication","Utilities","Forest Materials","Media Entertainment & Publication"];
-var UNIVERSE_LIST = '360ONE:0 3MINDIA:1 ABB:2 ACC:3 ACMESOLAR:4 AIAENG:2 APLAPOLLO:2 ASKAUTOLTD:5 AUBANK:0 AWL:6 AXISCADES:2 AADHARHFC:0 AARTIDRUGS:7 AARTIIND:8 AARTIPHARM:7 AAVAS:0 ABBOTINDIA:7 ACE:2 ACUTAAS:7 ADANIENSOL:4 ADANIENT:9 ADANIGREEN:4 ADANIPORTS:10 ADANIPOWER:4 ATGL:11 ABCAPITAL:0 ABFRL:12 ABLBL:12 ABREL:13 ABSLAMC:0 CPPLUS:2 AVL:12 ADVENZYMES:7 AEGISLOG:11 AEGISVOPAK:11 AEQUS:2 AETHER:8 AFCONS:14 AFFLE:15 AHLUCONT:14 AJANTPHARM:7 AKUMS:7 APLLTD:7 ALIVUS:7 ALKEM:7 ALKYLAMINE:8 ABDL:6 ALOKINDS:16 ARE&M:5 AMBER:17 AMBUJACEM:3 ANANDRATHI:0 ANANTRAJ:13 ANGELONE:0 ANTHEM:7 ANURAS:8 APARINDS:2 APOLLOHOSP:7 APOLLO:2 APOLLOTYRE:5 APTUS:0 ACI:8 ARVINDFASN:12 ARVIND:16 ASAHIINDIA:5 ASHAPURMIN:9 ASHOKLEY:2 ASHOKA:14 ASIANPAINT:17 ASTERDM:7 ASTRAMICRO:2 ASTRAL:2 ATHERENERG:5 ATLANTAELE:2 ATUL:8 AURIONPRO:15 AUROPHARMA:7 AIIL:0 AVALON:2 AVANTIFEED:6 DMART:12 CCAVENUE:0 AWFIS:10 AXISBANK:0 AZAD:2 BEML:2 BLS:12 BSE:0 BAJAJ-AUTO:5 BAJAJELEC:17 BAJFINANCE:0 BAJAJFINSV:0 BAJAJHLDNG:0 BAJAJHFL:0 BALAMINES:8 BALKRISIND:5 BALRAMCHIN:6 BALUFORGE:2 BANCOINDIA:5 BANDHANBNK:0 BANKBARODA:0 BANKINDIA:0 MAHABANK:0 BATAINDIA:17 BAYERCROP:8 BELRISE:5 BERGEPAINT:17 BDL:2 BEL:2 BHARATFORG:5 BHEL:2 BPCL:11 BHARTIARTL:18 BHARTIHEXA:18 BIKAJI:6 GROWW:0 BIOCON:7 BIRLACORPN:3 BSOFT:15 BBOX:15 BLACKBUCK:10 BLUEDART:10 BLUEJET:7 BLUESTARCO:17 BLUESTONE:17 BBTC:6 BORORENEW:2 BOSCHLTD:5 FIRSTCRY:12 BRIGADE:13 BRITANNIA:6 MAPMYINDIA:15 CCL:6 CESC:4 CGPOWER:2 CIEINDIA:5 CMSINFO:10 CORONA:7 CRISIL:0 CSBBANK:0 CAMPUS:17 CANFINHOME:0 CANBK:0 CANHLIFE:0 CRAMC:0 CAPILLARY:15 CAPLIPOINT:7 CGCL:0 CARBORUNIV:2 CARTRADE:12 CASTROLIND:11 CEATLTD:5 CELLO:17 CEMPRO:14 CENTRALBK:0 CDSL:0 CENTURYPLY:17 CERA:17 CHALET:12 CHAMBLFERT:8 CHENNPETRO:11 CHOICEIN:0 CHOLAHLDNG:0 CHOLAFIN:0 CIPLA:7 CUB:0 CLEAN:8 COALINDIA:11 COCHINSHIP:2 COFORGE:15 COHANCE:7 COLPAL:6 CAMS:0 CONCORDBIO:7 CONCOR:10 COROMANDEL:8 CRAFTSMAN:5 CREDITACC:0 CRIZAC:12 CROMPTON:17 CUMMINSIND:2 CUPID:6 CYIENT:15 DCBBANK:0 DCMSHRIRAM:1 DLF:13 DOMS:6 DABUR:6 DALBHARAT:3 DATAPATTNS:2 DATAMATICS:15 DEEPAKFERT:8 DEEPAKNTR:8 DELHIVERY:10 DEVYANI:12 DIACABS:2 DBL:14 DIVISLAB:7 DIXON:17 AGARWALEYE:7 LALPATHLAB:7 DRREDDY:7 DYNAMATECH:2 EIDPARRY:6 EIHOTEL:12 EPL:2 EDELWEISS:0 EICHERMOT:5 ELECON:2 EMIL:12 ELECTCAST:2 ELGIEQUIP:2 ELLEN:8 EMAMILTD:6 EMBDL:13 EMCURE:7 EMMVEE:2 ENDURANCE:5 ENGINERSIN:14 ENTERO:12 EIEL:19 EQUITASBNK:0 ERIS:7 ESCORTS:2 ETERNAL:12 ETHOSLTD:17 EUREKAFORB:17 EXIDEIND:5 NYKAA:12 FEDFINA:0 FEDERALBNK:0 FACT:8 FIEMIND:5 FINCABLES:2 FINPIPE:2 FSL:10 FIVESTAR:0 FORCEMOT:5 FORTIS:7 UTLSOLAR:2 GAIL:11 GVT&D:2 GHCL:8 GMMPFAUDLR:2 GMRAIRPORT:10 GMRP&UI:4 GABRIEL:5 GALLANTT:2 GRSE:2 GRWRHITECH:2 GICRE:0 GILLETTE:6 GLAND:7 GLAXO:7 GLENMARK:7 MEDANTA:7 GODIGIT:0 GPIL:2 GODFRYPHLP:6 GODREJAGRO:6 GODREJCP:6 GODREJIND:1 GODREJPROP:13 GOKEX:16 GOKULAGRO:6 GRANULES:7 GRAPHITE:2 GRASIM:3 GRAVITA:9 GESHIP:10 GREAVESCOT:2 GRINDWELL:2 GAEL:6 FLUOROCHEM:8 GMDCLTD:9 GNFC:8 GPPL:10 GSFC:8 HGINFRA:14 HBLENGINE:2 HCLTECH:15 HDBFS:0 HDFCAMC:0 HDFCBANK:0 HDFCLIFE:0 HEGAM:2 HFCL:18 HAPPSTMNDS:15 HAVELLS:17 HCG:7 HEMIPROP:10 HERITGFOOD:6 HEROMOTOCO:5 HEXT:15 HSCL:8 HINDALCO:9 HAL:2 HCC:14 HINDCOPPER:9 HINDPETRO:11 HINDUNILVR:6 HINDZINC:9 POWERINDIA:2 HOMEFIRST:0 HONASA:6 HONAUT:2 HUDCO:0 HYUNDAI:5 ICICIBANK:0 ICICIGI:0 ICICIAMC:0 ICICIPRULI:0 IDBI:0 IDFCFIRSTB:0 IFBIND:17 IFCI:0 IIFLCAPS:0 IIFL:0 INOXINDIA:2 IRB:14 IRCON:14 ITCHOTELS:12 ITC:6 ITI:18 INDGN:7 INDIACEM:3 INDIAGLYCO:6 INDIASHLTR:0 INDIAMART:12 INDIANB:0 IEX:0 INDHOTEL:12 IMFA:9 IOC:11 IOB:0 IRCTC:12 IRFC:0 IREDA:0 INDIGOPNTS:17 ICIL:16 IGL:11 INDUSTOWER:18 INDUSINDBK:0 NAUKRI:12 INFY:15 INOXGREEN:10 INOXWIND:2 INTELLECT:15 INDIGO:10 IGIL:10 IKS:15 IONEXCHANG:19 IPCALAB:7 JKCEMENT:3 JAIBALAJI:9 JBMA:5 JKLAKSHMI:3 JKPAPER:20 JKTYRE:5 JMFINANCIL:0 JSWCEMENT:3 JSWDULUX:17 JSWENERGY:4 JSWINFRA:10 JSWSTEEL:9 JAINREC:9 JPPOWER:4 J&KBANK:0 JAMNAAUTO:5 JSFB:0 JAYNECOIND:2 JSLL:12 JINDALSAW:2 JSL:9 JINDALSTEL:9 JIOFIN:0 JUBLFOOD:12 JUBLINGREA:8 JUBLPHARMA:7 JLHL:7 JWL:2 JUSTDIAL:12 JYOTHYLAB:6 JYOTICNC:2 KPRMILL:16 KEI:2 KNRCON:14 KPIGREEN:4 KPITTECH:15 KRBL:6 KRN:2 KSB:2 KAJARIACER:17 KPIL:14 KALYANKJIL:17 KANSAINER:17 KTKBANK:0 KARURVYSYA:0 KSCL:6 KAYNES:2 KEC:14 KFINTECH:0 KIRLOSBROS:2 KIRLOSENG:2 KIRLPNU:2 KITEX:16 KOTAKBANK:0 KIMS:7 LTF:0 LTTS:15 LGEINDIA:17 LICHSGFIN:0 LTFOODS:6 LTM:15 LT:14 LATENTVIEW:15 LAURUSLABS:7 LXCHEM:8 IXIGO:12 THELEELA:12 LEMONTREE:12 LENSKART:12 LICI:0 LINDEINDIA:8 LLOYDSENGG:2 LLOYDSENT:9 LLOYDSME:9 LODHA:13 LUMAXTECH:5 LUPIN:7 MMTC:10 MOIL:9 MRF:5 MSTCLTD:10 MTARTECH:2 MGL:11 MAHSCOOTER:0 MAHSEAMLES:2 M&MFIN:0 M&M:5 MANAPPURAM:0 MRPL:11 MANKIND:7 MANORAMA:6 MARICO:6 MARKSANS:7 MARUTI:5 MASTEK:15 MFSL:0 MAXHEALTH:7 MAZDOCK:2 MEDPLUS:12 MEESHO:12 METROPOLIS:7 MINDACORP:5 MIDHANI:2 MSUMI:5 MOTILALOFS:0 MPHASIS:15 BECTORFOOD:6 MCX:0 MUTHOOTFIN:0 NATCOPHARM:7 NBCC:14 NCC:14 NEOGEN:8 NESCO:10 NHPC:4 NLCINDIA:4 NMDC:9 NSLNISP:9 NTPCGREEN:4 NTPC:4 NH:7 NATIONALUM:9 NFL:8 NAVA:4 NAVINFLUOR:8 NAZARA:21 NESTLEIND:6 NETWEB:15 NETWORK18:21 NEULANDLAB:7 NEWGEN:15 NAM-INDIA:0 NIVABUPA:0 NUVAMA:0 NUVOCO:3 OBEROIRLTY:13 ONGC:11 OIL:11 OLAELEC:5 OLECTRA:5 PAYTM:0 ONESOURCE:7 OPTIEMUS:18 OFSS:15 ORIENTCEM:3 ORKLAINDIA:6 OSWALPUMPS:2 PNGJL:17 POLICYBZR:0 PCJEWELLER:17 PCBL:8 PGEL:17 PIIND:8 PNBHOUSING:0 PNCINFRA:14 PTC:4 PTCIL:2 PVRINOX:21 PAGEIND:16 PARADEEP:8 PARAS:2 PARKHOSPS:7 PATANJALI:6 PGIL:16 PERSISTENT:15 PETRONET:11 PFIZER:7 PHOENIXLTD:13 PWL:12 PICCADIL:6 PIDILITIND:8 PINELABS:0 PIRAMALFIN:0 PPLPHARMA:7 POLYMED:7 POLYCAB:2 POONAWALLA:0 PFC:0 POWERGRID:4 POWERMECH:14 PRAJIND:2 PREMIERENE:2 PRESTIGE:13 PRICOLLTD:5 PFOCUS:21 PRSMJOHNSN:3 PRIVISCL:8 PRUDENT:0 PNB:0 PURVA:13 QPOWER:2 QUESS:10 RRKABEL:2 RBLBANK:0 RECLTD:0 RHIM:2 RITES:14 RADICO:6 RVNL:14 RAILTEL:18 RAIN:8 RAINBOW:7 RALLIS:8 RKFORGE:5 RCF:8 RATEGAIN:15 RATNAMANI:2 RTNINDIA:12 RTNPOWER:4 RAYMONDLSL:16 REDINGTON:10 REDTAPE:17 REFEX:19 RELAXO:17 RELIANCE:11 RPOWER:4 RELIGARE:0 RBA:12 ROUTE:18 RUBICON:7 SBFC:0 SBICARD:0 SBILIFE:0 SJVN:4 SKFINDUS:2 SKFINDIA:5 SKYGOLD:17 SMLMAH:2 SHRIPISTON:5 SRF:8 LOTUSDEV:13 SAATVIKGL:2 SAFARI:17 SAGILITY:15 SAILIFE:7 SAMHI:12 SAMMAANCAP:0 MOTHERSON:5 SANDUMA:9 SANOFICONR:7 SANSERA:5 SAPPHIRE:12 SARDAEN:9 SAREGAMA:21 SCHAEFFLER:5 SCHNEIDER:2 SENCO:17 STYL:0 SHAILY:17 SHAKTIPUMP:2 SHARDACROP:8 SHAREINDIA:0 SFL:17 SHILPAMED:7 SCI:10 SHREECEM:3 RENUKA:6 SHRIRAMFIN:0 SHYAMMETL:2 ENRIN:2 SIEMENS:2 SIGNATURE:13 SKIPPER:2 SMARTWORKS:10 SOBHA:13 SOLARINDS:8 SONACOMS:5 SONATSOFTW:15 SOUTHBANK:0 STARCEMENT:3 STARHEALTH:0 SBIN:0 SAIL:9 SWSOLAR:14 STLTECH:18 STAR:7 STYRENIX:8 SUBROS:2 SUDARSCHEM:8 SUDEEPPHRM:8 SUMICHEM:8 SPARC:7 SUNPHARMA:7 SUNTV:21 SUNDARMFIN:0 SUNTECK:13 SUPREMEIND:2 SPLPETRO:8 SUPRIYA:7 SURYAROSNI:2 SUZLON:2 SWANCORP:8 SWIGGY:12 SYNGENE:7 SYRMA:2 TARC:13 TBOTEK:12 TDPOWERSYS:2 TSFINV:0 TVSMOTOR:5 TVSSCS:10 TMB:0 TANLA:15 TATACAP:0 TATACHEM:8 TATACOMM:18 TCS:15 TATACONSUM:6 TATAELXSI:15 TATAINVEST:0 TMCV:2 TMPV:5 TATAPOWER:4 TATASTEEL:9 TATATECH:15 TTML:18 TECHM:15 TECHNOE:14 TEGA:2 TEJASNET:18 TENNIND:5 TEXRAIL:2 THANGAMAYL:17 ANUP:2 NIACL:0 RAMCOCEM:3 THERMAX:2 THOMASCOOK:12 THYROCARE:7 TI:6 TIMETECHNO:2 TIMKEN:2 TIPSMUSIC:21 TITAGARH:2 TITAN:17 TORNTPHARM:7 TORNTPOWER:4 TARIL:2 TRANSRAILL:2 TRAVELFOOD:12 TRENT:12 TRIDENT:16 TRIVENI:6 TRITURBINE:2 TIINDIA:5 UCOBANK:0 UNOMINDA:5 UPL:8 UTIAMC:0 UJJIVANSFB:0 ULTRACEMCO:3 UNIONBANK:0 UBL:6 UNITDSPR:6 URBANCO:12 USHAMART:2 VGUARD:17 VMART:12 VIPIND:17 V2RETAIL:12 DBREALTY:13 WABAG:19 VAIBHAVGBL:17 VTL:16 VARROC:5 VBL:6 MANYAVAR:12 VEDL:9 VIJAYA:7 VIKRAMSOLR:2 VMM:12 VIYASH:7 IDEA:18 VOLTAMP:2 VOLTAS:17 WAAREEENER:2 WAAREERTL:2 WAKEFIT:17 WEWORK:10 WEBELSOLAR:2 WELCORP:2 WELENT:14 WELSPUNLIV:16 WESTLIFE:12 WHIRLPOOL:17 WIPRO:15 WOCKPHARMA:7 YATHARTH:7 YESBANK:0 ZFCVINDIA:5 ZAGGLE:15 ZEEL:21 ZENTEC:2 ZENSARTECH:15 ZYDUSLIFE:7 ZYDUSWELL:6 ECLERX:10';
+var UNIVERSE_LIST = '360ONE:0 3MINDIA:1 AADHARHFC:0 AARTIIND:8 AAVAS:0 ABB:2 ABBOTINDIA:7 ABCAPITAL:0 ABDL:6 ABFRL:12 ABLBL:12 ABREL:13 ABSLAMC:0 ACC:3 ACE:2 ACMESOLAR:4 ACUTAAS:7 ADANIENSOL:4 ADANIENT:9 ADANIGREEN:4 ADANIPORTS:10 ADANIPOWER:4 AEGISLOG:11 AEGISVOPAK:11 AFCONS:14 AFFLE:15 AIAENG:2 AIIL:0 AJANTPHARM:7 ALKEM:7 AMBER:17 AMBUJACEM:3 ANANDRATHI:0 ANANTRAJ:13 ANGELONE:0 ANTHEM:7 ANURAS:8 APARINDS:2 APLAPOLLO:2 APOLLOHOSP:7 APOLLOTYRE:5 APTUS:0 ARE&M:5 ASAHIINDIA:5 ASHOKLEY:2 ASIANPAINT:17 ASTERDM:7 ASTRAL:2 ATGL:11 ATHERENERG:5 ATUL:8 AUBANK:0 AUROPHARMA:7 AWL:6 AXISBANK:0 BAJAJ-AUTO:5 BAJAJFINSV:0 BAJAJHFL:0 BAJAJHLDNG:0 BAJFINANCE:0 BALKRISIND:5 BALRAMCHIN:6 BANDHANBNK:0 BANKBARODA:0 BANKINDIA:0 BATAINDIA:17 BAYERCROP:8 BBTC:6 BDL:2 BEL:2 BELRISE:5 BEML:2 BERGEPAINT:17 BHARATFORG:5 BHARTIARTL:18 BHARTIHEXA:18 BHEL:2 BIKAJI:6 BIOCON:7 BLS:12 BLUEDART:10 BLUEJET:7 BLUESTARCO:17 BOSCHLTD:5 BPCL:11 BRIGADE:13 BRITANNIA:6 BSE:0 BSOFT:15 CAMS:0 CANBK:0 CANFINHOME:0 CANHLIFE:0 CAPLIPOINT:7 CARBORUNIV:2 CARTRADE:12 CASTROLIND:11 CCL:6 CDSL:0 CEATLTD:5 CEMPRO:14 CENTRALBK:0 CESC:4 CGCL:0 CGPOWER:2 CHALET:12 CHAMBLFERT:8 CHENNPETRO:11 CHOICEIN:0 CHOLAFIN:0 CHOLAHLDNG:0 CIEINDIA:5 CIPLA:7 CLEAN:8 COALINDIA:11 COCHINSHIP:2 COFORGE:15 COHANCE:7 COLPAL:6 CONCOR:10 CONCORDBIO:7 COROMANDEL:8 CPPLUS:2 CRAFTSMAN:5 CREDITACC:0 CRISIL:0 CROMPTON:17 CUB:0 CUMMINSIND:2 CYIENT:15 DABUR:6 DALBHARAT:3 DATAPATTNS:2 DCMSHRIRAM:1 DEEPAKFERT:8 DEEPAKNTR:8 DELHIVERY:10 DEVYANI:12 DIVISLAB:7 DIXON:17 DLF:13 DMART:12 DOMS:6 DRREDDY:7 ECLERX:10 EICHERMOT:5 EIDPARRY:6 EIHOTEL:12 ELECON:2 ELGIEQUIP:2 EMAMILTD:6 EMCURE:7 EMMVEE:2 ENDURANCE:5 ENGINERSIN:14 ENRIN:2 ERIS:7 ESCORTS:2 ETERNAL:12 EXIDEIND:5 FACT:8 FEDERALBNK:0 FINCABLES:2 FIRSTCRY:12 FIVESTAR:0 FLUOROCHEM:8 FORCEMOT:5 FORTIS:7 FSL:10 GABRIEL:5 GAIL:11 GALLANTT:2 GESHIP:10 GICRE:0 GILLETTE:6 GLAND:7 GLAXO:7 GLENMARK:7 GMDCLTD:9 GMRAIRPORT:10 GODFRYPHLP:6 GODIGIT:0 GODREJCP:6 GODREJIND:1 GODREJPROP:13 GPIL:2 GRANULES:7 GRAPHITE:2 GRASIM:3 GRAVITA:9 GROWW:0 GRSE:2 GVT&D:2 HAL:2 HAVELLS:17 HBLENGINE:2 HCLTECH:15 HDBFS:0 HDFCAMC:0 HDFCBANK:0 HDFCLIFE:0 HEGAM:2 HEROMOTOCO:5 HEXT:15 HFCL:18 HINDALCO:9 HINDCOPPER:9 HINDPETRO:11 HINDUNILVR:6 HINDZINC:9 HOMEFIRST:0 HONASA:6 HONAUT:2 HSCL:8 HUDCO:0 HYUNDAI:5 ICICIAMC:0 ICICIBANK:0 ICICIGI:0 ICICIPRULI:0 IDBI:0 IDEA:18 IDFCFIRSTB:0 IEX:0 IFCI:0 IGIL:10 IGL:11 IIFL:0 IKS:15 INDGN:7 INDHOTEL:12 INDIACEM:3 INDIAMART:12 INDIANB:0 INDIGO:10 INDUSINDBK:0 INDUSTOWER:18 INFY:15 INOXWIND:2 INTELLECT:15 IOB:0 IOC:11 IPCALAB:7 IRB:14 IRCON:14 IRCTC:12 IREDA:0 IRFC:0 ITC:6 ITCHOTELS:12 ITI:18 J&KBANK:0 JAINREC:9 JBMA:5 JINDALSAW:2 JINDALSTEL:9 JIOFIN:0 JKCEMENT:3 JKTYRE:5 JMFINANCIL:0 JPPOWER:4 JSL:9 JSWCEMENT:3 JSWDULUX:17 JSWENERGY:4 JSWINFRA:10 JSWSTEEL:9 JUBLFOOD:12 JUBLINGREA:8 JUBLPHARMA:7 JWL:2 JYOTICNC:2 KAJARIACER:17 KALYANKJIL:17 KARURVYSYA:0 KAYNES:2 KEC:14 KEI:2 KFINTECH:0 KIMS:7 KIRLOSENG:2 KOTAKBANK:0 KPIL:14 KPITTECH:15 KPRMILL:16 LALPATHLAB:7 LATENTVIEW:15 LAURUSLABS:7 LEMONTREE:12 LENSKART:12 LGEINDIA:17 LICHSGFIN:0 LICI:0 LINDEINDIA:8 LLOYDSME:9 LODHA:13 LT:14 LTF:0 LTFOODS:6 LTM:15 LTTS:15 LUPIN:7 M&M:5 M&MFIN:0 MAHABANK:0 MANAPPURAM:0 MANKIND:7 MAPMYINDIA:15 MARICO:6 MARUTI:5 MAXHEALTH:7 MAZDOCK:2 MCX:0 MEDANTA:7 MEESHO:12 MFSL:0 MGL:11 MINDACORP:5 MMTC:10 MOTHERSON:5 MOTILALOFS:0 MPHASIS:15 MRF:5 MRPL:11 MSUMI:5 MUTHOOTFIN:0 NAM-INDIA:0 NATCOPHARM:7 NATIONALUM:9 NAUKRI:12 NAVA:4 NAVINFLUOR:8 NBCC:14 NCC:14 NESTLEIND:6 NETWEB:15 NEULANDLAB:7 NEWGEN:15 NH:7 NHPC:4 NIACL:0 NIVABUPA:0 NLCINDIA:4 NMDC:9 NSLNISP:9 NTPC:4 NTPCGREEN:4 NUVAMA:0 NUVOCO:3 NYKAA:12 OBEROIRLTY:13 OFSS:15 OIL:11 OLAELEC:5 OLECTRA:5 ONESOURCE:7 ONGC:11 PAGEIND:16 PARADEEP:8 PATANJALI:6 PAYTM:0 PCBL:8 PERSISTENT:15 PETRONET:11 PFC:0 PFIZER:7 PFOCUS:21 PGEL:17 PHOENIXLTD:13 PIDILITIND:8 PIIND:8 PINELABS:0 PIRAMALFIN:0 PNB:0 PNBHOUSING:0 POLICYBZR:0 POLYCAB:2 POLYMED:7 POONAWALLA:0 POWERGRID:4 POWERINDIA:2 PPLPHARMA:7 PREMIERENE:2 PRESTIGE:13 PTCIL:2 PVRINOX:21 PWL:12 RADICO:6 RAILTEL:18 RAINBOW:7 RAMCOCEM:3 RBLBANK:0 RECLTD:0 REDINGTON:10 RELIANCE:11 RHIM:2 RITES:14 RKFORGE:5 RPOWER:4 RRKABEL:2 RVNL:14 SAGILITY:15 SAIL:9 SAILIFE:7 SAMMAANCAP:0 SAPPHIRE:12 SARDAEN:9 SAREGAMA:21 SBFC:0 SBICARD:0 SBILIFE:0 SBIN:0 SCHAEFFLER:5 SCHNEIDER:2 SCI:10 SHREECEM:3 SHRIRAMFIN:0 SHYAMMETL:2 SIEMENS:2 SIGNATURE:13 SJVN:4 SOBHA:13 SOLARINDS:8 SONACOMS:5 SONATSOFTW:15 SPLPETRO:8 SRF:8 STARHEALTH:0 SUMICHEM:8 SUNDARMFIN:0 SUNPHARMA:7 SUNTV:21 SUPREMEIND:2 SUZLON:2 SWANCORP:8 SWIGGY:12 SYNGENE:7 SYRMA:2 TARIL:2 TATACAP:0 TATACHEM:8 TATACOMM:18 TATACONSUM:6 TATAELXSI:15 TATAINVEST:0 TATAPOWER:4 TATASTEEL:9 TATATECH:15 TBOTEK:12 TCS:15 TECHM:15 TECHNOE:14 TEGA:2 TEJASNET:18 TENNIND:5 THELEELA:12 THERMAX:2 TIINDIA:5 TIMKEN:2 TITAGARH:2 TITAN:17 TMCV:2 TMPV:5 TORNTPHARM:7 TORNTPOWER:4 TRAVELFOOD:12 TRENT:12 TRIDENT:16 TRITURBINE:2 TTML:18 TVSMOTOR:5 UBL:6 UCOBANK:0 ULTRACEMCO:3 UNIONBANK:0 UNITDSPR:6 UNOMINDA:5 UPL:8 URBANCO:12 USHAMART:2 UTIAMC:0 VBL:6 VEDL:9 VIJAYA:7 VMM:12 VOLTAS:17 VTL:16 WAAREEENER:2 WELCORP:2 WELSPUNLIV:16 WHIRLPOOL:17 WIPRO:15 WOCKPHARMA:7 YESBANK:0 ZEEL:21 ZENSARTECH:15 ZENTEC:2 ZFCVINDIA:5 ZYDUSLIFE:7 ZYDUSWELL:6';
 
 function fetchUniverse_() {
-  // Universe source: MasterData (header row has "Nifty750"/"Symbol" + "Industry"),
+  // Universe source: MasterData (header row has "Symbol"/"Nifty500"/"Nifty750" + "Industry"),
   // then a "Universe" sheet, then the built-in list above as a last resort.
   var ss = SpreadsheetApp.getActive();
   var names = ['MasterData', 'Universe'];
@@ -74,6 +78,7 @@ function fetchUniverse_() {
     for (var h = 0; h < Math.min(5, rows.length); h++) {
       var hdr = rows[h].map(function (x) { return String(x).trim().toLowerCase(); });
       var iSym = hdr.indexOf('symbol');
+      if (iSym < 0) iSym = hdr.indexOf('nifty500');
       if (iSym < 0) iSym = hdr.indexOf('nifty750');
       var iInd = hdr.indexOf('industry');
       if (iSym < 0) continue;
@@ -95,12 +100,12 @@ function fetchUniverse_() {
 
 /** Momentum menu -> Update universe (upload NSE CSV).
  *  NSE blocks direct downloads from Google's servers, so the user downloads the
- *  Nifty Total Market constituents CSV and picks it here. Rewrites MasterData A3:B. */
+ *  Nifty 500 constituents CSV and picks it here. Rewrites MasterData A3:B. */
 function updateUniverseFromNSE() {
   var html = HtmlService.createHtmlOutput(
     '<div style="font:13px Arial,sans-serif;line-height:1.5">' +
-    '<p><b>1.</b> Download the <b>Nifty Total Market</b> index constituents CSV from niftyindices.com ' +
-    '(file name like ind_niftytotalmarket_list.csv).</p>' +
+    '<p><b>1.</b> Download the <b>Nifty 500</b> index constituents CSV from niftyindices.com ' +
+    '(file name like ind_nifty500list.csv).</p>' +
     '<p><b>2.</b> Choose that file:</p>' +
     '<input type="file" id="f" accept=".csv,text/csv">' +
     '<p id="m" style="white-space:pre-wrap;margin-top:12px"></p>' +
@@ -116,7 +121,7 @@ function updateUniverseFromNSE() {
     ' r.readAsText(file);};' +
     '</scr' + 'ipt></div>'
   ).setWidth(460).setHeight(300);
-  SpreadsheetApp.getUi().showModalDialog(html, 'Update universe (Nifty 750)');
+  SpreadsheetApp.getUi().showModalDialog(html, 'Update universe (Nifty 500)');
 }
 
 /** Called from the upload dialog. Parses the NSE CSV and rewrites MasterData A3:B. */
@@ -131,7 +136,8 @@ function importUniverseCsv(text) {
     var s = String(data[r][iSym] || '').trim();
     if (s) rows.push([s, iInd >= 0 ? String(data[r][iInd] || '').trim() : '']);
   }
-  if (rows.length < 700) throw new Error('File has only ' + rows.length + ' stocks (expected about 750). MasterData was NOT changed.');
+  if (rows.length < 450 || rows.length > 550)
+    throw new Error('File has ' + rows.length + ' stocks (expected about 500; the backtest uses the Nifty 500). MasterData was NOT changed.');
   var sh = SpreadsheetApp.getActive().getSheetByName('MasterData');
   var last = sh.getLastRow();
   var oldList = last >= 3 ? sh.getRange(3, 1, last - 2, 1).getValues()
@@ -353,37 +359,52 @@ function finalizeScan_() {
 
   var sh = ss.getSheetByName(SH_RANK) || ss.insertSheet(SH_RANK);
   sh.clear();
-  sh.getRange('A1:B6').setValues([
+  sh.getRange('A1:B7').setValues([
     ['As of (last close)', asOf],
     ['Nifty 500 close', mk.close],
     ['Nifty 500 200-day SMA', mk.sma],
-    ['Market filter', mk.riskOn ? 'RISK-ON: invest' : 'RISK-OFF: 100% liquid fund'],
-    ['Ranked (pass all filters) / scored / universe', ranked.length + ' / ' + scored.length + ' / ' + data.length],
-    ['Status', 'Done ' + Utilities.formatDate(new Date(), CFG.TZ, 'dd-MMM-yyyy HH:mm')]
+    ['Closes in a row below the SMA', mk.streak],
+    ['Market filter', mk.label],
+    ['Status', 'Done ' + Utilities.formatDate(new Date(), CFG.TZ, 'dd-MMM-yyyy HH:mm')],
+    ['Ranked (pass all filters) / scored / universe', ranked.length + ' / ' + scored.length + ' / ' + data.length]
   ]);
-  sh.getRange('B4').setBackground(mk.riskOn ? '#c8e6c9' : '#ffcdd2').setFontWeight('bold');
+  sh.getRange('B5').setBackground(mk.state === 'RISK-ON' ? '#c8e6c9' : mk.state === 'WATCH' ? '#fff2cc' : '#ffcdd2').setFontWeight('bold');
+  if (data.length > 550) sh.getRange('C7').setValue('Universe looks like the Nifty 750: the backtest uses the Nifty 500. Upload the Nifty 500 CSV.')
+                           .setFontColor('#c00000');
   var hdr = [['Rank', 'Symbol', 'Close', 'Av Sharpe', 'Sharpe 252', 'Sharpe 184', 'Sharpe 126', 'Sharpe 63',
               'Below ATH', 'Turnover ₹ Cr', 'SMA' + CFG.STOCK_SMA, 'Industry']];
-  sh.getRange(8, 1, 1, hdr[0].length).setValues(hdr).setFontWeight('bold').setBackground('#00ffff');
+  var top = RANK_HDR + 1;
+  sh.getRange(RANK_HDR, 1, 1, hdr[0].length).setValues(hdr).setFontWeight('bold').setBackground('#00ffff');
   var out = ranked.map(function (r, i) { return [i + 1, r[0], r[2], r[7], r[3], r[4], r[5], r[6], r[8], r[9], r[10], r[1]]; });
   if (out.length) {
-    sh.getRange(9, 1, out.length, hdr[0].length).setValues(out);
-    sh.getRange(9, 3, out.length, 6).setNumberFormat('0.00');
-    sh.getRange(9, 9, out.length, 1).setNumberFormat('0.0%');
-    sh.getRange(9, 10, out.length, 2).setNumberFormat('0.00');
-    sh.getRange(9, 1, Math.min(CFG.TOP_N, out.length), hdr[0].length).setBackground('#d9ead3');
+    sh.getRange(top, 1, out.length, hdr[0].length).setValues(out);
+    sh.getRange(top, 3, out.length, 6).setNumberFormat('0.00');
+    sh.getRange(top, 9, out.length, 1).setNumberFormat('0.0%');
+    sh.getRange(top, 10, out.length, 2).setNumberFormat('0.00');
+    sh.getRange(top, 1, Math.min(CFG.TOP_N, out.length), hdr[0].length).setBackground('#d9ead3');
     if (out.length > CFG.TOP_N)
-      sh.getRange(9 + CFG.TOP_N, 1, Math.min(CFG.KEEP_RANK, out.length) - CFG.TOP_N, hdr[0].length).setBackground('#fff2cc');
+      sh.getRange(top + CFG.TOP_N, 1, Math.min(CFG.KEEP_RANK, out.length) - CFG.TOP_N, hdr[0].length).setBackground('#fff2cc');
   }
-  sh.setFrozenRows(8);
-  sh.getRange('D7').setValue('Green = top 10 (buy zone)   Yellow = rank 11-30 (hold zone)   Stocks failing a filter are not ranked (see _ScanWork)');
+  sh.setFrozenRows(RANK_HDR);
+  sh.getRange(RANK_HDR - 1, 4).setValue('Green = top 10 (buy zone)   Yellow = rank 11-30 (hold zone)   Stocks failing a filter are not ranked (see _ScanWork)');
+  writeRules();                     // keep the Rules tab in step with CFG
 }
 
+/** Mirrors the backtest's daily market check (market_check="daily", confirm_days=3):
+ *  RISK-OFF  CONFIRM_DAYS+ closes in a row below the SMA: sell everything today / stay in the liquid fund.
+ *  WATCH     below the SMA for fewer days: keep holdings; if in the liquid fund, don't buy back yet.
+ *  RISK-ON   close at or above the SMA. */
 function marketFilter_(closes) {
-  var n = closes.length, sum = 0;
-  for (var i = n - CFG.SMA_LEN; i < n; i++) sum += closes[i];
-  var sma = sum / CFG.SMA_LEN, c = closes[n - 1];
-  return { close: c, sma: sma, riskOn: !(c < sma) };        // sell only when close < SMA
+  var n = closes.length, L = CFG.SMA_LEN, cum = [0];
+  for (var i = 0; i < n; i++) cum.push(cum[i] + closes[i]);
+  var smaAt = function (k) { return k >= L - 1 ? (cum[k + 1] - cum[k + 1 - L]) / L : NaN; };
+  var streak = 0;
+  for (i = n - 1; i >= L - 1 && closes[i] < smaAt(i); i--) streak++;
+  var state = streak >= CFG.CONFIRM_DAYS ? 'RISK-OFF' : streak > 0 ? 'WATCH' : 'RISK-ON';
+  var label = state === 'RISK-OFF' ? 'RISK-OFF: sell all today, 100% liquid fund'
+            : state === 'WATCH' ? 'WATCH: below SMA ' + streak + ' day(s), exit after ' + CFG.CONFIRM_DAYS + ' in a row'
+            : 'RISK-ON: invest';
+  return { close: closes[n - 1], sma: smaAt(n - 1), streak: streak, state: state, label: label };
 }
 
 // ------------------------------- REBALANCE PLAN ---------------------------
@@ -399,8 +420,9 @@ function buildRebalancePlan() {
     ui.alert('Portfolio tab created. List your current stock holdings (Symbol, Shares) and liquid-fund value, then run this again.');
     return;
   }
-  var riskOn = String(rk.getRange('B4').getValue()).indexOf('RISK-ON') === 0;
-  var rows = rk.getRange(9, 1, Math.max(rk.getLastRow() - 8, 1), 3).getValues().filter(function (r) { return r[1]; });
+  var market = String(rk.getRange('B5').getValue()).split(':')[0];   // RISK-ON | WATCH | RISK-OFF
+  if (['RISK-ON', 'WATCH', 'RISK-OFF'].indexOf(market) < 0) { ui.alert('Run the scan again (the Momentum Rank layout changed).'); return; }
+  var rows = rk.getRange(RANK_HDR + 1, 1, Math.max(rk.getLastRow() - RANK_HDR, 1), 3).getValues().filter(function (r) { return r[1]; });
   var rank = {}, price = {}, why = {};
   var work = ss.getSheetByName(SH_WORK);
   if (work && work.getLastRow() > 1)
@@ -417,9 +439,12 @@ function buildRebalancePlan() {
   var liquid = Number(port.getRange('F1').getValue()) || 0;
 
   var plan = [], note;
-  if (!riskOn) {
-    note = 'Nifty 500 is below its 200-day SMA: SELL ALL, move 100% to liquid fund.';
+  if (market === 'RISK-OFF') {
+    note = 'Nifty 500 closed below its 200-day SMA ' + CFG.CONFIRM_DAYS + '+ days in a row: ' +
+           (hold.length ? 'SELL ALL today (any day of the month), move 100% to liquid fund.' : 'stay in the liquid fund.');
     hold.forEach(function (h) { plan.push(['SELL', h.sym, h.sh, price[h.sym] || '', rank[h.sym] || 'Not ranked', 'Market filter']); });
+  } else if (!hold.length && market === 'WATCH') {
+    note = 'In the liquid fund and the Nifty 500 is below its 200-day SMA: do nothing. Buy back only at a month-end above the SMA.';
   } else if (!hold.length) {
     var each = liquid / CFG.TOP_N / (1 + CFG.COST);
     note = 'Portfolio is in liquid fund / fresh start: BUY top ' + CFG.TOP_N + ' in equal amounts.';
@@ -427,7 +452,8 @@ function buildRebalancePlan() {
       plan.push(['BUY', r[1], liquid ? Math.floor(each / r[2]) : '', r[2], r[0], liquid ? 'Amount ≈ ₹' + Math.round(each) : 'Equal amount']);
     });
   } else {
-    note = 'Invested: keep ranks 1-' + CFG.KEEP_RANK + ', sell the rest (including stocks that fail a filter), refill to ' + CFG.TOP_N +
+    note = (market === 'WATCH' ? 'Nifty 500 below its SMA for fewer than ' + CFG.CONFIRM_DAYS + ' days: not an exit, rebalance as usual. ' : '') +
+           'Invested: keep ranks 1-' + CFG.KEEP_RANK + ', sell the rest (including stocks that fail a filter), refill to ' + CFG.TOP_N +
            ' with sale proceeds split equally. Kept holdings are NOT resized.';
     var kept = [], proceeds = 0;
     hold.forEach(function (h) {
@@ -452,10 +478,47 @@ function buildRebalancePlan() {
   sh.clear();
   sh.getRange('A1').setValue('Rebalance plan — ' + rk.getRange('B1').getDisplayValue()).setFontWeight('bold');
   sh.getRange('A2').setValue(note);
-  sh.getRange('A3').setValue('Execute only on the last trading day of the month, at the close. Costs assumed 0.25% per trade.');
+  sh.getRange('A3').setValue(market === 'RISK-OFF' ? 'Market exit: execute today, at the close. Costs assumed 0.25% per trade.'
+    : 'Execute only on the last trading day of the month, at the close. Costs assumed 0.25% per trade.');
   sh.getRange(5, 1, 1, 6).setValues([['Action', 'Symbol', 'Shares', 'Price', 'Rank', 'Note']]).setFontWeight('bold').setBackground('#00ffff');
   if (plan.length) sh.getRange(6, 1, plan.length, 6).setValues(plan);
   sh.activate();
+}
+
+// ------------------------------- RULES ------------------------------------
+/** Momentum menu -> Show rules. Writes the strategy rules (from CFG) to the Rules tab.
+ *  These are the Momentum Study base-case rules; change them only together with the backtest. */
+function writeRules() {
+  var ss = SpreadsheetApp.getActive(), sh = ss.getSheetByName(SH_RULES) || ss.insertSheet(SH_RULES, 0);
+  var pct = function (x) { return Math.round(x * 1000) / 10 + '%'; };
+  var rules = [
+    ['Section', 'Rule'],
+    ['Universe', 'Today\'s Nifty 500 list (Momentum → Update universe; refresh when NSE rebalances the index, usually March and September).'],
+    ['Filter 1: near high', 'Close within ' + pct(CFG.MAX_FALL) + ' of the all-time high.'],
+    ['Filter 2: trend', 'Close above its ' + CFG.STOCK_SMA + '-day simple moving average.'],
+    ['Filter 3: liquidity', 'Average daily turnover (close × volume) over ' + CFG.TURNOVER_DAYS + ' sessions above ₹' + CFG.MIN_TURNOVER / 1e7 + ' crore.'],
+    ['Score', 'Av Sharpe = average over ' + CFG.LOOKBACKS.join('/') + ' sessions of (% return over the window) ÷ (daily-return standard deviation × √252). ' +
+              'No risk-free rate. Each window needs ' + pct(CFG.MIN_PRESENT) + ' price data. Stocks failing any filter are not ranked.'],
+    ['Buy', 'Hold the top ' + CFG.TOP_N + ' by Av Sharpe, equal amounts at entry.'],
+    ['Sell', 'At month-end, sell a holding that ranks below ' + CFG.KEEP_RANK + ' or fails a filter (not ranked). Kept holdings are not resized.'],
+    ['Refill', 'Split the sale money equally across the best-ranked stocks not already held, back up to ' + CFG.TOP_N + '.'],
+    ['Rebalance day', 'Last trading day of the month, at the close.'],
+    ['Market exit', 'Checked every day: if the Nifty 500 closes below its ' + CFG.SMA_LEN + '-day SMA ' + CFG.CONFIRM_DAYS +
+                    ' days in a row, sell everything that day and move 100% to a liquid fund.'],
+    ['Market re-entry', 'Stay in the liquid fund until a month-end close at or above the ' + CFG.SMA_LEN + '-day SMA, then buy the top ' + CFG.TOP_N + '.'],
+    ['Below SMA < ' + CFG.CONFIRM_DAYS + ' days', 'Not an exit. If invested, rebalance as usual at month-end.'],
+    ['Costs', 'Backtest assumes ' + pct(CFG.COST) + ' per buy and per sell.'],
+    ['Prices', 'Yahoo daily close (split-adjusted, not dividend-adjusted) on the Nifty 500 calendar; gaps up to ' + CFG.FFILL_LIMIT +
+               ' sessions carried forward; one-day moves over ' + pct(CFG.BAD_RET) + ' ignored.'],
+    ['Daily routine', 'Scan runs each weekday ~4:30 pm. If Market filter says RISK-OFF and you hold stocks, build the plan and sell. ' +
+                      'On the last trading day of the month, run the scan and Build rebalance plan.']
+  ];
+  sh.clear();
+  sh.getRange(1, 1, rules.length, 2).setValues(rules).setWrap(true).setVerticalAlignment('top');
+  sh.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#00ffff');
+  sh.getRange(2, 1, rules.length - 1, 1).setFontWeight('bold');
+  sh.setColumnWidth(1, 170); sh.setColumnWidth(2, 720);
+  sh.setFrozenRows(1);
 }
 
 // ------------------------------- HELPERS ----------------------------------
