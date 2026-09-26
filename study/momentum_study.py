@@ -95,6 +95,7 @@ class Data:
                 if i is not None:
                     close[i, j], high[i, j], volume[i, j] = c, h, v
         self.raw_close = close.copy()
+        self.high = high
         # forward-fill short gaps only
         filled, gap = close.copy(), np.zeros(N)
         for i in range(1, T):
