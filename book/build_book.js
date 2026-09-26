@@ -1,4 +1,4 @@
-// Builds book/Momentum_Investing_Book.docx from momentum_study.json, book/book_extra.json and book/charts/*.png.
+// Builds book/Momentum_Investing_Book.docx from momentum_study.json, etf_study.json, momentum_nse_study.json, and book/charts/*.png.
 // Run: py book/make_charts.py && node book/build_book.js
 const fs = require("fs");
 const path = require("path");
@@ -10,8 +10,15 @@ const {
 
 const ROOT = path.resolve(__dirname, "..");
 const S = JSON.parse(fs.readFileSync(path.join(ROOT, "momentum_study.json"), "utf8"));
-const X = JSON.parse(fs.readFileSync(path.join(__dirname, "book_extra.json"), "utf8"));
 const E = JSON.parse(fs.readFileSync(path.join(ROOT, "etf_study.json"), "utf8"));
+const A = JSON.parse(fs.readFileSync(path.join(ROOT, "momentum_nse_study.json"), "utf8"));
+// the March 2020 crash in the whole-NSE study: fall from the last close before it to the low that spring
+const crash = (() => {
+  const top = A.curve.filter(p => p.d <= "2020-02-18").pop(), low = A.curve.filter(p => p.d > top.d && p.d <= "2020-05-31");
+  const out = { from: top.d };
+  for (const k of Object.keys(top)) if (k !== "d") out[k] = Math.min(...low.map(p => p[k])) / top[k] - 1;
+  return out;
+})();
 
 // ------------------------------------------------------------------ formatting helpers
 const pct = (v, dp = 1, sign = false) => (v == null ? "–" : (sign && v > 0 ? "+" : "") + (v * 100).toFixed(dp) + "%");
@@ -131,14 +138,14 @@ const r_ = (cells, hl = false) => ({ cells, hl });
 const titlePage = [
   new Paragraph({ spacing: { before: 2600 }, children: [new TextRun({ text: "LET MONEY EARN  ·  RESEARCH", color: ACCENT, bold: true, size: 20, characterSpacing: 40 })] }),
   new Paragraph({ spacing: { before: 300, after: 200 }, children: [new TextRun({ text: "Riding the Winners", font: SERIF, size: 76, bold: true, color: INK })] }),
-  new Paragraph({ spacing: { after: 600 }, children: [new TextRun({ text: "A plain-English guide to momentum investing in India, with a six-year honest backtest", font: SERIF, size: 32, color: MUTED })] }),
+  new Paragraph({ spacing: { after: 600 }, children: [new TextRun({ text: "A plain-English study of momentum investing in India: the Nifty 500, every NSE stock, and ETFs", font: SERIF, size: 32, color: MUTED })] }),
   new Paragraph({ border: { top: { style: BorderStyle.SINGLE, size: 8, color: ACCENT, space: 12 } }, spacing: { after: 120 },
-    children: [new TextRun({ text: `What it is · where it came from · why it works · how to run it · ${pct(B.cagr, 1)} a year on the Nifty 500, tested the honest way`, size: 22, color: INK })] }),
+    children: [new TextRun({ text: `What it is · where it came from · why it works · what the data shows · ${pct(B.cagr, 1)} a year on the Nifty 500, tested the honest way`, size: 22, color: INK })] }),
   new Paragraph({ spacing: { before: 2400 }, children: [new TextRun({ text: `Data to ${fdate(S.asOf)}`, size: 20, color: MUTED })] }),
   new Paragraph({ children: [new PageBreak()] }),
   new Paragraph({ spacing: { before: 400, after: 160 }, children: [new TextRun({ text: "Before you read", bold: true, size: 26, font: SERIF })] }),
   new Paragraph({ spacing: { after: 140, line: 290 }, children: runs("This book is for information and education only. It is **not investment advice** and not a recommendation to buy or sell any security. Everything in it is based on a **backtest**: rules applied to past prices to see what would have happened. Backtests are hypothetical. Real trading has costs, delays and emotions that a backtest can't fully capture, and past results do not guarantee future returns. Stock names appear only because the rules picked them in the past; they are not suggestions. Please do your own research, and speak to a SEBI-registered adviser before investing.") }),
-  new Paragraph({ spacing: { after: 140, line: 290 }, children: runs(`Price data: Yahoo Finance. Index lists: NSE Indices (current and archived copies via the Wayback Machine). Study period: ${fdate(B.from)} to ${fdate(B.to)}.`) }),
+  new Paragraph({ spacing: { after: 140, line: 290 }, children: runs(`Price data: Yahoo Finance. Index lists: NSE Indices (current and archived copies via the Wayback Machine). Chapter 11: NSE daily trading files and corporate-action lists. Study periods: Nifty 500 ${fdate(B.from)} to ${fdate(B.to)}; every NSE stock ${fdate(A.from)} to ${fdate(A.asOf)}; ETFs ${fdate(E.stats[0].from)} to ${fdate(E.stats[0].to)}.`) }),
   new Paragraph({ spacing: { before: 600 }, children: [new TextRun({ text: "© 2026 Let Money Earn. All rights reserved.", size: 18, color: MUTED })] }),
   new Paragraph({ children: [new PageBreak()] }),
   new Paragraph({ spacing: { after: 200 }, children: [new TextRun({ text: "Contents", bold: true, size: 36, font: SERIF })] }),
@@ -152,7 +159,7 @@ P("Most of us were taught one rule about the stock market: **buy low, sell high*
 P("That sounds like chasing. It is, a little. But it is chasing with rules. You don't buy a stock because it's on the news or because a friend made money on it. You buy it because, measured calmly, it has risen more strongly and more steadily than almost everything else, and you sell it the moment it no longer does.");
 P(`Does it work? For more than a hundred years, traders have said yes. For the last thirty, academic research has agreed: in markets all over the world, stocks that have done well over the past several months tend to keep doing well for a while longer. This book tests the idea on Indian stocks, carefully and honestly. From ${fmonth(B.from)} to ${fmonth(B.to)}, a simple set of momentum rules on the Nifty 500 grew **₹1 lakh into about ${lakh(B.multiple)}**, or **${pct(B.cagr)} a year**. The Nifty 500 index grew ₹1 lakh into ${lakh(N.multiple)} (${pct(N.cagr)} a year) over the same period.`);
 P("But the numbers are only half the story. The other half is what it feels like: the long months below your last high, the trades that lose, the times the rules sell right before the market bounces. A strategy only works if you can stick with it. So this book spends as much time on the pain as on the gain.");
-callout("How to read this book.", "Chapters 1 to 3 explain what momentum is, where it came from and why it works. Chapters 4 to 9 describe our exact rules and put them through tough tests. Chapters 10 to 12 are practical: what holding it feels like, how to run it yourself, and the mistakes to avoid. Chapter 13 applies the same idea to ETFs. If you only have ten minutes, read this introduction, Chapter 6 and Chapter 12.");
+callout("How to read this book.", "Chapters 1 to 3 explain what momentum is, where it came from and why it works. Chapters 4 to 9 describe our exact rules and put them through tough tests. Chapter 10 describes what holding it felt like. Chapter 11 runs the same rules on every stock on the NSE, Chapter 12 applies them to ETFs and compares all three studies, and Chapter 13 covers common mistakes and questions. If you only have ten minutes, read this introduction, Chapter 6 and Chapter 13.");
 figure("01_growth.png", `Growth of ₹1 with the momentum rules in this book, against the Nifty 500 index (${fmonth(B.from)} to ${fmonth(B.to)}). Log scale: equal percentage moves look the same size.`);
 
 // Chapter 1
@@ -229,15 +236,15 @@ bullets([
   "**It costs money to run.** The portfolio changes every month, so brokerage, taxes and price slippage eat into returns. Large funds can't trade small stocks without moving their prices.",
   "**Professional fund managers risk their jobs.** A manager who underperforms for two years may be fired, even if the strategy is sound. That career risk keeps many away.",
 ]);
-callout("The honest summary.", "Momentum seems to work because people are people: slow to react, reluctant to sell losers, eager to follow the crowd. It stays profitable partly because it is hard to stick with. If you plan to use it, the most important skill is not picking stocks. It is sticking to the rules when it hurts.");
-H2("Who momentum suits, and who it doesn't");
-table(["It may suit you if…", "It may not suit you if…"], [
-  r_(["You can follow written rules without second-guessing them", "You like to decide based on company stories or news"]),
-  r_(["You can look at your portfolio once a day for a minute, and trade once a month", "You can't spare time each month-end to rebalance"]),
-  r_([`You can live through a fall of ${pct(-B.maxDD, 0)} or more without selling in panic`, "A 25% fall in your portfolio would keep you awake at night"]),
-  r_(["You are investing money you won't need for at least 5 years", "You may need this money in the next year or two"]),
-  r_(["You accept that about half of your trades will lose money", "You need most of your trades to be winners to feel comfortable"]),
-], { widths: [1, 1], leftCols: [1], title: "Is momentum right for you?" });
+callout("The honest summary.", "Momentum seems to work because people are people: slow to react, reluctant to sell losers, eager to follow the crowd. It stays profitable partly because it is hard to stick with. The hardest part is not picking stocks. It is sticking to the rules when it hurts.");
+H2("What momentum asks of an investor");
+table(["What the study found", "What that asks of an investor"], [
+  r_(["Every buy and sell follows a written rule", "Following the rules without second-guessing them"]),
+  r_(["A market check every day, trades once a month", "A minute each day and some time at each month-end"]),
+  r_([`A worst fall of ${pct(-B.maxDD, 0)}`, "Sitting through a large fall without selling in panic"]),
+  r_([`Below its last high on ${pct(R.timeUnderwater, 0)} of days`, "Patience measured in years, not months"]),
+  r_([`Only ${pct(T.winRate, 0)} of trades made money`, "Accepting that about half of all trades lose"]),
+], { widths: [1, 1], leftCols: [1], title: "What the results mean in practice." });
 
 // Chapter 4
 H1("4. The strategy tested in this book");
@@ -297,7 +304,7 @@ H2("Trap 3: trying many rules and keeping the best");
 P("If you test enough versions of a strategy, one will look great by luck. The study guards against this in three ways: the rules were fixed before testing; Chapter 7 shows that small changes to them give similar results; and it compares the strategy with 200 random copies to check that the ranking really adds value.");
 H2("What the test can't do");
 bullets([
-  `**Six years is short.** The period (${fmonth(B.from)} to ${fmonth(B.to)}) was mostly a strong market for Indian stocks, with corrections in 2022 and 2024–25 but no crash like 2008 or March 2020.`,
+  `**Six years is short.** The period (${fmonth(B.from)} to ${fmonth(B.to)}) was mostly a strong market for Indian stocks, with corrections in 2022 and 2024–25 but no crash like 2008 or March 2020. Chapter 11 tests the rules over a longer period that includes March 2020.`,
   "**Some past members are missing.** A few companies that were in old Nifty 500 lists have no price history available (mostly merged or delisted ones). They are left out, so a small survivorship bias remains.",
   "**Gaps between archived lists.** No archived copy exists for some stretches (for example, July 2020 to May 2022). In those months the older list stays in use, so some index changes appear late.",
   "**Prices are adjusted for splits but not dividends**, for both the strategy and the index. Dividends would add a little to both.",
@@ -355,7 +362,7 @@ table(["Change", "CAGR", "Worst fall", "Sharpe"], [
 ], { widths: [3, 1, 1, 1], title: "One rule changed at a time, everything else the same." });
 bullets([
   `**Most changes move the result by a few points, not tens.** That is a good sign: the strategy isn't balanced on a knife-edge.`,
-  `**Holding more stocks cut the falls.** With 15 or 20 stocks, the worst fall was ${pct(row("Stocks held", "Top 15").maxDD)} and ${pct(row("Stocks held", "Top 20").maxDD)}, against ${pct(B.maxDD)} with 10. Returns were similar. If you prefer a smoother ride, holding 15 to 20 is a sensible choice.`,
+  `**Holding more stocks cut the falls.** With 15 or 20 stocks, the worst fall was ${pct(row("Stocks held", "Top 15").maxDD)} and ${pct(row("Stocks held", "Top 20").maxDD)}, against ${pct(B.maxDD)} with 10. Returns were similar, so holding 15 to 20 gave a noticeably smoother ride.`,
   `**Trading only every three months was clearly worse** (${pct(row("Rebalance", "Quarterly").cagr)} a year). Momentum fades; the portfolio needs refreshing monthly.`,
   `**The trend filter never changed anything**, because stocks strong enough to reach the top 10 are almost always in an uptrend anyway.`,
 ]);
@@ -375,7 +382,7 @@ P("Momentum's biggest danger is a falling market. When the whole market drops, y
 figure("06_switch.png", "The Nifty 500, its 200-day average, and the periods the strategy spent in the liquid fund (shaded).");
 H2("Every time the switch moved to cash");
 table(["Sold everything on", "Bought back on", "Nifty 500 meanwhile", "Liquid fund"], G.spells.map(s => r_([fdate(s.from), s.to ? fdate(s.to) : "still out", pct(s.nifty500, 1, true), pct(s.liquid, 1, true)])), { widths: [1.3, 1.3, 1.3, 1.1], title: "The strategy's periods in the liquid fund." });
-P("In this period the switch often stepped out just before the market steadied, so the index was slightly higher by the time the strategy bought back. That is the price of insurance: most of the time it costs a little. It pays off in a long, deep fall, which this six-year period didn't have. The 2008 crash, when Indian stocks fell by more than half, is the kind of event the switch is designed for.");
+P(`In this period the switch often stepped out just before the market steadied, so the index was slightly higher by the time the strategy bought back. That is the price of insurance: most of the time it costs a little. It pays off in a long, deep fall, which this six-year period didn't have. The longer whole-NSE test in Chapter 11 did include one: in the March 2020 crash the Nifty 500 fell ${pct(-crash.nifty500, 0)} from its February level, while the rules there fell ${pct(-crash[A.best], 0)}, having moved to the liquid fund early in the fall. The 2008 crash, when Indian stocks fell by more than half, is the kind of event the switch is designed for.`);
 H2("Checking daily vs. once a month");
 table(["Market check", "CAGR", "Worst fall", "Sharpe"], [
   "200-DMA, checked at month-end only", "200-DMA, exit after 1 close below", "200-DMA, exit after 2 closes", "200-DMA, exit after 3 closes", "200-DMA, exit after 5 closes", "No market filter",
@@ -386,21 +393,21 @@ P("A shorter average follows the market closely and reacts to small dips. A long
 table(["Safety switch", "CAGR", "Worst fall", "Sharpe", "Times sold out", "Time invested", "After tax"], M.rows.map(r => r_([`${r.ma}-day average${r.isBase ? " (our rule)" : ""}`, pct(r.cagr), pct(r.maxDD), num(r.sharpe), String(r.exits), pct(r.invested, 0), pct(r.afterTax)], r.isBase)), { widths: [2.2, 0.9, 0.9, 0.8, 1, 1, 0.9], title: "The safety switch with different moving averages." });
 figure("07_moving_averages.png", "Growth of ₹1 with each moving average behind the safety switch.");
 bullets([
-  `**If you want the higher return and can sit through a fall of about ${pct(-B.maxDD, 0)}:** keep the **200-day average**. It sold out only ${ma(200).exits} times and stayed invested ${pct(ma(200).invested, 0)} of the time, so it caught the big rallies. (The 150-day did slightly better here, ${pct(ma(150).cagr)}, but with a deeper fall of ${pct(ma(150).maxDD)}; a gap that small is within luck.)`,
-  `**If you want smaller falls and can give up a little return:** the **100-day average** kept the worst fall to ${pct(ma(100).maxDD)} while earning ${pct(ma(100).cagr)} a year.`,
-  `**The 50-day average isn't worth it:** it sold out ${ma(50).exits} times, spent ${pct(1 - ma(50).invested, 0)} of the time in cash, missed much of the big rallies, and earned ${pct(ma(50).afterTax)} after tax against ${pct(ma(200).afterTax)} for the 200-day.`,
+  `**The 200-day average kept the most return**, with a worst fall of ${pct(B.maxDD)}. It sold out only ${ma(200).exits} times and stayed invested ${pct(ma(200).invested, 0)} of the time, so it caught the big rallies. (The 150-day did slightly better here, ${pct(ma(150).cagr)}, but with a deeper fall of ${pct(ma(150).maxDD)}; a gap that small is within luck.)`,
+  `**The 100-day average gave up a little return for much smaller falls:** it kept the worst fall to ${pct(ma(100).maxDD)} while earning ${pct(ma(100).cagr)} a year.`,
+  `**The 50-day average cost the most:** it sold out ${ma(50).exits} times, spent ${pct(1 - ma(50).invested, 0)} of the time in cash, missed much of the big rallies, and earned ${pct(ma(50).afterTax)} after tax against ${pct(ma(200).afterTax)} for the 200-day.`,
 ]);
-callout("Be honest with yourself.", `The best rule is the one you will actually follow. If watching a quarter of your money disappear on paper would make you sell, choose the 100-day average. You'll give up a little return, but you're far more likely to stay the course.`);
+callout("No single best answer.", "The choice is a trade-off between return and the depth of the falls along the way. A backtest can measure both; it can't say which an individual investor would actually sit through.");
 H2("Should the waiting money go into gold?");
 P(`Instead of a liquid fund, the study tried parking the money in GOLDBEES, a gold ETF, whenever the switch said stay out. Gold added ${pts(pitGold.cells[1].cagr - pitGold.cells[0].cagr).replace("+", "")} a year, but the ride got bumpier (volatility ${pct(pitGold.cells[1].vol)} vs ${pct(pitGold.cells[0].vol)}) and the Sharpe ratio fell from ${num(pitGold.cells[0].sharpe)} to ${num(pitGold.cells[1].sharpe)}. Nearly all of the gain came from one spell in early 2025, when gold rallied sharply. In another spell (2026), gold fell while the liquid fund kept earning. **The liquid fund's job is to keep money safe while you wait. Gold turns the wait into a second bet.**`);
 H2("Would a stop-loss help?");
-P(`A stop-loss sells a stock as soon as it falls, say, 10% during the month. It sounds sensible. It didn't help. On the honest lists, a 10% stop cut the return from ${pct(pitStop.cells[0].cagr)} to ${pct(pitStop.cells[1].cagr)} a year. When the stop sold a stock, it had bounced back by the next month-end ${pct(SL.afterStop.rebounded, 0)} of the time: a 10% dip in a strong stock is usually just noise. Adding a stop on top of the safety switch cut the return to ${pct(mf.dailyPlusStop.cagr)}. **To limit losses, the market safety switch works; individual stop-losses mostly add trades and costs.**`);
+P(`A stop-loss sells a stock as soon as it falls, say, 10% during the month. It sounds sensible. It didn't help. On the honest lists, a 10% stop cut the return from ${pct(pitStop.cells[0].cagr)} to ${pct(pitStop.cells[1].cagr)} a year. When the stop sold a stock, it had bounced back by the next month-end ${pct(SL.afterStop.rebounded, 0)} of the time: a 10% dip in a strong stock is usually just noise. The stop also made the worst fall deeper, not shallower (${pct(mf.dailyPlusStop.maxDD)} against ${pct(mf.daily.maxDD)}). A trailing 10% stop did worse (${pct(pitStop.cells[2].cagr)} a year), and wider stops of 15% and 20% still earned less than no stop (${pct(SL.thresholds.find(t => t.level === 0.15).cagr)} and ${pct(SL.thresholds.find(t => t.level === 0.2).cagr)}). **To limit losses, the market safety switch works; individual stop-losses mostly add trades and costs.**`);
 
 // Chapter 9
 H1("9. Costs, tax and how much money it can handle");
 H2("Trading costs");
 table(["Cost on each buy and sell", "CAGR", "Worst fall", "Sharpe"], S.costs.rows.map(r => r_([r.label.replace(" per side", "") + (r.label.startsWith("0.25") ? " (used in this book)" : ""), pct(r.cagr), pct(r.maxDD), num(r.sharpe)], r.label.startsWith("0.25"))), { widths: [2.4, 1, 1, 1], title: "The effect of trading costs." });
-P("Costs matter because the portfolio turns over about " + num(B.turnoverPerYear, 1) + " times a year. With a discount broker, total costs (brokerage, STT, stamp duty, exchange fees, GST, and the buy-sell price gap) for liquid Nifty 500 stocks are usually around 0.2% to 0.3% per trade. Keep them low: avoid brokers who charge a percentage of trade value.");
+P("Costs matter because the portfolio turns over about " + num(B.turnoverPerYear, 1) + " times a year. With a discount broker, total costs (brokerage, STT, stamp duty, exchange fees, GST, and the buy-sell price gap) for liquid Nifty 500 stocks are usually around 0.2% to 0.3% per trade.");
 H2("Tax");
 P(`Profits on shares held for under a year are **short-term capital gains**, taxed at 20% (15% before 23 July 2024). Held for a year or more, they are **long-term**, taxed at 12.5% above an exemption limit (10% before 23 July 2024). Losses can be set off against gains. Because a typical stock is held for about ${Math.round(T.medianHoldDays)} days, most profits here are short-term.`);
 table(["", "CAGR"], [r_(["Before tax", pct(S.costs.preTax.cagr)]), r_(["After capital-gains tax", pct(S.costs.afterTax.cagr)], true)], { widths: [3, 1], title: "Tax applied to every profit, year by year." });
@@ -423,74 +430,91 @@ bullets([
   `Your portfolio will lag the index for a whole year, as it did in ${worstYear}, while friends in index funds or \"safe\" stocks do better.`,
   "You will own stocks that everyone says are overpriced, and sell stocks that look cheap.",
 ]);
-callout("The one thing to remember.", "Most people who give up on a strategy give up near the bottom, right before it recovers. Decide now, while you are calm, what you will do when the portfolio is down 25%. Write it down. The answer should be: follow the rules.");
+callout("The one thing to remember.", "Most people who give up on a strategy give up near the bottom, right before it recovers. Every number in this book assumes the rules were followed through every fall; an investor who stopped at the worst moment would have earned far less.");
 H2("Eggs in one basket");
 P(`No rule limits how much goes into one industry. On average the biggest industry made up **${pct(R.industry.avgMaxIndustryWeight, 0)}** of the portfolio, and at one point **${pct(R.industry.peakIndustryWeight, 0)}**. When a sector is hot, momentum piles into it. That boosts returns in a boom and hurts in a bust.`);
 table(["Industry", "Average share of the portfolio"], R.industry.avgWeights.map(w => r_([w.industry, pct(w.weight, 0)])), { widths: [3, 1.4], title: "Average share of the portfolio by industry." });
 
-// Chapter 11
-H1("11. How to run it yourself");
-H2("What you need");
-bullets([
-  "**A demat and trading account** with a low-cost broker.",
-  "**Price data** for Nifty 500 stocks: a spreadsheet with Google Finance or a similar source, a stock screener that can calculate returns and volatility, or a small script.",
-  "**The current Nifty 500 list**, downloadable free from the NSE Indices website. Update it whenever NSE rebalances the index (usually in March and September).",
-  "**A liquid fund** in the same account or folio, to park money when the safety switch is off.",
-  "**About an hour at each month-end**, and a minute each trading day to check the market.",
-]);
-H2("Every trading day (one minute)");
-steps([
-  "Look up the Nifty 500's closing level and its 200-day average.",
-  "Count how many days in a row it has closed below the average.",
-  "If it's the **third close in a row below**, sell all your stocks and move the money into the liquid fund.",
-]);
-H2("Every month-end (about an hour)");
-steps([
-  "**Check the market.** If the Nifty 500 is below its 200-day average and you are in the liquid fund, do nothing: stay out until a month-end when it's above.",
-  "**Update the list and prices.** Use the current Nifty 500 list.",
-  "**Filter.** Keep stocks within 25% of their all-time high, above their 233-day average, and trading at least ₹1 crore a day.",
-  "**Score and rank** what's left, highest score first.",
-  "**Sell** any stock you hold that is now outside the top 30 or fails a filter.",
-  "**Buy** the highest-ranked stocks you don't already own until you hold 10, splitting the money from sales (or from the liquid fund) equally.",
-  "**Record everything**: date, stock, price, quantity, reason. You'll need it for tax, and for staying honest with yourself.",
-]);
-H2("A worked example: September 2026");
-P(`At the time of writing, the Nifty 500 closed at ${Math.round(X.now.nifty).toLocaleString("en-IN")} on ${fdate(X.now.date)}, below its 200-day average of ${Math.round(X.now.sma).toLocaleString("en-IN")}. It first closed below the average in early September and stayed there. Under the rules in this book, the third close below (${fdate(G.spells[G.spells.length - 1].from)}) was the signal to sell everything and move to the liquid fund. The strategy then waits for a month-end with the Nifty 500 back above its average before buying again.`);
-H2("Practical tips");
-bullets([
-  "**Start with money you won't need for five years or more.** Momentum can take years to pay off.",
-  "**Don't put everything into one strategy.** Many investors keep momentum as one part of their portfolio, next to index funds or longer-term holdings.",
-  "**Round sensibly.** If a share is too expensive to split money exactly equally, get as close as you can; small differences don't matter.",
-  "**Never override the rules for one stock.** \"I'll keep this one, I like the company\" is how a rule-based strategy quietly becomes a feeling-based one.",
-  "**Review once a year, not once a week.** Judge the strategy over years, not months.",
-]);
+// Chapter 11: the whole NSE
+{
+  const AR = k => A.rows.find(r => r.key === k);
+  const W = n => AR("w" + n), Mo = n => AR("m" + n), AB = A.bench;
+  const best = AR(A.best), bt = best.trade, dd = best.drawdowns;
+  const ayears = Object.keys(AB.yearly);
+  const part = y => y + (y === ayears[0] || y === ayears[ayears.length - 1] ? " (part)" : "");
+  const yrsA = (new Date(A.asOf) - new Date(A.from)) / 3.15576e10;
+  const down = y => A.rows.every(r => r.yearly[y] < 0);
+  const range = y => [Math.min(...A.rows.map(r => r.yearly[y])), Math.max(...A.rows.map(r => r.yearly[y]))];
+  const capA = c => best.capacity.find(x => x.capital === c);
+  const rupees = c => (c >= 1e7 ? "₹" + c / 1e7 + " crore" : "₹" + c / 1e5 + " lakh");
 
-// Chapter 12
-H1("12. Common mistakes, and questions people ask");
-H2("Mistakes to avoid");
-table(["Mistake", "Why it hurts"], [
-  r_(["Selling winners early to \"book profit\"", "The big winners pay for all the losers. Cutting them short removes the engine."]),
-  r_(["Holding losers \"until they come back\"", "Falling stocks tend to keep falling. The ranking sells them for a reason."]),
-  r_(["Skipping the safety switch because \"this time is different\"", "The switch exists for the rare, deep crash. You can't know in advance which fall will be the big one."]),
-  r_(["Quitting after a bad year", "Every momentum strategy has bad years. Quitting locks in the loss and misses the recovery."]),
-  r_(["Testing on today's stock list", "Survivorship bias makes a strategy look better and safer than it is (Chapter 5)."]),
-  r_(["Tweaking the rules after every bad month", "Constant changes mean you never follow any strategy long enough for it to work."]),
-  r_(["Ignoring costs and tax", "At about 2.4 portfolio turns a year, small costs add up quickly."]),
-], { widths: [1.4, 2.6], leftCols: [1], title: "Common momentum mistakes." });
-H2("Questions people ask");
-const faq = [
-  ["Isn't this just chasing stocks that have already gone up?", "Yes, deliberately, but with rules. The evidence over a century is that stocks rising strongly and steadily tend to keep rising for months. The rules also make you sell when they stop, which casual chasing never does."],
-  ["Why not just buy a momentum index fund?", "That's a perfectly good, simpler option. Index funds handle the rebalancing for you. The strategy in this book differs in its stock universe, scoring, number of stocks, and especially its safety switch, which index funds don't have."],
-  ["Will I really earn " + pct(B.cagr, 0) + " a year?", "Almost certainly not exactly. That figure comes from one six-year period that was good for Indian stocks, before tax, and with the luckiest trading day. Expect lower returns, and deeper falls, in real life. What the study shows is that the approach worked across many settings and beat random stock picking, not that the future will match the past."],
-  ["What if the market crashes like 2008?", "The safety switch would sell after three closes below the 200-day average. It wouldn't avoid the first part of the fall, but it is designed to avoid most of a long, deep decline. This six-year period had no such crash, so the switch's value in one wasn't tested here."],
-  ["Can I use this for mid-caps or small-caps only?", "You can, but smaller stocks are harder to trade, and their past index lists are harder to get, so testing them honestly is difficult. This study only used the Nifty 500 because past lists could be rebuilt."],
-  ["How much money do I need to start?", "Enough to buy 10 stocks in sensible amounts, so that brokerage and other fixed costs stay small. There's no upper limit for individuals: the strategy handled up to about ₹10 crore comfortably."],
-  ["What would make me stop using it?", "Decide in advance. A sensible rule: don't judge it on less than three years. Stop only if you find a mistake in how you are running it, or if your own situation changes, not because of one bad year."],
-];
-faq.forEach(([q, a]) => { H3(q); P(a); });
+  H1("11. The same rules on every NSE stock");
+  P(`Everything in Chapters 4 to 11 was tested on the Nifty 500. But more than ${Math.floor(A.stocks / 100) * 100} companies traded on the NSE during the last ten years, and momentum is often strongest in the smaller ones outside the index. This chapter runs the same rules on **every stock on the NSE**, from ${fmonth(A.from)} to ${fmonth(A.asOf)} (${yrsA.toFixed(1)} years), and asks two practical questions: **how many stocks should you hold, and should you rebalance every week or every month?**`);
+  H2("How it was tested");
+  bullets([
+    `**The stocks:** NSE's own daily trading files, which list every stock that traded each day, including companies that later merged, were delisted or collapsed. So there is no survivorship bias of the kind Chapter 5 warns about: a stock enters the test when it starts trading and leaves when it stops, just as it did for real investors. ${A.stocks.toLocaleString("en-IN")} stocks passed the ₹1 crore turnover floor at some point.`,
+    `**The prices** were adjusted for ${A.events.adjustments} splits and bonus issues, and ${A.events.joins} renamed stocks were joined to their new symbols. ETFs and trade-to-trade (BE/BZ series) stocks were excluded.`,
+    "**The rules** are the ones in Chapter 4: the same score, the same three filters (within 25% of the high, above the 233-day average, ₹1 crore traded a day), the same Nifty 500 safety switch and liquid fund, and 0.25% per trade.",
+    `**What changes:** the number of stocks held (top ${A.topNs[0]} to top ${A.topNs[A.topNs.length - 1]}), the sell rule (a stock is sold once it falls below twice that rank: top 25 is sold below rank 50), and how often the portfolio is rebalanced (at each week's last close, or each month's).`,
+  ]);
+  callout("Not the same test as Chapter 6.", `The period is longer (${fmonth(A.from)} onwards, not ${fmonth(B.from)}), the stock list is far wider, and the sell rule is different. The Nifty 500 itself earned ${pct(AB.cagr)} a year over this period. Compare the combinations in this chapter with each other and with the index, not with the numbers in Chapter 6.`);
+  H2("How many stocks, and how often?");
+  table(["Stocks held", "Weekly: CAGR", "Worst fall", "Sharpe", "Monthly: CAGR", "Worst fall", "Sharpe"],
+    A.topNs.map(n => r_([`Top ${n} (sell below ${2 * n})`, pct(W(n).cagr), pct(W(n).maxDD), num(W(n).sharpe), pct(Mo(n).cagr), pct(Mo(n).maxDD), num(Mo(n).sharpe)], "w" + n === A.best)),
+    { widths: [1.9, 1, 0.9, 0.8, 1, 0.9, 0.8], title: `Every combination on the whole NSE, ${fdate(A.from)} to ${fdate(A.asOf)}. Before tax, after 0.25% costs. Nifty 500: ${pct(AB.cagr)} a year, worst fall ${pct(AB.maxDD)}.` });
+  figure("12_nse_by_n.png", "Yearly return and worst fall for each number of stocks held, rebalanced weekly and monthly.");
+  bullets([
+    `**Every combination beat the Nifty 500 comfortably**, earning ${pct(Math.min(...A.rows.map(r => r.cagr)), 0)} to ${pct(Math.max(...A.rows.map(r => r.cagr)), 0)} a year against the index's ${pct(AB.cagr)}.`,
+    `**Ten stocks is too few on the whole NSE.** Top 10 had the deepest falls (${pct(W(10).maxDD)} weekly, ${pct(Mo(10).maxDD)} monthly) and, over its worst 3-year stretch, earned less than a liquid fund (${pct(W(10).worst3y)} and ${pct(Mo(10).worst3y)} a year). The stocks at the very top of an all-NSE ranking are often small and fast-moving; ten of them swing too much together.`,
+    `**Around 25 to 30 stocks was the sweet spot.** Weekly top 25 earned **${pct(W(25).cagr)} a year** with a worst fall of ${pct(W(25).maxDD)}; top 30 was a near tie (${pct(W(30).cagr)}, ${pct(W(30).maxDD)}). That two neighbouring settings agree matters more than which one came first.`,
+    `**Beyond 30, little is gained.** Holding 50 weekly trimmed the worst fall to ${pct(W(50).maxDD)} but gave up ${pts(W(25).cagr - W(50).cagr).replace("+", "")} a year against top 25, and meant many more orders.`,
+  ]);
+  H2("Weekly beat monthly");
+  P(`From 15 stocks upward, rebalancing every week earned more than every month, **and** fell less. At 25 stocks the gap was ${pts(W(25).cagr - Mo(25).cagr).replace("+", "")} a year (${pct(W(25).cagr)} against ${pct(Mo(25).cagr)}), with a worst fall of ${pct(W(25).maxDD)} against ${pct(Mo(25).maxDD)}. There are two reasons:`);
+  bullets([
+    "**Fading stocks are sold within a week**, not up to a month later. In small stocks a month is a long time to hold something that has stopped working.",
+    `**The money goes back in sooner after the safety switch.** Monthly waits for a month-end above the Nifty 500's 200-day average; weekly buys back at the first week-end above it. The weekly version was invested ${pct(W(25).invested, 0)} of the time against ${pct(Mo(25).invested, 0)}.`,
+  ]);
+  P(`The price is more trading: about ${num(W(25).turnoverPerYear, 1)} portfolio turns a year weekly against ${num(Mo(25).turnoverPerYear, 1)} monthly. Even if every trade cost **0.5%** instead of 0.25%, weekly top 25 still earned ${pct(W(25).cost50)} against ${pct(Mo(25).cost50)} for monthly. With 10 stocks the order flipped: monthly was ahead (${pct(Mo(10).cagr)} against ${pct(W(10).cagr)}), another sign that 10 is too few here.`);
+  H2("The best combination in detail");
+  const cols = [["Top 25, weekly", best], ["Top 25, monthly", Mo(25)], ["Top 10, monthly", Mo(10)]];
+  table(["", ...cols.map(c => c[0]), "Nifty 500"], [
+    r_(["Yearly growth (CAGR)", ...cols.map(c => pct(c[1].cagr)), pct(AB.cagr)], true),
+    r_(["₹1 lakh became", ...cols.map(c => lakh(c[1].multiple)), lakh(AB.multiple)]),
+    r_(["Worst fall", ...cols.map(c => pct(c[1].maxDD)), pct(AB.maxDD)]),
+    r_(["Sharpe ratio", ...cols.map(c => num(c[1].sharpe)), num(AB.sharpe)]),
+    r_(["After capital-gains tax", ...cols.map(c => pct(c[1].afterTax)), "–"]),
+    r_(["With 0.5% per trade", ...cols.map(c => pct(c[1].cost50)), "–"]),
+    r_(["Worst 3 years, per year", ...cols.map(c => pct(c[1].worst3y)), pct(AB.worst3y)]),
+    r_(["Worst 12 months", ...cols.map(c => pct(c[1].worst1y)), pct(AB.worst1y)]),
+    r_([`To 2020 / from 2021, per year`, ...cols.map(c => `${pct(c[1].firstHalf, 0)} / ${pct(c[1].secondHalf, 0)}`), `${pct(AB.firstHalf, 0)} / ${pct(AB.secondHalf, 0)}`]),
+    r_(["Completed trades", ...cols.map(c => String(c[1].trades)), "–"]),
+  ], { widths: [2, 1.2, 1.2, 1.2, 1.1], title: "Three combinations side by side. Top 10 monthly is closest to the book's rules on the Nifty 500." });
+  figure("11_nse_growth.png", "Growth of ₹1 on the whole NSE. Flat stretches are the times the safety switch had the money in the liquid fund.");
+  P(`Weekly top 25 grew ₹1 lakh into about **${lakh(best.multiple)}** while the Nifty 500 grew it into ${lakh(AB.multiple)}. It did well in both halves of the period (${pct(best.firstHalf)} a year to 2020, ${pct(best.secondHalf)} from 2021), and it was ahead of the index over **${best.beat3y === 1 ? "every" : pct(best.beat3y, 0) + " of"} 3-year stretch${best.beat3y === 1 ? "" : "es"}**. Its trades look like Chapter 6's: only ${pct(bt.winRate, 0)} made money, but the average winner gained ${pct(bt.avgWin, 0, true)} and the average loser lost ${pct(bt.avgLoss, 0)}, and a typical stock was held for about ${Math.round(bt.medianHoldDays / 7)} weeks.`);
+  H2("Year by year");
+  table(["Year", "Top 25, weekly", "Top 25, monthly", "Nifty 500"], ayears.map(y => r_([part(y), pct(best.yearly[y], 1, true), pct(Mo(25).yearly[y], 1, true), pct(AB.yearly[y], 1, true)])),
+    { widths: [1, 1.2, 1.2, 1.2], title: "Returns by calendar year." });
+  P(`Most of the gain came in a few big years (2017, 2020, 2021 and 2023), when small and mid-sized stocks rallied. ${["2018", "2019"].filter(down).join(" and ")} lost money for **every** combination tested (2018: ${pct(range("2018")[0], 0)} to ${pct(range("2018")[1], 0)}), and 2022 ranged from ${pct(range("2022")[0], 0)} to ${pct(range("2022")[1], 0, true)} depending on the settings.`);
+  P(`The worst fall for weekly top 25 came fast: it fell ${pct(-dd[0].depth)} in ${dd[0].daysDown} trading days in ${fmonth(dd[0].peak)}, the demonetisation shock, too quick for the safety switch. The most testing stretch was slower: from a high in ${fmonth(dd[1].peak)} the portfolio drifted down ${pct(-dd[1].depth)} and did not get back to that high until ${fmonth(dd[1].recovered)}, about two and a half years later. Chapter 10 describes what stretches like this feel like.`);
+  H2("Is it the ranking, or just the filters?");
+  P(`As in Chapter 7, the study replaced the ranking with random picks from the same filtered list, ${A.randomSeeds} times for each combination. Random picks at 25 stocks weekly already earned about **${pct(best.random.median)}** a year, well ahead of the Nifty 500: on the whole NSE, simply owning stocks near their highs and in an uptrend, with the safety switch on, did a lot of the work. Ranking by the momentum score added **${pts(best.cagr - best.random.median).replace("+", "")} a year** on top. The best of the ${A.randomSeeds} random runs earned ${pct(best.random.best)}, still well below the ranked version.`);
+  H2("How much money can it handle?");
+  table(["Starting capital", "Typical buy as % of a day's trading", "Buys over 10% of a day's trading"], best.capacity.map(c => r_([rupees(c.capital), pct(c.medianShareOfAdv, 1), pct(c.over10pct, 0)])),
+    { widths: [1.4, 1.6, 1.6], title: "Weekly top 25: each buy compared with the stock's normal daily trading." });
+  P(`This is where the whole NSE differs most from the Nifty 500. The stocks are smaller, so money runs out of room sooner. At ${rupees(1e7)} a typical buy is ${pct(capA(1e7).medianShareOfAdv, 1)} of a day's trading, which is fine, though ${pct(capA(1e7).over10pct, 0)} of buys are already large for the stock. At ${rupees(1e8)} a typical buy is ${pct(capA(1e8).medianShareOfAdv, 0)} of a day's trading, ${pct(capA(1e8).over10pct, 0)} of buys are too big, and these results would not hold. **This version suits individual investors, not large funds.**`);
+  H2("What the study shows");
+  bullets([
+    "**On the whole NSE, 10 stocks was too few.** Holding 25 to 30, sold below twice that rank, gave the best balance of return and falls.",
+    `**Weekly rebalancing beat monthly from 15 stocks up**, even at 0.5% per trade, for about ${num(W(25).turnoverPerYear / Mo(25).turnoverPerYear, 1)} times the trading.`,
+    "**The ranking added a lot on top of the filters**, just as it did on the Nifty 500.",
+    "**Smaller stocks bring limits a backtest can't fully capture:** wider gaps between buying and selling prices, circuit limits, and far less room for large amounts of money.",
+  ]);
+  callout("Be careful with this result.", `Eighteen combinations were tested and the best one is reported, so expect real results to be lower. The backtest trades at the closing price, even on days a small stock is stuck at its upper or lower circuit limit and couldn't really be bought or sold; that flatters weekly trading in small stocks most. Dividends are ignored for both the strategy and the index. And ${ayears[0]} to ${ayears[ayears.length - 1]} included several powerful small-cap rallies that may not repeat.`);
+}
 
-// Appendix
-// Chapter 13: ETFs
+
+// Chapter 12: ETFs
 {
   const es = E.stats[0], en = E.stats[1], eg = E.stats[2], eb = E.base, et = E.trades, sl = E.sinceAllListed;
   const eyears = Object.keys(E.yearly.strategy);
@@ -508,7 +532,7 @@ faq.forEach(([q, a]) => { H3(q); P(a); });
   const bestE = [...closedE].sort((a, b) => b.ret - a.ret).slice(0, 5);
   const yrsE = (new Date(es.to) - new Date(es.from)) / 3.15576e10, yrsS = (new Date(B.to) - new Date(B.from)) / 3.15576e10;
 
-  H1("13. Momentum with ETFs");
+  H1("12. Momentum with ETFs");
   P("Everything so far has been about individual stocks. The same idea works with **exchange-traded funds (ETFs)**: funds that trade on the exchange like a share and track an index, a sector, or a commodity such as gold. Instead of picking the 10 strongest stocks, you pick the strongest few ETFs, and let the rotation move between Indian shares, sectors, gold, silver and government bonds.");
   H2("Why use ETFs?");
   bullets([
@@ -520,7 +544,7 @@ faq.forEach(([q, a]) => { H3(q); P(a); });
   ]);
   H2("The ETFs tested");
   table(["ETF", "What it tracks", "Trading since"], [...Object.keys(E.listed).sort().map(k => r_([k, WHAT[k] || "", fmonth(E.listed[k])])), r_(["LIQUIDCASE", "Overnight money-market rates (used as cash)", "Jan 2024"])],
-    { widths: [1.2, 3, 1.1], leftCols: [1], title: "The 16 ETFs in the rotation." });
+    { widths: [1.2, 3, 1.1], leftCols: [1], title: `The ${Object.keys(E.listed).length} ETFs in the rotation, and the cash fund.` });
   P("An ETF only enters the ranking once it has traded for about a year (the score needs a year of prices). So the list grew over time, exactly as it did for a real investor: in 2017 only NIFTYBEES, GOLDBEES, CPSEETF and PSUBNKBEES were eligible; the full list was only available from late 2025.");
   H2("The rules");
   table(["", "Stock strategy (Chapters 4 to 9)", "ETF rotation"], [
@@ -537,7 +561,7 @@ faq.forEach(([q, a]) => { H3(q); P(a); });
     { widths: [2.4, 0.9, 0.9, 0.9, 0.8, 1.2], title: `ETF rotation from ${fdate(es.from)} to ${fdate(es.to)}. Before tax, after costs.` });
   figure("09_etf_growth.png", "Growth of ₹1 with the ETF rotation, against simply holding NIFTYBEES or GOLDBEES.");
   P(`The rotation earned **${pct(es.cagr)} a year** with a worst fall of only **${pct(es.maxDD)}** and volatility of ${pct(es.vol)}, lower than even the Nifty's. NIFTYBEES earned ${pct(en.cagr)} with a worst fall of ${pct(en.maxDD)} (the March 2020 crash). Simply holding **GOLDBEES earned ${pct(eg.cagr)}**, a little more than the rotation, because these were exceptional years for gold. The rotation's advantage is that it doesn't depend on gold continuing: it moves on when gold stops rising.`);
-  P(`Its early years were quiet, because only a few ETFs existed and money often sat in cash (${pct(E.avgCash, 0)} on average over the whole period). Since all the ETFs were trading (${fmonth(sl.from)}), it earned **${pct(sl.strategy.cagr)} a year** while NIFTYBEES earned ${pct(sl.nifty.cagr)}.`);
+  P(`Its early years were quiet, because only a few ETFs existed and money often sat in cash (${pct(E.avgCash, 0)} on average over the whole period). Since the last of them started trading (${fmonth(sl.from)}), it earned **${pct(sl.strategy.cagr)} a year** while NIFTYBEES earned ${pct(sl.nifty.cagr)}.`);
   table(["Year", "ETF rotation", "NIFTYBEES", "GOLDBEES"], eyears.map(y => r_([y + (y === eyears[0] || y === eyears[eyears.length - 1] ? " (part)" : ""), pct(E.yearly.strategy[y], 1, true), pct(E.yearly.nifty[y], 1, true), pct(E.yearly.gold[y], 1, true)])),
     { widths: [1, 1.2, 1.2, 1.2], title: "Returns by calendar year." });
   H2("What it held");
@@ -558,21 +582,49 @@ faq.forEach(([q, a]) => { H3(q); P(a); });
     "**No market switch needed.** Adding one lowered the return: with gold, bonds and cash on the list, the rotation already steps away from falling shares.",
     "**When to sell and trading costs barely mattered**, because the rotation trades so rarely.",
   ]);
-  H2("Stocks or ETFs?");
-  table(["", "Stock strategy", "ETF rotation"], [
-    r_(["Period tested", `${fmonth(B.from)} to ${fmonth(B.to)} (${yrsS.toFixed(1)} years)`, `${fmonth(es.from)} to ${fmonth(es.to)} (${yrsE.toFixed(1)} years)`]),
-    r_(["Yearly growth (CAGR)", pct(B.cagr), pct(es.cagr)]),
-    r_(["Worst fall", pct(B.maxDD), pct(es.maxDD)]),
-    r_(["Volatility", pct(B.vol), pct(es.vol)]),
-    r_(["Sharpe", num(B.sharpe), num(es.sharpe)]),
-    r_(["Completed trades", String(B.trades), String(et.count)]),
-    r_(["Holdings", "10 stocks", `${eb.top_n} ETFs`]),
-    r_(["Main risk", "Deep falls in small and mid caps", "Depends heavily on gold; few ETFs in early years"]),
-  ], { widths: [1.6, 2, 2], leftCols: [1, 2], title: "The two approaches compared. The periods differ, so compare the character, not the exact numbers." });
-  P("The stock strategy aims for higher returns and asks you to sit through deeper falls. The ETF rotation is gentler: fewer holdings, far fewer trades, smaller falls, and it can hold gold and bonds when shares are weak. Many investors could reasonably use the ETF rotation on its own, or run both side by side.");
   callout("Be careful with this result.", "The ETF list was chosen today, with some knowledge of which themes did well, and no ETF that closed down in the past can appear in it. Until 2021 only a handful of ETFs were eligible. And these were exceptional years for gold and, in 2025, silver. Treat the ETF numbers as more flattering, and less certain, than the stock study's.");
+  H2("The three studies side by side");
+  const wn = A.rows.find(r => r.key === A.best), AB = A.bench;
+  const yrsA = (new Date(A.asOf) - new Date(A.from)) / 3.15576e10;
+  table(["", "Nifty 500 stocks (Ch. 4–10)", "Every NSE stock (Ch. 11)", "ETF rotation (this chapter)"], [
+    r_(["Period tested", `${fmonth(B.from)} to ${fmonth(B.to)} (${yrsS.toFixed(1)} years)`, `${fmonth(A.from)} to ${fmonth(A.asOf)} (${yrsA.toFixed(1)} years)`, `${fmonth(es.from)} to ${fmonth(es.to)} (${yrsE.toFixed(1)} years)`]),
+    r_(["Holdings", "10 stocks, monthly", `${wn.topN} stocks, weekly`, `${eb.top_n} ETFs, monthly`]),
+    r_(["Yearly growth (CAGR)", pct(B.cagr), pct(wn.cagr), pct(es.cagr)], true),
+    r_(["Benchmark over the same period", `Nifty 500: ${pct(N.cagr)}`, `Nifty 500: ${pct(AB.cagr)}`, `NIFTYBEES: ${pct(en.cagr)}`]),
+    r_(["Worst fall", pct(B.maxDD), pct(wn.maxDD), pct(es.maxDD)]),
+    r_(["Volatility", pct(B.vol), pct(wn.vol), pct(es.vol)]),
+    r_(["Sharpe", num(B.sharpe), num(wn.sharpe), num(es.sharpe)]),
+    r_(["Completed trades", String(B.trades), String(wn.trades), String(et.count)]),
+    r_(["Main risk", "Deep falls in small and mid caps", "Small, thinly traded stocks; limited capacity", "Depends heavily on gold; few ETFs in early years"]),
+  ], { widths: [1.4, 1.6, 1.6, 1.6], leftCols: [1, 2, 3], title: "The three studies compared. The periods and universes differ, so compare each with its own benchmark and compare the character, not the exact numbers." });
+  P(`All three beat their benchmark by a wide margin. The stock versions earned more and fell harder; the whole-NSE version, with more stocks and weekly trading, held up over the longest period, including the March 2020 crash. The ETF rotation was the gentlest: fewer holdings, far fewer trades, the smallest falls, and it can hold gold and bonds when shares are weak. They differ in character more than one is simply better than the other.`);
 }
 
+
+// Chapter 13
+H1("13. Common mistakes, and questions people ask");
+H2("Common mistakes");
+table(["Mistake", "Why it hurts"], [
+  r_(["Selling winners early to \"book profit\"", "The big winners pay for all the losers. Cutting them short removes the engine."]),
+  r_(["Holding losers \"until they come back\"", "Falling stocks tend to keep falling. The ranking sells them for a reason."]),
+  r_(["Skipping the safety switch because \"this time is different\"", "The switch exists for the rare, deep crash. You can't know in advance which fall will be the big one."]),
+  r_(["Quitting after a bad year", "Every momentum strategy has bad years. Quitting locks in the loss and misses the recovery."]),
+  r_(["Testing on today's stock list", "Survivorship bias makes a strategy look better and safer than it is (Chapter 5)."]),
+  r_(["Tweaking the rules after every bad month", "Constant changes mean you never follow any strategy long enough for it to work."]),
+  r_(["Ignoring costs and tax", "At about 2.4 portfolio turns a year, small costs add up quickly."]),
+], { widths: [1.4, 2.6], leftCols: [1], title: "Common momentum mistakes." });
+H2("Questions people ask");
+const faq = [
+  ["Isn't this just chasing stocks that have already gone up?", "Yes, deliberately, but with rules. The evidence over a century is that stocks rising strongly and steadily tend to keep rising for months. The rules also make you sell when they stop, which casual chasing never does."],
+  ["Why not just buy a momentum index fund?", "That's a perfectly good, simpler option. Index funds handle the rebalancing for you. The strategy in this book differs in its stock universe, scoring, number of stocks, and especially its safety switch, which index funds don't have."],
+  ["Will future returns be " + pct(B.cagr, 0) + " a year?", "Almost certainly not. That figure comes from one six-year period that was good for Indian stocks, before tax, and with the luckiest trading day. Expect lower returns, and deeper falls, in real life. What the study shows is that the approach worked across many settings and beat random stock picking, not that the future will match the past."],
+  ["What if the market crashes like 2008?", `The safety switch would sell after three closes below the 200-day average. It wouldn't avoid the first part of the fall, but it is designed to avoid most of a long, deep decline. The six-year Nifty 500 period had no such crash. The longer whole-NSE test in Chapter 11 includes the March 2020 crash: from ${fdate(crash.from)} to the low, the Nifty 500 fell ${pct(-crash.nifty500, 0)}, while the momentum rules (top 25 stocks, weekly) fell ${pct(-crash[A.best], 0)}, because the switch had moved the money to the liquid fund early in the fall. One crash is not proof, but it is the kind of fall the switch was built for.`],
+  ["Does it work beyond the Nifty 500?", "Chapter 11 runs the same rules on every stock on the NSE, including small companies and ones that later disappeared. It worked there too, with more stocks held, but it can absorb far less money because the stocks are smaller."],
+];
+faq.forEach(([q, a]) => { H3(q); P(a); });
+
+
+// Appendix
 H1("Appendix A: Glossary");
 table(["Term", "Meaning"], [
   ["Backtest", "Running a strategy's rules on past prices to see what would have happened. Hypothetical, not real trading."],
@@ -586,7 +638,7 @@ table(["Term", "Meaning"], [
   ["Survivorship bias", "The error of testing only on things that survived to today, ignoring failures."],
   ["Point-in-time list", "The list of index members as it actually stood on a past date."],
   ["Turnover", "How much of the portfolio is replaced in a year. 2× means every stock is swapped about twice."],
-  ["Rebalance", "The monthly routine of selling and buying to bring the portfolio back in line with the rules."],
+  ["Rebalance", "The regular (monthly or weekly) routine of selling and buying to bring the portfolio back in line with the rules."],
 ].map(r => r_(r)), { widths: [1.2, 3.8], leftCols: [1] });
 
 H1("Appendix B: Data and method");
@@ -600,6 +652,7 @@ bullets([
   "**Safety switch:** sell everything on the day the Nifty 500 completes three closes in a row below its 200-day simple moving average; buy back at a month-end close above it. Waiting money earns 6.5% a year.",
   "**Costs:** 0.25% of trade value on every buy and sell. Tax only where stated.",
   "**Benchmark:** Nifty 500 price index (no dividends).",
+  `**Chapter 11 (whole NSE):** ${fdate(A.from)} to ${fdate(A.asOf)}; every EQ-series stock in NSE's daily trading files, adjusted for splits and bonus issues from NSE's corporate-action list (and, where no record exists, from whole-ratio price gaps); ETFs excluded; the high filter uses the highest price since 2015; rebalanced at each week's or month's last close, and after a safety-switch exit, bought back at the first such close above the 200-day average.`,
 ]);
 
 H1("Appendix C: Further reading");
