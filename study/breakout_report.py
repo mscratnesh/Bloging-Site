@@ -4,7 +4,8 @@ the previous-week-low stop and the 2-week-low stop. Rules, comparison, charts, e
 Reuses the look, chart and sortable-table code of study/backtest_report_template.html and fills it
 with breakout_study.json (run study/breakout_study.py first).
 Output: study/breakout_report.html, and breakout-study.html at the site root (the public copy,
-        linked from the homepage and shipped in dist/)
+        shipped in dist/). Also fills the backtest section of breakout-desk.html (between the
+        breakout-study:start/end markers), which links to it.
 Run: py study/breakout_report.py
 """
 import json
@@ -342,7 +343,7 @@ page = f"""<!DOCTYPE html>
 {EXTRA_CSS}
 </head>
 <body>
-<div class="wrap site-top"><a class="site-back" href="index.html">&larr; Let Money Earn</a></div>
+<div class="wrap site-top"><a class="site-back" href="breakout-desk.html">&larr; Breakout Desk</a></div>
 <div class="wrap" id="app"></div>
 <div class="wrap site-bottom"><p class="site-disclaimer"><b>Important disclaimer.</b> This is a backtest for educational purposes only, not investment advice or a recommendation to buy or sell any security. Past results, especially from a short test, do not predict future returns. The author is not a SEBI registered financial adviser. Do your own due diligence and consult a qualified financial adviser before acting.</p></div>
 <script>
@@ -357,3 +358,37 @@ const DATA = {json.dumps(data, separators=(",", ":")).replace("</", "<\\/")};
 (HERE / "breakout_report.html").write_text(page, encoding="utf-8")
 (ROOT / "breakout-study.html").write_text(page, encoding="utf-8")
 print("wrote study/breakout_report.html and breakout-study.html", len(page) // 1024, "KB")
+
+# ---- Breakout Desk section: headline numbers of the best-known setup, linking to the full report
+HEADLINE = (3, "lock:2:0.05:0.01:2")  # 3-year high, 2-week low then +1% every 2 months
+st = next(x for x in data["studies"] if x["years"] == HEADLINE[0])
+run = next(r for r in st["runs"] if r["stop"] == HEADLINE[1])
+nifty = next(b for b in st["bench"] if b["key"] == "nifty500")
+MON = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
+month = lambda d: f"{MON[int(d[5:7]) - 1]} {d[:4]}"
+pct = lambda v: f"{v * 100:.1f}%".replace("-", "−")
+lakh = lambda v: f"₹{v / 1e5:.1f}L"
+rupees = lambda v: ("−" if v < 0 else "+") + "₹" + f"{abs(v) / 1e5:.1f} lakh"
+section = f"""<!-- breakout-study:start (filled by study/breakout_report.py) -->
+      <section class="bd-study" id="study">
+        <h2>Backtest: multi-year breakouts</h2>
+        <p class="sub">How a rules-based version of this idea would have done: Nifty 500 stocks (the list as it stood each day) closing above a {HEADLINE[0]}-year high set at least a year earlier, up to 10 held at a time, ₹10 lakh to start, {month(st["from"])} to {month(st["to"])}. Its rules are simpler than the desk's (closing prices only, no volume or 30-week MA check).</p>
+        <div class="bd-study-stats">
+          <div><span class="l">CAGR</span><span class="n">{pct(run["cagr"])}</span><span class="d">Nifty 500 {pct(nifty["cagr"])}</span></div>
+          <div><span class="l">Worst fall</span><span class="n">{pct(run["maxDD"])}</span><span class="d">Nifty 500 {pct(nifty["maxDD"])}</span></div>
+          <div><span class="l">₹10L became</span><span class="n">{lakh(run["endValue"])}</span><span class="d">Nifty 500 {lakh(nifty["endValue"])}</span></div>
+          <div><span class="l">Profit on stocks</span><span class="n">{rupees(run["trades"]["pnl"])}</span><span class="d">{run["trades"]["count"] + run["trades"]["open"]} trades, incl. dividends</span></div>
+        </div>
+        <p class="bd-study-note">Stop: the lowest close of the last 2 weeks until it is 5% above the buy price, then it rises 1% every 2 months. Idle money waits in GOLDBEES. Tighter stops (last week's or the 2-week low) lost money on the stocks. Much of the gain comes from a few winners still held, and the test is short, so treat it as a guide, not a forecast.</p>
+        <a class="text-link" href="breakout-study.html">Read the full backtest: rules, 9 variants, every trade <b>↗</b></a>
+      </section>
+      <!-- breakout-study:end -->"""
+desk_path = ROOT / "breakout-desk.html"
+with open(desk_path, encoding="utf-8", newline="") as f:  # keep the file's own line endings
+    desk = f.read()
+if "\r\n" in desk:
+    section = section.replace("\n", "\r\n")
+a, b = desk.index("<!-- breakout-study:start"), desk.index("<!-- breakout-study:end -->") + len("<!-- breakout-study:end -->")
+with open(desk_path, "w", encoding="utf-8", newline="") as f:
+    f.write(desk[:a] + section + desk[b:])
+print("updated the backtest section of breakout-desk.html")
