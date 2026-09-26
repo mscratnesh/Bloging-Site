@@ -1,0 +1,8543 @@
+{
+ "joins": [
+  {
+   "from": "4THDIM",
+   "to": "GVPTECH",
+   "on": "2023-07-31"
+  },
+  {
+   "from": "8KMILES",
+   "to": "SECURKLOUD",
+   "on": "2021-01-20"
+  },
+  {
+   "from": "AARVEEDEN",
+   "to": "VGL",
+   "on": "2025-10-13"
+  },
+  {
+   "from": "ABIN-RE1",
+   "to": "CIFL",
+   "on": "2025-04-17"
+  },
+  {
+   "from": "ACRYSIL",
+   "to": "CARYSIL",
+   "on": "2022-11-18"
+  },
+  {
+   "from": "ADANIGAS",
+   "to": "ATGL",
+   "on": "2021-01-13"
+  },
+  {
+   "from": "ADANITRANS",
+   "to": "ADANIENSOL",
+   "on": "2023-08-24"
+  },
+  {
+   "from": "ADHUNIKIND",
+   "to": "INCREDIBLE",
+   "on": "2021-05-20"
+  },
+  {
+   "from": "ADI",
+   "to": "FAIRCHEM",
+   "on": "2017-01-19"
+  },
+  {
+   "from": "ADLABS",
+   "to": "IMAGICAA",
+   "on": "2020-04-22"
+  },
+  {
+   "from": "ADORWELD",
+   "to": "ADOR",
+   "on": "2025-04-11"
+  },
+  {
+   "from": "AEGISCHEM",
+   "to": "AEGISLOG",
+   "on": "2024-06-07"
+  },
+  {
+   "from": "AHL",
+   "to": "AFSL",
+   "on": "2025-04-01"
+  },
+  {
+   "from": "AHMEDFORGE",
+   "to": "METALFORGE",
+   "on": "2015-06-01"
+  },
+  {
+   "from": "AIL",
+   "to": "GEPIL",
+   "on": "2016-09-14"
+  },
+  {
+   "from": "AIONJSW",
+   "to": "JSWISPL",
+   "on": "2020-10-12"
+  },
+  {
+   "from": "AKZOINDIA",
+   "to": "JSWDULUX",
+   "on": "2026-04-15"
+  },
+  {
+   "from": "ALLSEC",
+   "to": "ALLDIGI",
+   "on": "2024-09-27"
+  },
+  {
+   "from": "ALSTOMT&D",
+   "to": "GET&D",
+   "on": "2016-09-14"
+  },
+  {
+   "from": "AMARAJABAT",
+   "to": "ARE&M",
+   "on": "2023-10-27"
+  },
+  {
+   "from": "AMIORG",
+   "to": "ACUTAAS",
+   "on": "2025-06-02"
+  },
+  {
+   "from": "AMIRCHAND",
+   "to": "AEROPLANE",
+   "on": "2026-07-20"
+  },
+  {
+   "from": "AMTEKINDIA",
+   "to": "CASTEXTECH",
+   "on": "2015-06-11"
+  },
+  {
+   "from": "ANGELBRKG",
+   "to": "ANGELONE",
+   "on": "2021-11-11"
+  },
+  {
+   "from": "ARISINFRA",
+   "to": "ARIS",
+   "on": "2026-02-09"
+  },
+  {
+   "from": "ARROWCOAT",
+   "to": "ARROWGREEN",
+   "on": "2016-05-11"
+  },
+  {
+   "from": "ARVINFRA",
+   "to": "ARVSMART",
+   "on": "2016-12-05"
+  },
+  {
+   "from": "ASHIKA",
+   "to": "ASHIKAG",
+   "on": "2026-07-27"
+  },
+  {
+   "from": "ATFL",
+   "to": "SUNDROP",
+   "on": "2025-03-28"
+  },
+  {
+   "from": "AURUM-RE",
+   "to": "PHARMABEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "AXISBNKETF",
+   "to": "BNKETFAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISCETF",
+   "to": "CONSUMAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISGOLD",
+   "to": "GOLDAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISHCETF",
+   "to": "HEALTHAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISILVER",
+   "to": "SILVERAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISNIFTY",
+   "to": "NIFTYAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISTECETF",
+   "to": "ITAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXISVALUE",
+   "to": "VALUEAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "AXSENSEX",
+   "to": "SENSEXAXIS",
+   "on": "2026-07-03"
+  },
+  {
+   "from": "BAJAJCORP",
+   "to": "BAJAJCON",
+   "on": "2019-01-15"
+  },
+  {
+   "from": "BANKETFADD",
+   "to": "BANKADD",
+   "on": "2025-12-15"
+  },
+  {
+   "from": "BARBEQUE",
+   "to": "UFBL",
+   "on": "2025-10-13"
+  },
+  {
+   "from": "BHARATIWIN",
+   "to": "ICICIB22",
+   "on": "2018-04-19"
+  },
+  {
+   "from": "BINDALAGRO",
+   "to": "OSWALGREEN",
+   "on": "2023-05-19"
+  },
+  {
+   "from": "BOROSIL",
+   "to": "BORORENEW",
+   "on": "2020-02-20"
+  },
+  {
+   "from": "BURGERKING",
+   "to": "RBA",
+   "on": "2022-02-17"
+  },
+  {
+   "from": "CADILAHC",
+   "to": "ZYDUSLIFE",
+   "on": "2022-03-07"
+  },
+  {
+   "from": "CEBBCO",
+   "to": "JWL",
+   "on": "2022-06-20"
+  },
+  {
+   "from": "CENTURYTEX",
+   "to": "ABREL",
+   "on": "2024-10-10"
+  },
+  {
+   "from": "CESCVENT",
+   "to": "RPSGVENT",
+   "on": "2021-02-01"
+  },
+  {
+   "from": "CLNINDIA",
+   "to": "HEUBACHIND",
+   "on": "2023-03-10"
+  },
+  {
+   "from": "COMP-RE",
+   "to": "ESSEN-RE1",
+   "on": "2022-12-01"
+  },
+  {
+   "from": "COSMOFILMS",
+   "to": "COSMOFIRST",
+   "on": "2022-07-25"
+  },
+  {
+   "from": "CREATIVE",
+   "to": "CNL",
+   "on": "2025-12-10"
+  },
+  {
+   "from": "CROMPGREAV",
+   "to": "CGPOWER",
+   "on": "2017-03-08"
+  },
+  {
+   "from": "DAAWAT",
+   "to": "LTFOODS",
+   "on": "2023-11-06"
+  },
+  {
+   "from": "DEEPIND",
+   "to": "DEEPENR",
+   "on": "2020-09-30"
+  },
+  {
+   "from": "DHANVARSHA",
+   "to": "TRU",
+   "on": "2022-09-01"
+  },
+  {
+   "from": "DHARAMSI",
+   "to": "DMCC",
+   "on": "2022-11-02"
+  },
+  {
+   "from": "DIL",
+   "to": "DUCON-RE1",
+   "on": "2026-09-03"
+  },
+  {
+   "from": "DOLAT",
+   "to": "DOLATALGO",
+   "on": "2021-12-20"
+  },
+  {
+   "from": "DPL",
+   "to": "DVL",
+   "on": "2019-01-02"
+  },
+  {
+   "from": "DSPBANKETF",
+   "to": "BANKETFADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPGOLDETF",
+   "to": "GOLDETFADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPITETF",
+   "to": "ITETFADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPN50ETF",
+   "to": "NIFTY50ADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPNEWETF",
+   "to": "EQUAL50ADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPPSBKETF",
+   "to": "PSUBANKADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPPVBKETF",
+   "to": "PVTBANKADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPQ50ETF",
+   "to": "MIDQ50ADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPSENXETF",
+   "to": "SENSEXADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DSPSILVETF",
+   "to": "SILVERADD",
+   "on": "2024-02-15"
+  },
+  {
+   "from": "DYNATECH",
+   "to": "DUCON",
+   "on": "2016-05-11"
+  },
+  {
+   "from": "ESSELPACK",
+   "to": "EPL",
+   "on": "2020-10-19"
+  },
+  {
+   "from": "EXCEL",
+   "to": "LANDSMILL",
+   "on": "2026-04-02"
+  },
+  {
+   "from": "FAGBEARING",
+   "to": "SCHAEFFLER",
+   "on": "2017-08-01"
+  },
+  {
+   "from": "FAIRCHEM",
+   "to": "PRIVISCL",
+   "on": "2020-10-14"
+  },
+  {
+   "from": "FCEL",
+   "to": "FCONSUMER",
+   "on": "2016-10-25"
+  },
+  {
+   "from": "FEDDERLOYD",
+   "to": "FEDDERELEC",
+   "on": "2017-06-13"
+  },
+  {
+   "from": "FINANTECH",
+   "to": "63MOONS",
+   "on": "2017-01-19"
+  },
+  {
+   "from": "G5",
+   "to": "MOGSEC",
+   "on": "2021-06-16"
+  },
+  {
+   "from": "GAL",
+   "to": "SHAH",
+   "on": "2023-07-03"
+  },
+  {
+   "from": "GAMMNINFRA",
+   "to": "AJRINFRA",
+   "on": "2021-08-16"
+  },
+  {
+   "from": "GANESHHOUC",
+   "to": "GANESHHOU",
+   "on": "2025-09-15"
+  },
+  {
+   "from": "GARWALLROP",
+   "to": "GARFIBRES",
+   "on": "2018-08-13"
+  },
+  {
+   "from": "GATI",
+   "to": "ACLGATI",
+   "on": "2023-11-30"
+  },
+  {
+   "from": "GEOJITBNPP",
+   "to": "GEOJITFSL",
+   "on": "2017-03-02"
+  },
+  {
+   "from": "GEPIL",
+   "to": "GVPIL",
+   "on": "2025-08-28"
+  },
+  {
+   "from": "GET&D",
+   "to": "GVT&D",
+   "on": "2024-11-05"
+  },
+  {
+   "from": "GISOLUTION",
+   "to": "TPHQ",
+   "on": "2023-10-20"
+  },
+  {
+   "from": "GLS",
+   "to": "ALIVUS",
+   "on": "2025-01-20"
+  },
+  {
+   "from": "GMRINFRA",
+   "to": "GMRAIRPORT",
+   "on": "2024-12-11"
+  },
+  {
+   "from": "GOLDETFADD",
+   "to": "GOLDADD",
+   "on": "2025-12-15"
+  },
+  {
+   "from": "GOLDINFRA",
+   "to": "OLECTRA",
+   "on": "2018-07-26"
+  },
+  {
+   "from": "GOLDIWIN",
+   "to": "ICICIGOLD",
+   "on": "2018-04-10"
+  },
+  {
+   "from": "GOLDSHARE",
+   "to": "GOLDBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "GROWEV",
+   "to": "GROWWEV",
+   "on": "2024-08-23"
+  },
+  {
+   "from": "GUJFLUORO",
+   "to": "FLUOROCHEM",
+   "on": "2019-10-16"
+  },
+  {
+   "from": "GUJGASLTD",
+   "to": "GUJENERGY",
+   "on": "2026-07-01"
+  },
+  {
+   "from": "GULFCORP",
+   "to": "GOCLCORP",
+   "on": "2015-11-10"
+  },
+  {
+   "from": "HBANKETF",
+   "to": "HDFCNIFBAN",
+   "on": "2023-06-16"
+  },
+  {
+   "from": "HBLPOWER",
+   "to": "HBLENGINE",
+   "on": "2024-12-23"
+  },
+  {
+   "from": "HCIL",
+   "to": "HSCL",
+   "on": "2016-08-16"
+  },
+  {
+   "from": "HDFCMFGETF",
+   "to": "HDFCGOLD",
+   "on": "2023-06-16"
+  },
+  {
+   "from": "HDFCNIFETF",
+   "to": "HDFCNIFTY",
+   "on": "2023-06-16"
+  },
+  {
+   "from": "HDFCSENETF",
+   "to": "HDFCSENSEX",
+   "on": "2023-06-16"
+  },
+  {
+   "from": "HEG",
+   "to": "HEGAM",
+   "on": "2026-09-22"
+  },
+  {
+   "from": "HEUBACHIND",
+   "to": "SUDARCOLOR",
+   "on": "2026-01-20"
+  },
+  {
+   "from": "HIL",
+   "to": "BIRLANU",
+   "on": "2025-04-09"
+  },
+  {
+   "from": "HINDUJAVEN",
+   "to": "NXTDIGITAL",
+   "on": "2019-11-11"
+  },
+  {
+   "from": "HITACHIHOM",
+   "to": "JCHAC",
+   "on": "2016-09-12"
+  },
+  {
+   "from": "HITECHPLAS",
+   "to": "HITECHCORP",
+   "on": "2017-05-23"
+  },
+  {
+   "from": "HOTELEELA",
+   "to": "HLVLTD",
+   "on": "2020-01-08"
+  },
+  {
+   "from": "HOVS",
+   "to": "HGM",
+   "on": "2025-09-03"
+  },
+  {
+   "from": "HSIL",
+   "to": "AGI",
+   "on": "2022-05-11"
+  },
+  {
+   "from": "IBREALEST",
+   "to": "EMBDL",
+   "on": "2024-07-08"
+  },
+  {
+   "from": "IBSEC",
+   "to": "IBVENTURES",
+   "on": "2015-04-01"
+  },
+  {
+   "from": "IBULHSGFIN",
+   "to": "SAMMAANCAP",
+   "on": "2024-07-26"
+  },
+  {
+   "from": "ICICI10GS",
+   "to": "GSEC10IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICI500",
+   "to": "BSE500IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICI5GSEC",
+   "to": "GSEC5IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIALPLV",
+   "to": "ALPL30IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIAUTO",
+   "to": "QUAL30IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIBANKN",
+   "to": "BANKIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIBANKP",
+   "to": "PVTBANIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICICOMMO",
+   "to": "INFRAIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICICONSU",
+   "to": "CONSUMIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIFIN",
+   "to": "FINIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIFMCG",
+   "to": "FMCGIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIINFRA",
+   "to": "SILVERIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICILIQ",
+   "to": "LIQUIDIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIM150",
+   "to": "MIDCAPIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIMCAP",
+   "to": "MIDSELIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIMOM30",
+   "to": "MOM30IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICINV20",
+   "to": "NV20IETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICIPHARM",
+   "to": "HEALTHIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICISENSX",
+   "to": "SENSEXIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICICITECH",
+   "to": "ITIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "ICNX100",
+   "to": "NIF100IWIN",
+   "on": "2016-07-25"
+  },
+  {
+   "from": "IDBIGOLD",
+   "to": "LICMFGOLD",
+   "on": "2023-07-31"
+  },
+  {
+   "from": "IDFCBANK",
+   "to": "IDFCFIRSTB",
+   "on": "2019-01-16"
+  },
+  {
+   "from": "IGOLD",
+   "to": "SENSEXIWIN",
+   "on": "2016-07-25"
+  },
+  {
+   "from": "IIFLSEC",
+   "to": "IIFLCAPS",
+   "on": "2024-12-03"
+  },
+  {
+   "from": "IIFLWAM",
+   "to": "360ONE",
+   "on": "2023-01-23"
+  },
+  {
+   "from": "IMIDCAP",
+   "to": "MIDCAPIWIN",
+   "on": "2016-07-25"
+  },
+  {
+   "from": "INEOSSTYRO",
+   "to": "STYRENIX",
+   "on": "2023-01-20"
+  },
+  {
+   "from": "INFIBEAM",
+   "to": "CCAVENUE",
+   "on": "2026-02-03"
+  },
+  {
+   "from": "INFRATEL",
+   "to": "INDUSTOWER",
+   "on": "2020-12-18"
+  },
+  {
+   "from": "INIFTY",
+   "to": "NIFTYIWIN",
+   "on": "2016-07-25"
+  },
+  {
+   "from": "IPAPPM",
+   "to": "ANDPAPER",
+   "on": "2020-01-22"
+  },
+  {
+   "from": "IPRU5008",
+   "to": "ICICIBANKN",
+   "on": "2019-07-19"
+  },
+  {
+   "from": "ITDCEM",
+   "to": "CEMPRO",
+   "on": "2025-09-17"
+  },
+  {
+   "from": "ITETFADD",
+   "to": "ITADD",
+   "on": "2025-12-15"
+  },
+  {
+   "from": "JCHAC",
+   "to": "BOSCH-HCIL",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "JSWISPL",
+   "to": "TREL",
+   "on": "2023-08-10"
+  },
+  {
+   "from": "JTLINFRA",
+   "to": "HDFCNIFIT",
+   "on": "2022-11-22"
+  },
+  {
+   "from": "JUBILANT",
+   "to": "JUBLPHARMA",
+   "on": "2021-02-12"
+  },
+  {
+   "from": "JUMPNET",
+   "to": "WINPRO",
+   "on": "2021-12-22"
+  },
+  {
+   "from": "KALPATPOWR",
+   "to": "KPIL",
+   "on": "2023-06-06"
+  },
+  {
+   "from": "KARDA",
+   "to": "KBCGLOBAL",
+   "on": "2021-12-16"
+  },
+  {
+   "from": "KAVVERITEL",
+   "to": "KAVDEFENCE",
+   "on": "2025-06-23"
+  },
+  {
+   "from": "KBCGLOBAL",
+   "to": "DHARAN",
+   "on": "2025-06-26"
+  },
+  {
+   "from": "KEERTI",
+   "to": "GTECJAINX",
+   "on": "2023-09-12"
+  },
+  {
+   "from": "KEYCORPSER",
+   "to": "KEYFINSERV",
+   "on": "2019-05-03"
+  },
+  {
+   "from": "KIL",
+   "to": "KAMDHENU",
+   "on": "2016-03-18"
+  },
+  {
+   "from": "KOTAKALPHA",
+   "to": "ALPHA",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKBKETF",
+   "to": "BANKNIFTY1",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKCONS",
+   "to": "CONS",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKGOLD",
+   "to": "GOLD1",
+   "on": "2024-04-16"
+  },
+  {
+   "from": "KOTAKIT",
+   "to": "IT",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKLIQ",
+   "to": "LIQUID1",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKLOVOL",
+   "to": "LOWVOL1",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKMID50",
+   "to": "MIDCAP",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKMNC",
+   "to": "MNC",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKNIFTY",
+   "to": "NIFTY1",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKNV20",
+   "to": "NV20",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKPSUBK",
+   "to": "PSUBANK",
+   "on": "2024-03-20"
+  },
+  {
+   "from": "KOTAKSILVE",
+   "to": "SILVER1",
+   "on": "2024-04-16"
+  },
+  {
+   "from": "KPIGLOBAL",
+   "to": "KPIGREEN",
+   "on": "2022-04-27"
+  },
+  {
+   "from": "KPIT",
+   "to": "BSOFT",
+   "on": "2019-02-26"
+  },
+  {
+   "from": "KSBPUMPS",
+   "to": "KSB",
+   "on": "2018-10-23"
+  },
+  {
+   "from": "KTKNV20ETF",
+   "to": "KOTAKNV20",
+   "on": "2015-12-21"
+  },
+  {
+   "from": "L&TFH",
+   "to": "LTF",
+   "on": "2024-04-23"
+  },
+  {
+   "from": "LAXMIMACH",
+   "to": "LMW",
+   "on": "2024-10-10"
+  },
+  {
+   "from": "LICNMFET",
+   "to": "LICNETFGSC",
+   "on": "2015-12-30"
+  },
+  {
+   "from": "LINCPEN",
+   "to": "LINC",
+   "on": "2021-12-20"
+  },
+  {
+   "from": "LLOYDELENG",
+   "to": "LEEL",
+   "on": "2017-06-19"
+  },
+  {
+   "from": "LOGIXMICRO",
+   "to": "IZMO",
+   "on": "2015-05-15"
+  },
+  {
+   "from": "LOWVOLIWIN",
+   "to": "ICICILOVOL",
+   "on": "2018-04-10"
+  },
+  {
+   "from": "LSIL",
+   "to": "LLOYDSENGG",
+   "on": "2023-10-16"
+  },
+  {
+   "from": "LTI",
+   "to": "LTM",
+   "on": "2026-02-27"
+  },
+  {
+   "from": "LYPSAGEMS",
+   "to": "AURUS",
+   "on": "2026-07-14"
+  },
+  {
+   "from": "M100",
+   "to": "MOM100",
+   "on": "2021-06-16"
+  },
+  {
+   "from": "M50",
+   "to": "MOM50",
+   "on": "2021-06-16"
+  },
+  {
+   "from": "MAESGETF",
+   "to": "ESG",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MAFSETF",
+   "to": "BFSI",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MAGMA",
+   "to": "POONAWALLA",
+   "on": "2021-08-05"
+  },
+  {
+   "from": "MAGOLDETF",
+   "to": "GOLDETF",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MAGS813ETF",
+   "to": "GSEC10YEAR",
+   "on": "2023-09-04"
+  },
+  {
+   "from": "MAHINDCIE",
+   "to": "CIEINDIA",
+   "on": "2023-06-19"
+  },
+  {
+   "from": "MAJESCO",
+   "to": "AURUM",
+   "on": "2021-10-22"
+  },
+  {
+   "from": "MAM150ETF",
+   "to": "MIDCAPETF",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MAMFGETF",
+   "to": "MAKEINDIA",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MAN50ETF",
+   "to": "NIFTYETF",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MANBRO",
+   "to": "KDGREEN",
+   "on": "2026-09-03"
+  },
+  {
+   "from": "MANV30F",
+   "to": "LOWVOL",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MANXT50",
+   "to": "NEXT50",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MASILVER",
+   "to": "SILVRETF",
+   "on": "2023-09-01"
+  },
+  {
+   "from": "MAXWELL",
+   "to": "VIPCLOTHNG",
+   "on": "2016-12-21"
+  },
+  {
+   "from": "MCDOWELL-N",
+   "to": "UNITDSPR",
+   "on": "2024-06-07"
+  },
+  {
+   "from": "MEGASOFT",
+   "to": "SIGMAADV",
+   "on": "2026-02-09"
+  },
+  {
+   "from": "MERCK",
+   "to": "PGHL",
+   "on": "2019-06-11"
+  },
+  {
+   "from": "MFL",
+   "to": "EPIGRAL",
+   "on": "2023-09-11"
+  },
+  {
+   "from": "MIDCAPIWIN",
+   "to": "ICICIMCAP",
+   "on": "2018-04-10"
+  },
+  {
+   "from": "MINDAIND",
+   "to": "UNOMINDA",
+   "on": "2022-08-05"
+  },
+  {
+   "from": "MIRCELECTR",
+   "to": "ONIDA",
+   "on": "2026-06-19"
+  },
+  {
+   "from": "MODISNME",
+   "to": "MODISONLTD",
+   "on": "2022-08-16"
+  },
+  {
+   "from": "MOHOTAMILL",
+   "to": "MOHOTAIND",
+   "on": "2017-12-26"
+  },
+  {
+   "from": "MOTHERSUMI",
+   "to": "MOTHERSON",
+   "on": "2022-06-09"
+  },
+  {
+   "from": "MRO-TEK",
+   "to": "UMIYA-MRO",
+   "on": "2025-04-15"
+  },
+  {
+   "from": "MUDRA",
+   "to": "ELAND",
+   "on": "2015-03-13"
+  },
+  {
+   "from": "N100",
+   "to": "MON100",
+   "on": "2021-06-16"
+  },
+  {
+   "from": "NAGAAGRI",
+   "to": "NACLIND",
+   "on": "2017-09-29"
+  },
+  {
+   "from": "NBVENTURES",
+   "to": "NAVA",
+   "on": "2022-07-29"
+  },
+  {
+   "from": "NCPSESDL24",
+   "to": "AUTOBEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFAUTO",
+   "to": "SDL26BEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFCONSUM",
+   "to": "CONSUMBEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFDIVOPP",
+   "to": "DIVOPPBEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFGILT5Y",
+   "to": "GILT5YBEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFIT",
+   "to": "ITBEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFMID150",
+   "to": "MID150BEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFNIF100",
+   "to": "NIF100BEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFNV20",
+   "to": "NV20BEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NETFSILVER",
+   "to": "SILVERBEES",
+   "on": "2022-05-10"
+  },
+  {
+   "from": "NEYVELILIG",
+   "to": "NLCINDIA",
+   "on": "2016-08-04"
+  },
+  {
+   "from": "NIF10GETF",
+   "to": "GILT10BETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "NIF5GETF",
+   "to": "GILT5BETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "NIFITETF",
+   "to": "ITBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "NIFMID150",
+   "to": "MIDCAPBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "NIFTY50ADD",
+   "to": "NIFTYADD",
+   "on": "2025-12-15"
+  },
+  {
+   "from": "NIFTYIWIN",
+   "to": "ICICINIFTY",
+   "on": "2018-04-10"
+  },
+  {
+   "from": "NIITTECH",
+   "to": "COFORGE",
+   "on": "2020-08-20"
+  },
+  {
+   "from": "NIRVIKARA",
+   "to": "BALKRISHNA",
+   "on": "2016-09-06"
+  },
+  {
+   "from": "NV20IWIN",
+   "to": "ICICINV20",
+   "on": "2018-04-10"
+  },
+  {
+   "from": "NXTDIGITAL",
+   "to": "NDLVENTURE",
+   "on": "2023-05-09"
+  },
+  {
+   "from": "OMMETALS",
+   "to": "OMINFRAL",
+   "on": "2021-02-10"
+  },
+  {
+   "from": "ORCHIDCHEM",
+   "to": "ORCHIDPHAR",
+   "on": "2015-12-21"
+  },
+  {
+   "from": "ORIENTABRA",
+   "to": "ORIENTCER",
+   "on": "2023-07-31"
+  },
+  {
+   "from": "ORIENTREF",
+   "to": "RHIM",
+   "on": "2021-07-22"
+  },
+  {
+   "from": "ORTINLAB",
+   "to": "ORTINGLOBE",
+   "on": "2024-09-03"
+  },
+  {
+   "from": "PAPERPROD",
+   "to": "HUHTAMAKI",
+   "on": "2020-11-26"
+  },
+  {
+   "from": "PDSMFL",
+   "to": "PDSL",
+   "on": "2022-02-17"
+  },
+  {
+   "from": "PDUMJEIND",
+   "to": "3PLAND",
+   "on": "2018-05-04"
+  },
+  {
+   "from": "PFRL",
+   "to": "ABFRL",
+   "on": "2016-01-29"
+  },
+  {
+   "from": "PHILIPCARB",
+   "to": "PCBL",
+   "on": "2022-01-13"
+  },
+  {
+   "from": "PIPAVAVDOC",
+   "to": "RDEL",
+   "on": "2016-03-18"
+  },
+  {
+   "from": "PITTILAM",
+   "to": "PITTIENG",
+   "on": "2018-06-06"
+  },
+  {
+   "from": "PRAKASHCON",
+   "to": "SETUINFRA",
+   "on": "2019-07-30"
+  },
+  {
+   "from": "PRISMCEM",
+   "to": "PRSMJOHNSN",
+   "on": "2018-05-04"
+  },
+  {
+   "from": "PROINDIA",
+   "to": "EQUIPPP",
+   "on": "2021-11-30"
+  },
+  {
+   "from": "PROZONINTU",
+   "to": "PROZONER",
+   "on": "2023-08-04"
+  },
+  {
+   "from": "PSUBANKICI",
+   "to": "PSUBNKIETF",
+   "on": "2023-12-20"
+  },
+  {
+   "from": "PVR",
+   "to": "PVRINOX",
+   "on": "2023-05-12"
+  },
+  {
+   "from": "QUALITY",
+   "to": "QUALITY30",
+   "on": "2025-07-21"
+  },
+  {
+   "from": "RAIREKMOH",
+   "to": "MOHOTAMILL",
+   "on": "2017-08-01"
+  },
+  {
+   "from": "RDEL",
+   "to": "RNAVAL",
+   "on": "2017-09-18"
+  },
+  {
+   "from": "RELCNX100",
+   "to": "NETFNIF100",
+   "on": "2019-10-30"
+  },
+  {
+   "from": "RELCONS",
+   "to": "NETFCONSUM",
+   "on": "2019-10-30"
+  },
+  {
+   "from": "RELDIVOPP",
+   "to": "NETFDIVOPP",
+   "on": "2019-10-30"
+  },
+  {
+   "from": "RELGRNIFTY",
+   "to": "IVZINNIFTY",
+   "on": "2016-06-23"
+  },
+  {
+   "from": "RELNV20",
+   "to": "NETFNV20",
+   "on": "2019-10-30"
+  },
+  {
+   "from": "RETFMID150",
+   "to": "NETFMID150",
+   "on": "2019-10-30"
+  },
+  {
+   "from": "REVATHI",
+   "to": "SEMAC",
+   "on": "2023-09-21"
+  },
+  {
+   "from": "REVATHIEQU",
+   "to": "RVTH",
+   "on": "2024-11-26"
+  },
+  {
+   "from": "RJL",
+   "to": "RGL",
+   "on": "2019-04-08"
+  },
+  {
+   "from": "RNAM",
+   "to": "NAM-INDIA",
+   "on": "2020-01-23"
+  },
+  {
+   "from": "RRSLGETF",
+   "to": "NETFLTGILT",
+   "on": "2019-10-30"
+  },
+  {
+   "from": "RUCHI",
+   "to": "PATANJALI",
+   "on": "2022-07-13"
+  },
+  {
+   "from": "SABTNL",
+   "to": "AQYLON",
+   "on": "2026-02-11"
+  },
+  {
+   "from": "SADHNA-RE",
+   "to": "HILTON-RE2",
+   "on": "2026-03-06"
+  },
+  {
+   "from": "SAH",
+   "to": "AERONEU",
+   "on": "2025-08-22"
+  },
+  {
+   "from": "SASTASUNDR",
+   "to": "HEALTHX",
+   "on": "2026-04-30"
+  },
+  {
+   "from": "SATINDLTD",
+   "to": "AEROENTER",
+   "on": "2025-06-25"
+  },
+  {
+   "from": "SBIGETS",
+   "to": "SETFGOLD",
+   "on": "2015-11-24"
+  },
+  {
+   "from": "SCAPDVR",
+   "to": "GATECHDVR",
+   "on": "2023-08-08"
+  },
+  {
+   "from": "SENSEXIWIN",
+   "to": "ICICISENSX",
+   "on": "2018-04-10"
+  },
+  {
+   "from": "SEPOWER",
+   "to": "SAMPANN",
+   "on": "2023-08-23"
+  },
+  {
+   "from": "SEQUENT",
+   "to": "VIYASH",
+   "on": "2026-01-23"
+  },
+  {
+   "from": "SETFBANK",
+   "to": "SETFNIFBK",
+   "on": "2015-11-24"
+  },
+  {
+   "from": "SETFNIFJR",
+   "to": "SETFNN50",
+   "on": "2015-11-26"
+  },
+  {
+   "from": "SETFNIFTY",
+   "to": "SETFNIF50",
+   "on": "2015-11-24"
+  },
+  {
+   "from": "SGLTL",
+   "to": "SETL",
+   "on": "2026-01-19"
+  },
+  {
+   "from": "SHANTI-RE",
+   "to": "APOORVA",
+   "on": "2026-08-20"
+  },
+  {
+   "from": "SHIV-VANI",
+   "to": "SVOGL",
+   "on": "2015-10-23"
+  },
+  {
+   "from": "SHRIRAMEPC",
+   "to": "SEPC",
+   "on": "2022-03-09"
+  },
+  {
+   "from": "SILLYMONKS",
+   "to": "CRESTO",
+   "on": "2026-09-10"
+  },
+  {
+   "from": "SILVERETF",
+   "to": "SILVERBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "SILVRETF",
+   "to": "SILVERAG",
+   "on": "2025-09-15"
+  },
+  {
+   "from": "SITICABLE",
+   "to": "SITINET",
+   "on": "2016-08-17"
+  },
+  {
+   "from": "SKSMICRO",
+   "to": "BHARATFIN",
+   "on": "2016-07-01"
+  },
+  {
+   "from": "SMLISUZU",
+   "to": "SMLMAH",
+   "on": "2025-11-10"
+  },
+  {
+   "from": "SONAMCLOCK",
+   "to": "SONAMLTD",
+   "on": "2023-11-15"
+  },
+  {
+   "from": "SONASTEER",
+   "to": "JTEKTINDIA",
+   "on": "2018-04-23"
+  },
+  {
+   "from": "SORILHOLD",
+   "to": "IBULISL",
+   "on": "2018-06-08"
+  },
+  {
+   "from": "SPAND-RE",
+   "to": "GROWWPOWER",
+   "on": "2025-08-07"
+  },
+  {
+   "from": "SPYL",
+   "to": "SHEKHAWATI",
+   "on": "2024-08-09"
+  },
+  {
+   "from": "SQSBFSI",
+   "to": "EXPLEOSOL",
+   "on": "2019-05-02"
+  },
+  {
+   "from": "SRTRANSFIN",
+   "to": "SHRIRAMFIN",
+   "on": "2022-12-20"
+  },
+  {
+   "from": "SSLT",
+   "to": "VEDL",
+   "on": "2015-05-07"
+  },
+  {
+   "from": "STRTECH",
+   "to": "STLTECH",
+   "on": "2020-10-29"
+  },
+  {
+   "from": "STYABS",
+   "to": "INEOSSTYRO",
+   "on": "2016-04-04"
+  },
+  {
+   "from": "SUJANATWR",
+   "to": "NTL",
+   "on": "2017-02-17"
+  },
+  {
+   "from": "SUNCLAYLTD",
+   "to": "TVSHLTD",
+   "on": "2023-08-10"
+  },
+  {
+   "from": "SUNDARMHLD",
+   "to": "TSFINV",
+   "on": "2025-10-16"
+  },
+  {
+   "from": "SUVENPHAR",
+   "to": "COHANCE",
+   "on": "2025-05-19"
+  },
+  {
+   "from": "SWANENERGY",
+   "to": "SWANCORP",
+   "on": "2025-09-04"
+  },
+  {
+   "from": "TATAGLOBAL",
+   "to": "TATACONSUM",
+   "on": "2020-02-27"
+  },
+  {
+   "from": "TATAMOTORS",
+   "to": "TMPV",
+   "on": "2025-10-24"
+  },
+  {
+   "from": "TATASPONGE",
+   "to": "TATASTLLP",
+   "on": "2019-09-03"
+  },
+  {
+   "from": "TCLCONS",
+   "to": "TICL",
+   "on": "2025-02-07"
+  },
+  {
+   "from": "TIDEWATER",
+   "to": "VEEDOL",
+   "on": "2024-10-09"
+  },
+  {
+   "from": "TIFIN",
+   "to": "CHOLAHLDNG",
+   "on": "2019-04-09"
+  },
+  {
+   "from": "TIMESGTY",
+   "to": "TEAMGTY",
+   "on": "2025-08-13"
+  },
+  {
+   "from": "TIPSINDLTD",
+   "to": "TIPSMUSIC",
+   "on": "2024-09-30"
+  },
+  {
+   "from": "TMRVL",
+   "to": "HEADSUP",
+   "on": "2022-07-18"
+  },
+  {
+   "from": "TRIL",
+   "to": "TARIL",
+   "on": "2024-08-26"
+  },
+  {
+   "from": "TWL",
+   "to": "TITAGARH",
+   "on": "2023-06-19"
+  },
+  {
+   "from": "UCALFUEL",
+   "to": "UCAL",
+   "on": "2023-07-26"
+  },
+  {
+   "from": "UTIBANKETF",
+   "to": "BANKBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "UTINEXT50",
+   "to": "NEXT50BETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "UTINIFTETF",
+   "to": "NIFTYBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "UTISENSETF",
+   "to": "SENSEXBETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "UTISXN50",
+   "to": "SNXT50BETA",
+   "on": "2025-12-24"
+  },
+  {
+   "from": "VIDHIDYE",
+   "to": "VIDHIING",
+   "on": "2017-03-01"
+  },
+  {
+   "from": "VIKASGLOB",
+   "to": "VIKASECO",
+   "on": "2015-12-21"
+  },
+  {
+   "from": "VIKASMCORP",
+   "to": "VIKASLIFE",
+   "on": "2021-05-06"
+  },
+  {
+   "from": "VISASTEEL",
+   "to": "VISACHROME",
+   "on": "2026-05-20"
+  },
+  {
+   "from": "WABCOINDIA",
+   "to": "ZFCVINDIA",
+   "on": "2022-04-01"
+  },
+  {
+   "from": "WELPROJ",
+   "to": "WELENT",
+   "on": "2015-06-24"
+  },
+  {
+   "from": "WELSPUNIND",
+   "to": "WELSPUNLIV",
+   "on": "2023-12-14"
+  },
+  {
+   "from": "WELSYNTEX",
+   "to": "AYMSYNTEX",
+   "on": "2016-02-03"
+  },
+  {
+   "from": "WORTH",
+   "to": "WORTHPERI",
+   "on": "2025-10-10"
+  },
+  {
+   "from": "YAARII",
+   "to": "YAARI",
+   "on": "2021-12-15"
+  },
+  {
+   "from": "ZOMATO",
+   "to": "ETERNAL",
+   "on": "2025-04-09"
+  },
+  {
+   "from": "ZUARIGLOB",
+   "to": "ZUARIIND",
+   "on": "2022-07-04"
+  }
+ ],
+ "adjustments": [
+  {
+   "stock": "360ONE",
+   "date": "2023-03-02",
+   "ratio": 4.0,
+   "gap": 3.619,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "5PAISA",
+   "date": "2019-05-28",
+   "ratio": 1.5,
+   "gap": 1.556,
+   "how": "prices"
+  },
+  {
+   "stock": "AAKASH",
+   "date": "2022-02-03",
+   "ratio": 10.0,
+   "gap": 9.6,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AARON",
+   "date": "2025-08-25",
+   "ratio": 2.0,
+   "gap": 1.87,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AARTECH",
+   "date": "2024-08-09",
+   "ratio": 3.0,
+   "gap": 2.995,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "AARTIDRUGS",
+   "date": "2015-03-24",
+   "ratio": 2.0,
+   "gap": 2.152,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AARTIDRUGS",
+   "date": "2020-09-30",
+   "ratio": 4.0,
+   "gap": 3.81,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "AARTIIND",
+   "date": "2019-09-27",
+   "ratio": 2.0,
+   "gap": 1.91,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AARTIIND",
+   "date": "2021-06-22",
+   "ratio": 2.0,
+   "gap": 1.947,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ABINFRA",
+   "date": "2025-10-17",
+   "ratio": 10.0,
+   "gap": 10.054,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ABIRLANUVO",
+   "date": "2016-01-20",
+   "ratio": 2.0,
+   "gap": 2.078,
+   "how": "prices"
+  },
+  {
+   "stock": "ACCURACY",
+   "date": "2023-02-15",
+   "ratio": 10.0,
+   "gap": 9.44,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ACUTAAS",
+   "date": "2025-04-25",
+   "ratio": 2.0,
+   "gap": 1.97,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "ADANIPOWER",
+   "date": "2025-09-22",
+   "ratio": 5.0,
+   "gap": 4.787,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ADFFOODS",
+   "date": "2023-09-11",
+   "ratio": 5.0,
+   "gap": 4.951,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ADVANIHOTR",
+   "date": "2024-03-20",
+   "ratio": 2.0,
+   "gap": 1.863,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ADVENZYMES",
+   "date": "2017-05-25",
+   "ratio": 5.0,
+   "gap": 4.913,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "AEGISLOG",
+   "date": "2015-09-16",
+   "ratio": 10.0,
+   "gap": 9.703,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Rs 1"
+  },
+  {
+   "stock": "AFFLE",
+   "date": "2021-10-07",
+   "ratio": 5.0,
+   "gap": 4.934,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "AFIL",
+   "date": "2025-04-17",
+   "ratio": 10.0,
+   "gap": 9.694,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AGIIL",
+   "date": "2025-02-07",
+   "ratio": 2.0,
+   "gap": 1.973,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "AGIIL",
+   "date": "2025-10-10",
+   "ratio": 5.0,
+   "gap": 4.807,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AHCL",
+   "date": "2026-04-24",
+   "ratio": 10.0,
+   "gap": 8.987,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AIIL",
+   "date": "2026-01-13",
+   "ratio": 5.0,
+   "gap": 4.766,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "AJANTPHARM",
+   "date": "2015-03-20",
+   "ratio": 2.5,
+   "gap": 2.436,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "AJANTPHARM",
+   "date": "2022-06-22",
+   "ratio": 1.5,
+   "gap": 1.461,
+   "how": "prices"
+  },
+  {
+   "stock": "AJMERA",
+   "date": "2026-01-14",
+   "ratio": 5.0,
+   "gap": 4.976,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "AJOONI",
+   "date": "2022-10-07",
+   "ratio": 5.0,
+   "gap": 5.176,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "AKSHAR",
+   "date": "2023-07-31",
+   "ratio": 10.0,
+   "gap": 9.615,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AKSHAR",
+   "date": "2024-02-15",
+   "ratio": 1.2,
+   "gap": 1.147,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "ALANKIT",
+   "date": "2015-09-23",
+   "ratio": 5.0,
+   "gap": 5.076,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ALANKIT",
+   "date": "2016-10-19",
+   "ratio": 2.0,
+   "gap": 2.001,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ALANKIT",
+   "date": "2016-12-15",
+   "ratio": 2.0,
+   "gap": 1.95,
+   "how": "prices"
+  },
+  {
+   "stock": "ALKYLAMINE",
+   "date": "2021-05-11",
+   "ratio": 2.5,
+   "gap": 2.481,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ALLCARGO",
+   "date": "2015-12-30",
+   "ratio": 2.0,
+   "gap": 1.99,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ALLCARGO",
+   "date": "2024-01-02",
+   "ratio": 4.0,
+   "gap": 3.826,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "ALMONDZ",
+   "date": "2024-07-23",
+   "ratio": 6.0,
+   "gap": 5.972,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 6/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AMRUTANJAN",
+   "date": "2018-04-13",
+   "ratio": 2.0,
+   "gap": 1.983,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ANANDRATHI",
+   "date": "2025-03-05",
+   "ratio": 2.0,
+   "gap": 2.031,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ANANDRATHI",
+   "date": "2026-06-03",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ANDHRAPAP",
+   "date": "2024-09-11",
+   "ratio": 5.0,
+   "gap": 4.953,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ANDHRSUGAR",
+   "date": "2021-12-30",
+   "ratio": 5.0,
+   "gap": 5.161,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ANGELONE",
+   "date": "2026-02-26",
+   "ratio": 10.0,
+   "gap": 9.92,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ANMOL",
+   "date": "2023-07-18",
+   "ratio": 5.0,
+   "gap": 4.448,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "ANUHPHR",
+   "date": "2025-07-15",
+   "ratio": 2.0,
+   "gap": 1.978,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ANUP",
+   "date": "2024-04-23",
+   "ratio": 2.0,
+   "gap": 1.923,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "APCOTEXIND",
+   "date": "2015-09-23",
+   "ratio": 2.0,
+   "gap": 2.072,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "APCOTEXIND",
+   "date": "2019-07-04",
+   "ratio": 2.5,
+   "gap": 2.484,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5 Per Share To Rs 2 Per Share"
+  },
+  {
+   "stock": "APLAPOLLO",
+   "date": "2020-12-15",
+   "ratio": 5.0,
+   "gap": 4.903,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "APLAPOLLO",
+   "date": "2021-09-16",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "APOLLO",
+   "date": "2023-05-04",
+   "ratio": 10.0,
+   "gap": 9.851,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "APOLLOPIPE",
+   "date": "2021-12-02",
+   "ratio": 3.0,
+   "gap": 2.868,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "APOLSINHOT",
+   "date": "2018-10-12",
+   "ratio": 2.0,
+   "gap": 1.862,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "APTECHT",
+   "date": "2023-07-14",
+   "ratio": 1.4,
+   "gap": 1.317,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "AQYLON",
+   "date": "2026-03-05",
+   "ratio": 10.0,
+   "gap": 9.946,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ARCHIDPLY",
+   "date": "2020-02-13",
+   "ratio": 1.3333,
+   "gap": 1.307,
+   "how": "prices"
+  },
+  {
+   "stock": "ARCOTECH",
+   "date": "2017-06-22",
+   "ratio": 5.0,
+   "gap": 4.982,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ARIHANTCAP",
+   "date": "2022-04-12",
+   "ratio": 5.0,
+   "gap": 4.986,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ARTEMISMED",
+   "date": "2021-09-23",
+   "ratio": 10.0,
+   "gap": 9.852,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ASHOKA",
+   "date": "2018-07-12",
+   "ratio": 1.5,
+   "gap": 1.416,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "ASHOKLEY",
+   "date": "2025-07-16",
+   "ratio": 2.0,
+   "gap": 2.001,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ASTRAL",
+   "date": "2019-09-16",
+   "ratio": 1.25,
+   "gap": 1.127,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "ASTRAL",
+   "date": "2021-03-18",
+   "ratio": 1.3333,
+   "gap": 1.423,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "ASTRAL",
+   "date": "2023-03-14",
+   "ratio": 1.3333,
+   "gap": 1.323,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "ATALREAL",
+   "date": "2023-11-16",
+   "ratio": 5.0,
+   "gap": 4.77,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ATLASCYCLE",
+   "date": "2017-10-30",
+   "ratio": 2.0,
+   "gap": 1.934,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "AUBANK",
+   "date": "2022-06-09",
+   "ratio": 2.0,
+   "gap": 1.982,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AURIONPRO",
+   "date": "2024-06-27",
+   "ratio": 2.0,
+   "gap": 1.926,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AUROPHARMA",
+   "date": "2015-07-20",
+   "ratio": 2.0,
+   "gap": 1.985,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AURUS",
+   "date": "2017-07-12",
+   "ratio": 1.4,
+   "gap": 1.296,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "AVADHSUGAR",
+   "date": "2019-06-27",
+   "ratio": 2.0,
+   "gap": 1.868,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "AVANTIFEED",
+   "date": "2015-11-26",
+   "ratio": 5.0,
+   "gap": 4.965,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "AVANTIFEED",
+   "date": "2018-06-26",
+   "ratio": 3.0,
+   "gap": 2.906,
+   "how": "nse",
+   "subject": "Bonus 1:2/Face Value Split (Sub-Division) From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AVONMORE",
+   "date": "2024-06-28",
+   "ratio": 10.0,
+   "gap": 9.884,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "AVROIND",
+   "date": "2026-05-05",
+   "ratio": 10.0,
+   "gap": 10.047,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AXITA",
+   "date": "2022-10-21",
+   "ratio": 10.0,
+   "gap": 9.973,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "AXITA",
+   "date": "2023-12-22",
+   "ratio": 1.3333,
+   "gap": 1.199,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "AXITA",
+   "date": "2024-09-20",
+   "ratio": 1.3333,
+   "gap": 1.155,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "AXITA",
+   "date": "2026-02-13",
+   "ratio": 1.1,
+   "gap": 1.059,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "BAJAJFINSV",
+   "date": "2022-09-13",
+   "ratio": 10.0,
+   "gap": 9.765,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BAJFINANCE",
+   "date": "2016-09-08",
+   "ratio": 10.0,
+   "gap": 9.874,
+   "how": "nse",
+   "subject": "Bonus 1:1/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "BAJFINANCE",
+   "date": "2025-06-16",
+   "ratio": 10.0,
+   "gap": 9.76,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "BALAXI",
+   "date": "2024-05-30",
+   "ratio": 5.0,
+   "gap": 4.893,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "BALKRISIND",
+   "date": "2017-12-21",
+   "ratio": 2.0,
+   "gap": 1.999,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BALMLAWRIE",
+   "date": "2016-12-26",
+   "ratio": 4.0,
+   "gap": 4.288,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "BALMLAWRIE",
+   "date": "2019-12-26",
+   "ratio": 1.5,
+   "gap": 1.514,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BANCOINDIA",
+   "date": "2024-12-30",
+   "ratio": 2.0,
+   "gap": 1.974,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BANKBARODA",
+   "date": "2015-01-22",
+   "ratio": 5.0,
+   "gap": 4.938,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "BANSWRAS",
+   "date": "2022-09-08",
+   "ratio": 2.0,
+   "gap": 1.974,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "BASML",
+   "date": "2021-02-12",
+   "ratio": 2.0,
+   "gap": 1.973,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "BASML",
+   "date": "2021-09-08",
+   "ratio": 1.5,
+   "gap": 1.53,
+   "how": "prices"
+  },
+  {
+   "stock": "BATAINDIA",
+   "date": "2015-10-07",
+   "ratio": 2.0,
+   "gap": 1.995,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "BBL",
+   "date": "2024-04-24",
+   "ratio": 2.0,
+   "gap": 1.981,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "BBOX",
+   "date": "2022-05-13",
+   "ratio": 5.0,
+   "gap": 4.802,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "BCG",
+   "date": "2021-08-18",
+   "ratio": 1.25,
+   "gap": 1.314,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "BCG",
+   "date": "2022-03-15",
+   "ratio": 1.6667,
+   "gap": 1.588,
+   "how": "nse",
+   "subject": "Bonus 2:3"
+  },
+  {
+   "stock": "BCLIND",
+   "date": "2023-10-27",
+   "ratio": 10.0,
+   "gap": 9.809,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BDL",
+   "date": "2024-05-24",
+   "ratio": 2.0,
+   "gap": 1.959,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "BECTORFOOD",
+   "date": "2025-12-12",
+   "ratio": 5.0,
+   "gap": 4.984,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "BEL",
+   "date": "2015-09-14",
+   "ratio": 3.0,
+   "gap": 2.907,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "BEL",
+   "date": "2017-03-16",
+   "ratio": 10.0,
+   "gap": 9.847,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BEL",
+   "date": "2017-09-28",
+   "ratio": 1.1,
+   "gap": 1.065,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "BEL",
+   "date": "2022-09-15",
+   "ratio": 3.0,
+   "gap": 2.93,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "BEML",
+   "date": "2025-11-03",
+   "ratio": 2.0,
+   "gap": 2.011,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "BEPL",
+   "date": "2023-07-05",
+   "ratio": 1.5,
+   "gap": 1.447,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BERGEPAINT",
+   "date": "2015-01-08",
+   "ratio": 2.0,
+   "gap": 1.945,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BERGEPAINT",
+   "date": "2016-07-15",
+   "ratio": 1.4,
+   "gap": 1.394,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "BERGEPAINT",
+   "date": "2023-09-22",
+   "ratio": 1.2,
+   "gap": 1.202,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "BESTAGRO",
+   "date": "2026-01-16",
+   "ratio": 15.0,
+   "gap": 13.697,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BHAGCHEM",
+   "date": "2024-05-02",
+   "ratio": 10.0,
+   "gap": 9.874,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "BHAGERIA",
+   "date": "2019-07-17",
+   "ratio": 2.0,
+   "gap": 1.887,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BHAGERIA",
+   "date": "2016-10-26",
+   "ratio": 2.0,
+   "gap": 2.007,
+   "how": "prices"
+  },
+  {
+   "stock": "BHARATFORG",
+   "date": "2017-09-28",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BHARATGEAR",
+   "date": "2022-09-27",
+   "ratio": 1.5,
+   "gap": 1.463,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BHARATRAS",
+   "date": "2025-12-12",
+   "ratio": 4.0,
+   "gap": 3.884,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BHEL",
+   "date": "2017-09-28",
+   "ratio": 1.5,
+   "gap": 1.505,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BIGBLOC",
+   "date": "2021-11-15",
+   "ratio": 5.0,
+   "gap": 4.726,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "BIGBLOC",
+   "date": "2024-09-12",
+   "ratio": 2.0,
+   "gap": 1.898,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BIOCON",
+   "date": "2017-06-15",
+   "ratio": 3.0,
+   "gap": 2.999,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "BIOCON",
+   "date": "2019-06-12",
+   "ratio": 2.0,
+   "gap": 1.99,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BLS",
+   "date": "2017-04-26",
+   "ratio": 10.0,
+   "gap": 9.773,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BLS",
+   "date": "2022-05-13",
+   "ratio": 2.0,
+   "gap": 1.827,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BLS",
+   "date": "2022-12-08",
+   "ratio": 2.0,
+   "gap": 1.822,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BLUESTARCO",
+   "date": "2023-06-20",
+   "ratio": 2.0,
+   "gap": 1.955,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BORORENEW",
+   "date": "2018-08-02",
+   "ratio": 4.0,
+   "gap": 4.03,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "BPCL",
+   "date": "2016-07-13",
+   "ratio": 2.0,
+   "gap": 2.001,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BPCL",
+   "date": "2017-07-13",
+   "ratio": 1.5,
+   "gap": 1.493,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BPCL",
+   "date": "2024-06-21",
+   "ratio": 2.0,
+   "gap": 1.969,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "BRIGADE",
+   "date": "2019-08-28",
+   "ratio": 1.5,
+   "gap": 1.462,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "BRIGADE",
+   "date": "2026-06-17",
+   "ratio": 1.3333,
+   "gap": 1.287,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "BRITANNIA",
+   "date": "2018-11-29",
+   "ratio": 2.0,
+   "gap": 1.977,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BSE",
+   "date": "2022-03-21",
+   "ratio": 3.0,
+   "gap": 3.141,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "BSE",
+   "date": "2025-05-23",
+   "ratio": 3.0,
+   "gap": 2.967,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "BSHSL",
+   "date": "2022-09-23",
+   "ratio": 10.0,
+   "gap": 9.522,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "BSOFT",
+   "date": "2019-01-24",
+   "ratio": 1.6667,
+   "gap": 1.605,
+   "how": "prices"
+  },
+  {
+   "stock": "BTML",
+   "date": "2024-04-05",
+   "ratio": 10.0,
+   "gap": 10.171,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "CAMS",
+   "date": "2025-12-05",
+   "ratio": 5.0,
+   "gap": 5.0,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CANBK",
+   "date": "2024-05-15",
+   "ratio": 5.0,
+   "gap": 4.874,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CANFINHOME",
+   "date": "2017-10-12",
+   "ratio": 5.0,
+   "gap": 4.948,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CANTABIL",
+   "date": "2023-11-02",
+   "ratio": 5.0,
+   "gap": 4.923,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CAPLIPOINT",
+   "date": "2016-10-19",
+   "ratio": 5.0,
+   "gap": 4.932,
+   "how": "prices"
+  },
+  {
+   "stock": "CAPTRUST",
+   "date": "2025-10-10",
+   "ratio": 1.5,
+   "gap": 1.452,
+   "how": "prices"
+  },
+  {
+   "stock": "CASTROLIND",
+   "date": "2017-12-21",
+   "ratio": 2.0,
+   "gap": 2.025,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CCAVENUE",
+   "date": "2017-08-31",
+   "ratio": 10.0,
+   "gap": 9.938,
+   "how": "nse",
+   "subject": "Annual General Meeting/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "CCAVENUE",
+   "date": "2021-03-18",
+   "ratio": 2.0,
+   "gap": 2.065,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CCAVENUE",
+   "date": "2022-03-14",
+   "ratio": 2.0,
+   "gap": 2.081,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CDSL",
+   "date": "2024-08-23",
+   "ratio": 2.0,
+   "gap": 1.932,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CEMPRO",
+   "date": "2015-08-21",
+   "ratio": 10.0,
+   "gap": 9.974,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "CESC",
+   "date": "2021-09-17",
+   "ratio": 10.0,
+   "gap": 9.866,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "CGCL",
+   "date": "2024-03-05",
+   "ratio": 4.0,
+   "gap": 3.766,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "CGCL",
+   "date": "2016-11-23",
+   "ratio": 5.0,
+   "gap": 5.105,
+   "how": "prices"
+  },
+  {
+   "stock": "CGPOWER",
+   "date": "2016-03-15",
+   "ratio": 3.0,
+   "gap": 2.93,
+   "how": "prices"
+  },
+  {
+   "stock": "CHOICEIN",
+   "date": "2022-09-22",
+   "ratio": 2.0,
+   "gap": 1.886,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CHOICEIN",
+   "date": "2024-02-20",
+   "ratio": 2.0,
+   "gap": 1.902,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CHOLAFIN",
+   "date": "2019-06-14",
+   "ratio": 5.0,
+   "gap": 4.957,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CLEDUCATE",
+   "date": "2021-09-30",
+   "ratio": 2.0,
+   "gap": 1.962,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "CLEDUCATE",
+   "date": "2022-12-16",
+   "ratio": 2.0,
+   "gap": 1.858,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "COASTCORP",
+   "date": "2025-03-04",
+   "ratio": 5.0,
+   "gap": 4.921,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "COCHINSHIP",
+   "date": "2024-01-10",
+   "ratio": 2.0,
+   "gap": 1.976,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "COFORGE",
+   "date": "2025-06-04",
+   "ratio": 5.0,
+   "gap": 4.944,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "COHANCE",
+   "date": "2020-09-25",
+   "ratio": 2.0,
+   "gap": 1.944,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "COLPAL",
+   "date": "2015-09-23",
+   "ratio": 2.0,
+   "gap": 2.043,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "COMPINFO",
+   "date": "2017-02-16",
+   "ratio": 5.0,
+   "gap": 4.977,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CONCOR",
+   "date": "2017-04-05",
+   "ratio": 1.25,
+   "gap": 1.282,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "CONCOR",
+   "date": "2018-06-26",
+   "ratio": 2.0,
+   "gap": 2.029,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "CONCOR",
+   "date": "2019-02-04",
+   "ratio": 1.25,
+   "gap": 1.2,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "CONCOR",
+   "date": "2025-07-04",
+   "ratio": 1.25,
+   "gap": 1.248,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "CORALFINAC",
+   "date": "2017-08-03",
+   "ratio": 5.0,
+   "gap": 4.926,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "CORPBANK",
+   "date": "2015-01-22",
+   "ratio": 5.0,
+   "gap": 4.935,
+   "how": "nse",
+   "subject": "Face Valus Split (Sub-Division) - From Rs 10/- Per To Rs 2/- Per Share"
+  },
+  {
+   "stock": "COSMOFIRST",
+   "date": "2022-06-16",
+   "ratio": 1.5,
+   "gap": 1.432,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "CUB",
+   "date": "2017-07-13",
+   "ratio": 1.1,
+   "gap": 1.058,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "CUB",
+   "date": "2018-07-10",
+   "ratio": 1.1,
+   "gap": 1.022,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "CUB",
+   "date": "2026-06-12",
+   "ratio": 1.3333,
+   "gap": 1.301,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "CUPID",
+   "date": "2018-10-11",
+   "ratio": 1.2,
+   "gap": 1.043,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "CUPID",
+   "date": "2024-04-04",
+   "ratio": 20.0,
+   "gap": 19.051,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "CUPID",
+   "date": "2026-03-09",
+   "ratio": 5.0,
+   "gap": 4.905,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "DANGEE",
+   "date": "2022-09-06",
+   "ratio": 12.5146,
+   "gap": 12.515,
+   "how": "nse date, price ratio",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DAVANGERE",
+   "date": "2024-05-31",
+   "ratio": 10.0,
+   "gap": 10.0,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DBEIL",
+   "date": "2026-06-19",
+   "ratio": 10.0,
+   "gap": 9.723,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DECCANCE",
+   "date": "2017-09-11",
+   "ratio": 2.0,
+   "gap": 1.993,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "DEEPENR",
+   "date": "2020-11-10",
+   "ratio": 1.5,
+   "gap": 1.547,
+   "how": "prices"
+  },
+  {
+   "stock": "DEEPINDS",
+   "date": "2023-04-10",
+   "ratio": 2.0,
+   "gap": 1.982,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "DELPHIFX",
+   "date": "2026-02-13",
+   "ratio": 15.0,
+   "gap": 14.348,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "DEVIT",
+   "date": "2022-11-25",
+   "ratio": 2.0,
+   "gap": 1.958,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "DEVIT",
+   "date": "2025-08-21",
+   "ratio": 2.5,
+   "gap": 2.5,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "DFMFOODS",
+   "date": "2018-11-01",
+   "ratio": 5.0,
+   "gap": 4.727,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "DHARAN",
+   "date": "2020-07-02",
+   "ratio": 5.0,
+   "gap": 4.798,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "DHARAN",
+   "date": "2021-08-12",
+   "ratio": 10.0,
+   "gap": 9.528,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DHARAN",
+   "date": "2025-04-04",
+   "ratio": 2.0,
+   "gap": 1.907,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "DHFL",
+   "date": "2015-09-09",
+   "ratio": 2.0,
+   "gap": 1.933,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "DIACABS",
+   "date": "2024-12-03",
+   "ratio": 10.0,
+   "gap": 9.549,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DISHMAN",
+   "date": "2016-05-02",
+   "ratio": 2.0,
+   "gap": 1.984,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "DIVISLAB",
+   "date": "2015-09-23",
+   "ratio": 2.0,
+   "gap": 1.996,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "DIXON",
+   "date": "2021-03-18",
+   "ratio": 5.0,
+   "gap": 4.89,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "DJML",
+   "date": "2024-08-09",
+   "ratio": 3.0,
+   "gap": 2.941,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "DOLLAR",
+   "date": "2017-08-31",
+   "ratio": 5.0,
+   "gap": 4.758,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "DOLPHIN",
+   "date": "2024-01-29",
+   "ratio": 10.0,
+   "gap": 9.805,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DPWIRES",
+   "date": "2023-11-08",
+   "ratio": 1.1429,
+   "gap": 1.08,
+   "how": "nse",
+   "subject": "Bonus 1:7"
+  },
+  {
+   "stock": "DRCSYSTEMS",
+   "date": "2022-03-21",
+   "ratio": 10.0,
+   "gap": 10.361,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DRCSYSTEMS",
+   "date": "2024-02-27",
+   "ratio": 3.0,
+   "gap": 2.945,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "DRREDDY",
+   "date": "2024-10-28",
+   "ratio": 5.0,
+   "gap": 4.935,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "DUCON",
+   "date": "2022-04-18",
+   "ratio": 1.1,
+   "gap": 1.021,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "DUCON-RE1",
+   "date": "2022-10-27",
+   "ratio": 2.0,
+   "gap": 1.906,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "DVL",
+   "date": "2021-08-05",
+   "ratio": 1.5,
+   "gap": 0.992,
+   "how": "skipped: no gap in prices",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "DWARKESH",
+   "date": "2017-08-10",
+   "ratio": 10.0,
+   "gap": 10.205,
+   "how": "nse",
+   "subject": "Annual General Meeting/Dividend - Rs 10 Per Share/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share (Purpose Revised)"
+  },
+  {
+   "stock": "DYCL",
+   "date": "2025-07-11",
+   "ratio": 2.0,
+   "gap": 1.931,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "E2E",
+   "date": "2026-06-05",
+   "ratio": 10.0,
+   "gap": 9.524,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "EASEMYTRIP",
+   "date": "2022-02-28",
+   "ratio": 2.0,
+   "gap": 1.921,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "EASEMYTRIP",
+   "date": "2022-11-21",
+   "ratio": 8.0,
+   "gap": 7.207,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "EASEMYTRIP",
+   "date": "2024-11-29",
+   "ratio": 2.0,
+   "gap": 1.916,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ECLERX",
+   "date": "2015-12-17",
+   "ratio": 1.3333,
+   "gap": 1.179,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "ECLERX",
+   "date": "2022-09-21",
+   "ratio": 1.5,
+   "gap": 1.421,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "ECLERX",
+   "date": "2026-03-13",
+   "ratio": 2.0,
+   "gap": 2.006,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "EICHERMOT",
+   "date": "2020-08-24",
+   "ratio": 10.0,
+   "gap": 9.867,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "EIHAHOTELS",
+   "date": "2024-08-13",
+   "ratio": 2.0,
+   "gap": 1.97,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ELECON",
+   "date": "2024-07-19",
+   "ratio": 2.0,
+   "gap": 1.926,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ELGIEQUIP",
+   "date": "2020-09-24",
+   "ratio": 2.0,
+   "gap": 1.902,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "EMAMILTD",
+   "date": "2018-06-21",
+   "ratio": 2.0,
+   "gap": 2.002,
+   "how": "nse",
+   "subject": "Bonus 1:1/Dividend- Rs 7 Per Share"
+  },
+  {
+   "stock": "ENGINERSIN",
+   "date": "2016-12-30",
+   "ratio": 2.0,
+   "gap": 2.114,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "EPL",
+   "date": "2018-06-20",
+   "ratio": 2.0,
+   "gap": 1.99,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ESSENTIA",
+   "date": "2024-01-11",
+   "ratio": 2.0,
+   "gap": 1.914,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "EXXARO",
+   "date": "2024-12-13",
+   "ratio": 10.0,
+   "gap": 10.587,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "FCL",
+   "date": "2015-02-12",
+   "ratio": 2.0,
+   "gap": 1.814,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "FCL",
+   "date": "2015-06-11",
+   "ratio": 5.0,
+   "gap": 4.827,
+   "how": "nse",
+   "subject": "Face Valus Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "FCL",
+   "date": "2025-10-31",
+   "ratio": 10.0,
+   "gap": 9.73,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "FEDERALBNK",
+   "date": "2015-07-08",
+   "ratio": 2.0,
+   "gap": 2.024,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "FIEMIND",
+   "date": "2024-02-28",
+   "ratio": 2.0,
+   "gap": 1.925,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "FILATEX",
+   "date": "2018-06-27",
+   "ratio": 5.0,
+   "gap": 4.897,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "FILATEX",
+   "date": "2022-12-27",
+   "ratio": 2.0,
+   "gap": 1.929,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "FILATFASH",
+   "date": "2024-08-09",
+   "ratio": 5.0,
+   "gap": 4.676,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "FINPIPE",
+   "date": "2021-04-15",
+   "ratio": 5.0,
+   "gap": 4.954,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "FISCHER",
+   "date": "2025-09-12",
+   "ratio": 10.0,
+   "gap": 9.944,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "FOCUS",
+   "date": "2023-10-06",
+   "ratio": 5.0,
+   "gap": 4.795,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GAEL",
+   "date": "2020-10-01",
+   "ratio": 2.0,
+   "gap": 1.988,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GAEL",
+   "date": "2024-03-15",
+   "ratio": 2.0,
+   "gap": 1.984,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GAIL",
+   "date": "2017-03-09",
+   "ratio": 1.3333,
+   "gap": 1.38,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "GAIL",
+   "date": "2018-03-27",
+   "ratio": 1.3333,
+   "gap": 1.329,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "GAIL",
+   "date": "2019-07-09",
+   "ratio": 2.0,
+   "gap": 2.001,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GAIL",
+   "date": "2022-09-06",
+   "ratio": 1.5,
+   "gap": 1.478,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "GALLISPAT",
+   "date": "2018-08-07",
+   "ratio": 10.0,
+   "gap": 9.724,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GANESHHOU",
+   "date": "2016-07-14",
+   "ratio": 1.5,
+   "gap": 1.434,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "GANGAFORGE",
+   "date": "2021-09-13",
+   "ratio": 10.0,
+   "gap": 9.816,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GARFIBRES",
+   "date": "2025-01-03",
+   "ratio": 5.0,
+   "gap": 4.852,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "GAYAPROJ",
+   "date": "2017-02-10",
+   "ratio": 5.0,
+   "gap": 4.904,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GEEKAYWIRE",
+   "date": "2023-10-23",
+   "ratio": 5.0,
+   "gap": 4.977,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GEEKAYWIRE",
+   "date": "2025-10-30",
+   "ratio": 2.0,
+   "gap": 1.968,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GENESYS",
+   "date": "2026-08-06",
+   "ratio": 1.5,
+   "gap": 1.528,
+   "how": "prices"
+  },
+  {
+   "stock": "GENSOL",
+   "date": "2023-10-17",
+   "ratio": 3.0,
+   "gap": 2.848,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "GICRE",
+   "date": "2018-07-12",
+   "ratio": 2.0,
+   "gap": 2.043,
+   "how": "nse",
+   "subject": "Bonus 1:1/Dividend- Rs 13.5 Per Share"
+  },
+  {
+   "stock": "GLAXO",
+   "date": "2018-09-11",
+   "ratio": 2.0,
+   "gap": 1.994,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GLOBAL",
+   "date": "2022-10-19",
+   "ratio": 2.0,
+   "gap": 1.905,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "GLOBAL",
+   "date": "2024-12-10",
+   "ratio": 2.5,
+   "gap": 2.272,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GLOBE",
+   "date": "2021-08-03",
+   "ratio": 15.0,
+   "gap": 14.327,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GMBREW",
+   "date": "2016-05-30",
+   "ratio": 1.25,
+   "gap": 1.167,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "GMBREW",
+   "date": "2018-05-21",
+   "ratio": 1.25,
+   "gap": 1.081,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "GMBREW",
+   "date": "2024-05-24",
+   "ratio": 1.25,
+   "gap": 1.16,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "GMMPFAUDLR",
+   "date": "2022-07-11",
+   "ratio": 3.0,
+   "gap": 2.859,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "GNA",
+   "date": "2023-09-01",
+   "ratio": 2.0,
+   "gap": 1.934,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GODFRYPHLP",
+   "date": "2025-09-16",
+   "ratio": 3.0,
+   "gap": 2.922,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "GODREJCP",
+   "date": "2017-06-22",
+   "ratio": 2.0,
+   "gap": 2.0,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GODREJCP",
+   "date": "2018-09-12",
+   "ratio": 1.5,
+   "gap": 1.5,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "GOKULAGRO",
+   "date": "2025-10-14",
+   "ratio": 2.0,
+   "gap": 1.997,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GOLDIAM",
+   "date": "2022-03-28",
+   "ratio": 5.0,
+   "gap": 4.946,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GOLDIAM",
+   "date": "2026-07-10",
+   "ratio": 1.3333,
+   "gap": 1.308,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "GOODLUCK",
+   "date": "2026-08-21",
+   "ratio": 3.0,
+   "gap": 2.918,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "GOYALALUM",
+   "date": "2023-04-25",
+   "ratio": 10.0,
+   "gap": 9.926,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GPIL",
+   "date": "2021-10-26",
+   "ratio": 4.0,
+   "gap": 3.873,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "GPIL",
+   "date": "2024-10-04",
+   "ratio": 5.0,
+   "gap": 5.071,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GPTINFRA",
+   "date": "2017-07-13",
+   "ratio": 2.0,
+   "gap": 1.887,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GPTINFRA",
+   "date": "2022-11-11",
+   "ratio": 2.0,
+   "gap": 1.748,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GPTINFRA",
+   "date": "2024-07-03",
+   "ratio": 2.0,
+   "gap": 1.922,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GRANULES",
+   "date": "2015-03-23",
+   "ratio": 10.0,
+   "gap": 9.844,
+   "how": "prices"
+  },
+  {
+   "stock": "GRASIM",
+   "date": "2016-10-06",
+   "ratio": 5.0,
+   "gap": 4.963,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Re 2"
+  },
+  {
+   "stock": "GREENLAM",
+   "date": "2022-02-10",
+   "ratio": 5.0,
+   "gap": 4.991,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GREENLAM",
+   "date": "2025-03-21",
+   "ratio": 2.0,
+   "gap": 2.116,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GREENPLY",
+   "date": "2016-01-06",
+   "ratio": 5.0,
+   "gap": 4.958,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "GRINDWELL",
+   "date": "2016-07-14",
+   "ratio": 2.0,
+   "gap": 2.011,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GRMOVER",
+   "date": "2025-12-24",
+   "ratio": 3.0,
+   "gap": 2.83,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "GRPLTD",
+   "date": "2024-08-12",
+   "ratio": 4.0,
+   "gap": 3.811,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "GRUH",
+   "date": "2018-06-06",
+   "ratio": 2.0,
+   "gap": 2.054,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "GUJENERGY",
+   "date": "2019-01-15",
+   "ratio": 5.0,
+   "gap": 4.939,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "GULPOLY",
+   "date": "2023-06-21",
+   "ratio": 1.2,
+   "gap": 1.142,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "GULPOLY",
+   "date": "2016-12-27",
+   "ratio": 5.0,
+   "gap": 4.882,
+   "how": "prices"
+  },
+  {
+   "stock": "HAL",
+   "date": "2023-09-28",
+   "ratio": 2.0,
+   "gap": 1.984,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "HARDWYN",
+   "date": "2022-07-25",
+   "ratio": 1.5,
+   "gap": 1.429,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "HARDWYN",
+   "date": "2023-06-05",
+   "ratio": 13.3333,
+   "gap": 12.127,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "HARDWYN",
+   "date": "2024-12-27",
+   "ratio": 1.4,
+   "gap": 1.391,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "HARDWYN",
+   "date": "2026-07-28",
+   "ratio": 1.4,
+   "gap": 1.312,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "HATHWAY",
+   "date": "2015-01-06",
+   "ratio": 5.0,
+   "gap": 5.001,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "HATSUN",
+   "date": "2016-07-13",
+   "ratio": 1.4,
+   "gap": 1.367,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "HATSUN",
+   "date": "2020-12-09",
+   "ratio": 1.3333,
+   "gap": 1.175,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "HCLTECH",
+   "date": "2015-03-19",
+   "ratio": 2.0,
+   "gap": 2.027,
+   "how": "nse",
+   "subject": "Bonus 1 : 1"
+  },
+  {
+   "stock": "HCLTECH",
+   "date": "2019-12-05",
+   "ratio": 2.0,
+   "gap": 1.996,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "HDFCAMC",
+   "date": "2025-11-26",
+   "ratio": 2.0,
+   "gap": 1.99,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "HDFCBANK",
+   "date": "2019-09-19",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2 Per Share To Rs 1 Per Share"
+  },
+  {
+   "stock": "HDFCBANK",
+   "date": "2025-08-26",
+   "ratio": 2.0,
+   "gap": 2.005,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "HEGAM",
+   "date": "2024-10-18",
+   "ratio": 5.0,
+   "gap": 5.05,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "HERITGFOOD",
+   "date": "2017-10-10",
+   "ratio": 2.0,
+   "gap": 2.0,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "HERITGFOOD",
+   "date": "2023-01-20",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "prices"
+  },
+  {
+   "stock": "HGS",
+   "date": "2022-02-22",
+   "ratio": 2.0,
+   "gap": 2.103,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "HIKAL",
+   "date": "2015-02-27",
+   "ratio": 5.0,
+   "gap": 4.936,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division): From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "HIKAL",
+   "date": "2018-06-22",
+   "ratio": 1.5,
+   "gap": 1.406,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "HINDCOMPOS",
+   "date": "2017-05-25",
+   "ratio": 3.0,
+   "gap": 2.933,
+   "how": "nse",
+   "subject": "Bonus 1:2/Face Value Split (Sub-Division) From Rs 10 Per Share To Rs 5 Per Share"
+  },
+  {
+   "stock": "HINDCON",
+   "date": "2023-11-10",
+   "ratio": 5.0,
+   "gap": 4.793,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "HINDPETRO",
+   "date": "2016-09-14",
+   "ratio": 3.0,
+   "gap": 2.97,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "HINDPETRO",
+   "date": "2017-07-11",
+   "ratio": 1.5,
+   "gap": 1.507,
+   "how": "nse",
+   "subject": "Bonus 1:2/ Dividend - Rs 1.10 Per Share"
+  },
+  {
+   "stock": "HINDPETRO",
+   "date": "2024-06-21",
+   "ratio": 1.5,
+   "gap": 1.495,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "HIRECT",
+   "date": "2026-03-27",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "HITECH",
+   "date": "2023-03-17",
+   "ratio": 10.0,
+   "gap": 9.858,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "HLEGLAS",
+   "date": "2022-10-18",
+   "ratio": 5.0,
+   "gap": 4.997,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "HMAAGRO",
+   "date": "2023-12-29",
+   "ratio": 10.0,
+   "gap": 9.8,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "HNDFDS",
+   "date": "2022-07-21",
+   "ratio": 5.0,
+   "gap": 4.916,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "HPAL",
+   "date": "2023-11-09",
+   "ratio": 5.0,
+   "gap": 4.973,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ICICIBANK",
+   "date": "2017-06-20",
+   "ratio": 1.1,
+   "gap": 1.103,
+   "how": "nse",
+   "subject": "Annual General Meeting/Dividend - Rs 2.50 Per Share/Bonus 1:10 (Revised)"
+  },
+  {
+   "stock": "IDEA",
+   "date": "2019-03-29",
+   "ratio": 1.6667,
+   "gap": 1.616,
+   "how": "prices"
+  },
+  {
+   "stock": "IEX",
+   "date": "2018-10-19",
+   "ratio": 10.0,
+   "gap": 10.233,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "IEX",
+   "date": "2021-12-03",
+   "ratio": 3.0,
+   "gap": 2.947,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "IFGLEXPOR",
+   "date": "2025-07-18",
+   "ratio": 2.0,
+   "gap": 1.97,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IGARASHI",
+   "date": "2018-09-27",
+   "ratio": 1.1238,
+   "gap": 1.02,
+   "how": "nse",
+   "subject": "Bonus 25:202"
+  },
+  {
+   "stock": "IGL",
+   "date": "2017-11-09",
+   "ratio": 5.0,
+   "gap": 4.944,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "IGL",
+   "date": "2025-01-31",
+   "ratio": 2.0,
+   "gap": 2.009,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IMFA",
+   "date": "2022-01-07",
+   "ratio": 2.0,
+   "gap": 1.988,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IMPAL",
+   "date": "2019-10-25",
+   "ratio": 1.5,
+   "gap": 1.434,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "INDIAGLYCO",
+   "date": "2025-08-12",
+   "ratio": 2.0,
+   "gap": 2.001,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "INDIAMART",
+   "date": "2023-06-21",
+   "ratio": 2.0,
+   "gap": 1.985,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "INDIANHUME",
+   "date": "2016-12-09",
+   "ratio": 2.0,
+   "gap": 1.999,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "INDNIPPON",
+   "date": "2018-03-21",
+   "ratio": 2.0,
+   "gap": 1.981,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "INDOTHAI",
+   "date": "2025-07-18",
+   "ratio": 10.0,
+   "gap": 10.057,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "INDTERRAIN",
+   "date": "2015-12-21",
+   "ratio": 5.0,
+   "gap": 4.96,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "INFINITE",
+   "date": "2017-11-01",
+   "ratio": 1.0385,
+   "gap": 1.0,
+   "how": "nse",
+   "subject": "Bonus 1:26"
+  },
+  {
+   "stock": "INFOBEAN",
+   "date": "2026-02-27",
+   "ratio": 4.0,
+   "gap": 3.966,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "INFY",
+   "date": "2015-06-15",
+   "ratio": 2.0,
+   "gap": 2.022,
+   "how": "nse",
+   "subject": "Annual General Meeting/ Dividend - Rs 29.50/- Per Share And Bonus 1:1"
+  },
+  {
+   "stock": "INFY",
+   "date": "2018-09-04",
+   "ratio": 2.0,
+   "gap": 1.986,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "INOXWIND",
+   "date": "2024-05-24",
+   "ratio": 4.0,
+   "gap": 3.782,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "INSECTICID",
+   "date": "2015-04-16",
+   "ratio": 1.5,
+   "gap": 1.529,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "INSECTICID",
+   "date": "2022-09-30",
+   "ratio": 1.5,
+   "gap": 1.363,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "INVENTURE",
+   "date": "2021-06-24",
+   "ratio": 10.0,
+   "gap": 9.85,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "IOC",
+   "date": "2016-10-18",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IOC",
+   "date": "2018-03-15",
+   "ratio": 2.0,
+   "gap": 2.068,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IOC",
+   "date": "2022-06-30",
+   "ratio": 1.5,
+   "gap": 1.485,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "IOLCP",
+   "date": "2025-03-11",
+   "ratio": 5.0,
+   "gap": 4.991,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "IONEXCHANG",
+   "date": "2023-06-12",
+   "ratio": 10.0,
+   "gap": 9.962,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "IPCALAB",
+   "date": "2022-01-10",
+   "ratio": 2.0,
+   "gap": 1.957,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "IRB",
+   "date": "2023-02-22",
+   "ratio": 10.0,
+   "gap": 9.785,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "IRB",
+   "date": "2026-03-30",
+   "ratio": 2.0,
+   "gap": 1.991,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IRCON",
+   "date": "2020-04-03",
+   "ratio": 5.0,
+   "gap": 4.738,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "IRCON",
+   "date": "2021-05-20",
+   "ratio": 2.0,
+   "gap": 1.987,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "IRCTC",
+   "date": "2021-10-28",
+   "ratio": 5.0,
+   "gap": 5.055,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "IRISDOREME",
+   "date": "2023-08-11",
+   "ratio": 5.0,
+   "gap": 4.917,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "IRISDOREME",
+   "date": "2025-07-04",
+   "ratio": 2.0,
+   "gap": 2.105,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ITC",
+   "date": "2016-07-01",
+   "ratio": 1.5,
+   "gap": 1.514,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "JAGSNPHARM",
+   "date": "2025-01-08",
+   "ratio": 2.5,
+   "gap": 2.517,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JAIBALAJI",
+   "date": "2025-01-17",
+   "ratio": 5.0,
+   "gap": 5.084,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JAMNAAUTO",
+   "date": "2015-12-03",
+   "ratio": 2.0,
+   "gap": 1.974,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "JAMNAAUTO",
+   "date": "2017-10-05",
+   "ratio": 5.0,
+   "gap": 4.971,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "JASH",
+   "date": "2024-10-30",
+   "ratio": 5.0,
+   "gap": 4.999,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JAYAGROGN",
+   "date": "2017-08-01",
+   "ratio": 2.0,
+   "gap": 2.005,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "JAYBARMARU",
+   "date": "2021-06-07",
+   "ratio": 2.0,
+   "gap": 1.87,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "JAYBARMARU",
+   "date": "2023-10-26",
+   "ratio": 2.5,
+   "gap": 2.507,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JBCHEPHARM",
+   "date": "2023-09-18",
+   "ratio": 2.0,
+   "gap": 2.001,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "JBMA",
+   "date": "2022-02-21",
+   "ratio": 2.5,
+   "gap": 2.466,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JBMA",
+   "date": "2025-01-31",
+   "ratio": 2.0,
+   "gap": 1.971,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "JINDALSAW",
+   "date": "2024-10-09",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "JINDWORLD",
+   "date": "2017-12-26",
+   "ratio": 2.0,
+   "gap": 1.971,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "JINDWORLD",
+   "date": "2018-10-31",
+   "ratio": 5.0,
+   "gap": 4.654,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "JINDWORLD",
+   "date": "2025-02-28",
+   "ratio": 5.0,
+   "gap": 4.715,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "JKIL",
+   "date": "2015-12-10",
+   "ratio": 2.0,
+   "gap": 2.018,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "JLHL",
+   "date": "2026-07-24",
+   "ratio": 5.0,
+   "gap": 5.016,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JMA",
+   "date": "2019-05-14",
+   "ratio": 4.1908,
+   "gap": 4.191,
+   "how": "nse date, price ratio",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JMCPROJECT",
+   "date": "2018-10-04",
+   "ratio": 5.0,
+   "gap": 5.046,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JMTAUTOLTD",
+   "date": "2015-06-25",
+   "ratio": 5.0,
+   "gap": 4.698,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JMTAUTOLTD",
+   "date": "2016-09-21",
+   "ratio": 2.0,
+   "gap": 1.952,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 2 To Re 1"
+  },
+  {
+   "stock": "JSWSTEEL",
+   "date": "2017-01-04",
+   "ratio": 10.0,
+   "gap": 9.862,
+   "how": "prices"
+  },
+  {
+   "stock": "JTLIND",
+   "date": "2023-09-07",
+   "ratio": 2.0,
+   "gap": 1.937,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "JTLIND",
+   "date": "2024-11-14",
+   "ratio": 2.0,
+   "gap": 1.987,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "JUBLFOOD",
+   "date": "2018-06-21",
+   "ratio": 2.0,
+   "gap": 1.99,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "JUBLFOOD",
+   "date": "2022-04-19",
+   "ratio": 5.0,
+   "gap": 4.93,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "JYOTHYLAB",
+   "date": "2018-06-28",
+   "ratio": 2.0,
+   "gap": 1.961,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KAJARIACER",
+   "date": "2016-10-04",
+   "ratio": 2.0,
+   "gap": 1.997,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 2 To Re 1"
+  },
+  {
+   "stock": "KAMDHENU",
+   "date": "2025-01-08",
+   "ratio": 10.0,
+   "gap": 9.934,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KAMOPAINTS",
+   "date": "2023-08-01",
+   "ratio": 2.0,
+   "gap": 1.849,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KAMOPAINTS",
+   "date": "2024-06-14",
+   "ratio": 5.0,
+   "gap": 4.851,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KANPRPLA",
+   "date": "2021-09-15",
+   "ratio": 1.5,
+   "gap": 1.493,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "KANSAINER",
+   "date": "2015-03-26",
+   "ratio": 10.0,
+   "gap": 10.184,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KANSAINER",
+   "date": "2023-07-04",
+   "ratio": 1.5,
+   "gap": 1.438,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "KAPSTON",
+   "date": "2024-08-09",
+   "ratio": 2.0,
+   "gap": 2.002,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "KAPSTON",
+   "date": "2026-03-06",
+   "ratio": 1.5,
+   "gap": 1.446,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "KARURVYSYA",
+   "date": "2018-08-14",
+   "ratio": 1.1,
+   "gap": 1.044,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "KARURVYSYA",
+   "date": "2025-08-26",
+   "ratio": 1.2,
+   "gap": 1.148,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "KARURVYSYA",
+   "date": "2016-11-17",
+   "ratio": 5.0,
+   "gap": 4.929,
+   "how": "prices"
+  },
+  {
+   "stock": "KELLTONTEC",
+   "date": "2018-03-27",
+   "ratio": 2.0,
+   "gap": 1.931,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KELLTONTEC",
+   "date": "2025-07-25",
+   "ratio": 5.0,
+   "gap": 4.639,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KILITCH",
+   "date": "2026-03-24",
+   "ratio": 2.0,
+   "gap": 2.063,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KIMS",
+   "date": "2024-09-13",
+   "ratio": 5.0,
+   "gap": 4.912,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "KIRLPNU",
+   "date": "2026-08-18",
+   "ratio": 2.0,
+   "gap": 1.996,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KITEX",
+   "date": "2017-06-22",
+   "ratio": 1.4,
+   "gap": 1.34,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "KITEX",
+   "date": "2025-01-17",
+   "ratio": 3.0,
+   "gap": 3.1,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "KKCL",
+   "date": "2021-12-16",
+   "ratio": 5.0,
+   "gap": 4.637,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "KMEW",
+   "date": "2025-12-22",
+   "ratio": 2.0,
+   "gap": 2.028,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "KNRCON",
+   "date": "2021-02-03",
+   "ratio": 2.0,
+   "gap": 1.907,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KNRCON",
+   "date": "2016-12-13",
+   "ratio": 5.0,
+   "gap": 4.874,
+   "how": "prices"
+  },
+  {
+   "stock": "KOTAKBANK",
+   "date": "2015-07-08",
+   "ratio": 2.0,
+   "gap": 2.025,
+   "how": "nse",
+   "subject": "Bonus 1: 1"
+  },
+  {
+   "stock": "KOTAKBANK",
+   "date": "2026-01-14",
+   "ratio": 5.0,
+   "gap": 5.006,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KOTHARIPRO",
+   "date": "2016-01-05",
+   "ratio": 1.5,
+   "gap": 1.512,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "KOTHARIPRO",
+   "date": "2025-02-18",
+   "ratio": 2.0,
+   "gap": 2.031,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KPIGREEN",
+   "date": "2023-01-18",
+   "ratio": 2.0,
+   "gap": 1.922,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KPIGREEN",
+   "date": "2024-02-15",
+   "ratio": 1.5,
+   "gap": 1.429,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "KPIGREEN",
+   "date": "2024-07-18",
+   "ratio": 2.0,
+   "gap": 1.999,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "KPIGREEN",
+   "date": "2025-01-03",
+   "ratio": 1.5,
+   "gap": 1.481,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "KPRMILL",
+   "date": "2021-09-24",
+   "ratio": 5.0,
+   "gap": 4.922,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "KPRMILL",
+   "date": "2016-11-29",
+   "ratio": 2.0,
+   "gap": 1.965,
+   "how": "prices"
+  },
+  {
+   "stock": "KRISHANA",
+   "date": "2023-10-25",
+   "ratio": 2.0,
+   "gap": 1.965,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "KRISHANA",
+   "date": "2026-07-03",
+   "ratio": 5.0,
+   "gap": 4.921,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "KRITIKA",
+   "date": "2022-08-30",
+   "ratio": 5.0,
+   "gap": 4.763,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "KRITIKA",
+   "date": "2023-12-19",
+   "ratio": 3.0,
+   "gap": 2.955,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "KSB",
+   "date": "2024-07-25",
+   "ratio": 5.0,
+   "gap": 5.067,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "KSHITIJPOL",
+   "date": "2022-10-27",
+   "ratio": 5.0,
+   "gap": 4.773,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "KSOLVES",
+   "date": "2025-02-06",
+   "ratio": 2.0,
+   "gap": 1.985,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "KTKBANK",
+   "date": "2020-03-17",
+   "ratio": 1.1,
+   "gap": 1.042,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "KUANTUM",
+   "date": "2020-07-14",
+   "ratio": 10.0,
+   "gap": 10.139,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "LALPATHLAB",
+   "date": "2025-12-19",
+   "ratio": 2.0,
+   "gap": 2.022,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "LAMBODHARA",
+   "date": "2015-10-15",
+   "ratio": 2.0,
+   "gap": 2.027,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Rs 5"
+  },
+  {
+   "stock": "LANCER",
+   "date": "2022-12-16",
+   "ratio": 2.0,
+   "gap": 1.972,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "LANDSMILL",
+   "date": "2018-01-23",
+   "ratio": 3.0,
+   "gap": 2.91,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "LANDSMILL",
+   "date": "2022-09-28",
+   "ratio": 15.0,
+   "gap": 13.538,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "LAOPALA",
+   "date": "2018-03-22",
+   "ratio": 2.0,
+   "gap": 2.089,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "LAURUSLABS",
+   "date": "2020-09-29",
+   "ratio": 5.0,
+   "gap": 4.886,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "LGBBROSLTD",
+   "date": "2018-06-14",
+   "ratio": 2.0,
+   "gap": 2.016,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "LGHL",
+   "date": "2025-10-10",
+   "ratio": 2.4,
+   "gap": 2.288,
+   "how": "nse",
+   "subject": "Bonus 7:5"
+  },
+  {
+   "stock": "LIBAS",
+   "date": "2021-04-06",
+   "ratio": 1.2,
+   "gap": 1.188,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "LIBAS",
+   "date": "2021-09-21",
+   "ratio": 1.2,
+   "gap": 1.144,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "LICI",
+   "date": "2026-05-29",
+   "ratio": 2.0,
+   "gap": 1.988,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "LIKHITHA",
+   "date": "2022-12-02",
+   "ratio": 2.0,
+   "gap": 1.946,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "LINC",
+   "date": "2024-12-20",
+   "ratio": 4.0,
+   "gap": 3.807,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "LODHA",
+   "date": "2023-05-31",
+   "ratio": 2.0,
+   "gap": 1.957,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "LT",
+   "date": "2017-07-13",
+   "ratio": 1.5,
+   "gap": 1.493,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "LTFOODS",
+   "date": "2017-02-07",
+   "ratio": 10.0,
+   "gap": 9.94,
+   "how": "prices"
+  },
+  {
+   "stock": "LUMAXTECH",
+   "date": "2018-06-07",
+   "ratio": 5.0,
+   "gap": 4.87,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "LUXIND",
+   "date": "2016-06-06",
+   "ratio": 5.0,
+   "gap": 4.879,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Rs 2"
+  },
+  {
+   "stock": "M&M",
+   "date": "2017-12-21",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "M&MFIN",
+   "date": "2020-07-22",
+   "ratio": 1.6667,
+   "gap": 1.688,
+   "how": "prices"
+  },
+  {
+   "stock": "MAANALU",
+   "date": "2017-07-10",
+   "ratio": 2.0,
+   "gap": 1.905,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MAANALU",
+   "date": "2021-08-02",
+   "ratio": 2.0,
+   "gap": 2.0,
+   "how": "nse",
+   "subject": "Bonus 1: 1"
+  },
+  {
+   "stock": "MAANALU",
+   "date": "2023-07-27",
+   "ratio": 4.0,
+   "gap": 3.81,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "MAGADSUGAR",
+   "date": "2019-06-27",
+   "ratio": 1.4,
+   "gap": 1.339,
+   "how": "nse",
+   "subject": "Bonus 4:10"
+  },
+  {
+   "stock": "MAHESHWARI",
+   "date": "2020-10-13",
+   "ratio": 2.0,
+   "gap": 1.716,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MAHLIFE",
+   "date": "2021-09-14",
+   "ratio": 3.0,
+   "gap": 3.017,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "MAHSEAMLES",
+   "date": "2022-11-25",
+   "ratio": 2.0,
+   "gap": 1.856,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MAITHANALL",
+   "date": "2015-07-15",
+   "ratio": 2.0,
+   "gap": 1.933,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MANINFRA",
+   "date": "2021-11-17",
+   "ratio": 1.5,
+   "gap": 1.389,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MANORAMA",
+   "date": "2024-03-07",
+   "ratio": 5.0,
+   "gap": 4.932,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MANPASAND",
+   "date": "2017-09-27",
+   "ratio": 2.0,
+   "gap": 2.005,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MARATHON",
+   "date": "2018-04-05",
+   "ratio": 2.0,
+   "gap": 1.937,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "MARICO",
+   "date": "2015-12-22",
+   "ratio": 2.0,
+   "gap": 2.058,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MARINE",
+   "date": "2021-02-18",
+   "ratio": 5.0,
+   "gap": 4.784,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10 Per Share To Rs 2 Per Share"
+  },
+  {
+   "stock": "MASFIN",
+   "date": "2024-02-22",
+   "ratio": 3.0,
+   "gap": 2.78,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "MAZDA",
+   "date": "2025-01-28",
+   "ratio": 5.0,
+   "gap": 5.039,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MAZDOCK",
+   "date": "2024-12-27",
+   "ratio": 2.0,
+   "gap": 1.991,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "MBAPL",
+   "date": "2022-10-18",
+   "ratio": 2.0,
+   "gap": 1.906,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MBAPL",
+   "date": "2023-10-20",
+   "ratio": 2.0,
+   "gap": 1.914,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MBAPL",
+   "date": "2026-07-03",
+   "ratio": 5.0,
+   "gap": 5.015,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MBLINFRA",
+   "date": "2015-07-28",
+   "ratio": 2.0,
+   "gap": 1.959,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MCX",
+   "date": "2026-01-02",
+   "ratio": 5.0,
+   "gap": 4.928,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MEDICO",
+   "date": "2023-03-16",
+   "ratio": 5.0,
+   "gap": 5.037,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MENONBE",
+   "date": "2015-04-09",
+   "ratio": 5.0,
+   "gap": 4.755,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "MENONBE",
+   "date": "2016-08-30",
+   "ratio": 1.2,
+   "gap": 1.08,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "METROPOLIS",
+   "date": "2026-03-20",
+   "ratio": 4.0,
+   "gap": 3.88,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "MGEL",
+   "date": "2022-08-18",
+   "ratio": 5.0,
+   "gap": 4.97,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MGEL",
+   "date": "2025-03-04",
+   "ratio": 2.0,
+   "gap": 1.955,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "MHRIL",
+   "date": "2017-07-10",
+   "ratio": 1.5,
+   "gap": 1.332,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MHRIL",
+   "date": "2021-09-08",
+   "ratio": 1.5,
+   "gap": 1.411,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MINDACORP",
+   "date": "2015-01-05",
+   "ratio": 10.0,
+   "gap": 9.527,
+   "how": "nse",
+   "subject": "Bonus 1:1 / Face Value Split From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MINDTECK",
+   "date": "2024-09-20",
+   "ratio": 1.25,
+   "gap": 1.275,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "MINDTREE",
+   "date": "2016-03-09",
+   "ratio": 2.0,
+   "gap": 2.09,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MITTAL",
+   "date": "2021-08-31",
+   "ratio": 1.1,
+   "gap": 1.0,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "MITTAL",
+   "date": "2023-11-01",
+   "ratio": 10.0,
+   "gap": 9.946,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "MKPL",
+   "date": "2023-11-10",
+   "ratio": 10.0,
+   "gap": 9.935,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "MKPL",
+   "date": "2024-03-15",
+   "ratio": 3.0,
+   "gap": 2.865,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "MMFL",
+   "date": "2018-07-18",
+   "ratio": 2.0,
+   "gap": 1.911,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MMFL",
+   "date": "2024-07-16",
+   "ratio": 2.0,
+   "gap": 1.898,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MMTC",
+   "date": "2018-05-03",
+   "ratio": 1.5,
+   "gap": 1.574,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MOHOTAIND",
+   "date": "2015-03-13",
+   "ratio": 1.1667,
+   "gap": 1.002,
+   "how": "nse",
+   "subject": "Bonus 1:6"
+  },
+  {
+   "stock": "MOIL",
+   "date": "2017-09-27",
+   "ratio": 2.0,
+   "gap": 1.967,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MOKSH",
+   "date": "2021-07-14",
+   "ratio": 5.0,
+   "gap": 4.924,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "MOLDTKPAC",
+   "date": "2016-02-17",
+   "ratio": 2.0,
+   "gap": 1.841,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "MONARCH",
+   "date": "2024-09-13",
+   "ratio": 2.0,
+   "gap": 1.855,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MOTHERSON",
+   "date": "2017-07-05",
+   "ratio": 1.5,
+   "gap": 1.505,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MOTHERSON",
+   "date": "2018-10-30",
+   "ratio": 1.5,
+   "gap": 1.447,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MOTHERSON",
+   "date": "2022-10-03",
+   "ratio": 1.5,
+   "gap": 1.455,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MOTHERSON",
+   "date": "2025-07-18",
+   "ratio": 1.5,
+   "gap": 1.499,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MOTHERSON",
+   "date": "2015-07-23",
+   "ratio": 1.5,
+   "gap": 1.47,
+   "how": "prices"
+  },
+  {
+   "stock": "MOTILALOFS",
+   "date": "2024-06-10",
+   "ratio": 4.0,
+   "gap": 3.705,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "MOTISONS",
+   "date": "2024-11-08",
+   "ratio": 10.0,
+   "gap": 9.848,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "MSUMI",
+   "date": "2022-11-16",
+   "ratio": 1.4,
+   "gap": 1.277,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "MSUMI",
+   "date": "2025-07-18",
+   "ratio": 1.5,
+   "gap": 1.475,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "MUNJALAU",
+   "date": "2017-07-11",
+   "ratio": 2.0,
+   "gap": 2.005,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "MUTHOOTCAP",
+   "date": "2017-06-12",
+   "ratio": 1.1,
+   "gap": 1.004,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "MWL",
+   "date": "2026-07-10",
+   "ratio": 10.0,
+   "gap": 10.242,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "NARMADA",
+   "date": "2026-07-31",
+   "ratio": 2.0,
+   "gap": 1.81,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "NATCOPHARM",
+   "date": "2015-11-26",
+   "ratio": 5.0,
+   "gap": 5.105,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "NAUKRI",
+   "date": "2025-05-07",
+   "ratio": 5.0,
+   "gap": 5.034,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "NAVA",
+   "date": "2016-09-01",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NAVA",
+   "date": "2025-01-20",
+   "ratio": 2.0,
+   "gap": 1.978,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "NAVINFLUOR",
+   "date": "2017-07-19",
+   "ratio": 5.0,
+   "gap": 4.942,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "NAZARA",
+   "date": "2022-06-24",
+   "ratio": 2.0,
+   "gap": 1.809,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NAZARA",
+   "date": "2025-09-26",
+   "ratio": 4.0,
+   "gap": 3.835,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NBCC",
+   "date": "2016-06-02",
+   "ratio": 5.0,
+   "gap": 4.967,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "NBCC",
+   "date": "2017-02-17",
+   "ratio": 1.5,
+   "gap": 1.493,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "NBCC",
+   "date": "2018-04-25",
+   "ratio": 2.0,
+   "gap": 1.998,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "NBCC",
+   "date": "2024-10-07",
+   "ratio": 1.5,
+   "gap": 1.431,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "NDL",
+   "date": "2022-03-24",
+   "ratio": 3.0,
+   "gap": 3.013,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "NDL",
+   "date": "2024-09-19",
+   "ratio": 10.0,
+   "gap": 9.593,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "NDRAUTO",
+   "date": "2023-07-24",
+   "ratio": 2.0,
+   "gap": 2.015,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NDRAUTO",
+   "date": "2024-09-25",
+   "ratio": 2.0,
+   "gap": 1.927,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NDTV",
+   "date": "2025-09-12",
+   "ratio": 1.3333,
+   "gap": 1.326,
+   "how": "prices"
+  },
+  {
+   "stock": "NESCO",
+   "date": "2017-09-15",
+   "ratio": 5.0,
+   "gap": 4.937,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "NESTLEIND",
+   "date": "2024-01-05",
+   "ratio": 10.0,
+   "gap": 9.846,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "NESTLEIND",
+   "date": "2025-08-08",
+   "ratio": 2.0,
+   "gap": 1.992,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NEWGEN",
+   "date": "2024-01-12",
+   "ratio": 2.0,
+   "gap": 1.91,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "NIACL",
+   "date": "2018-06-27",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Bonus 1:1/ Dividend- Rs 5 Per Share"
+  },
+  {
+   "stock": "NINSYS",
+   "date": "2023-08-03",
+   "ratio": 1.8,
+   "gap": 1.787,
+   "how": "nse",
+   "subject": "Bonus 4:5"
+  },
+  {
+   "stock": "NIPPOBATRY",
+   "date": "2021-10-28",
+   "ratio": 2.0,
+   "gap": 2.004,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "NMDC",
+   "date": "2024-12-27",
+   "ratio": 3.0,
+   "gap": 2.985,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "NRL",
+   "date": "2024-03-20",
+   "ratio": 1.5,
+   "gap": 1.327,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "NTPC",
+   "date": "2019-03-19",
+   "ratio": 1.2,
+   "gap": 1.185,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "NUVAMA",
+   "date": "2025-12-26",
+   "ratio": 5.0,
+   "gap": 5.01,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "NYKAA",
+   "date": "2022-11-10",
+   "ratio": 6.0,
+   "gap": 6.349,
+   "how": "nse",
+   "subject": "Bonus 5:1"
+  },
+  {
+   "stock": "OIL",
+   "date": "2017-01-12",
+   "ratio": 1.3333,
+   "gap": 1.401,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "OIL",
+   "date": "2018-03-27",
+   "ratio": 1.5,
+   "gap": 1.593,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "OIL",
+   "date": "2024-07-02",
+   "ratio": 1.5,
+   "gap": 1.484,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "ONEPOINT",
+   "date": "2022-01-18",
+   "ratio": 7.5,
+   "gap": 7.164,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ONGC",
+   "date": "2016-12-15",
+   "ratio": 1.5,
+   "gap": 1.505,
+   "how": "nse",
+   "subject": "Bonus 1: 2"
+  },
+  {
+   "stock": "ORBTEXP",
+   "date": "2017-02-14",
+   "ratio": 2.0,
+   "gap": 2.032,
+   "how": "nse",
+   "subject": "Bonus 1:1/Interim Dividend Rs 2/- Per Share (Purpose Revised)"
+  },
+  {
+   "stock": "ORIENTTECH",
+   "date": "2026-01-05",
+   "ratio": 1.1,
+   "gap": 0.965,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "OSIAHYPER",
+   "date": "2023-03-13",
+   "ratio": 10.0,
+   "gap": 10.052,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "OSWALSEEDS",
+   "date": "2023-08-18",
+   "ratio": 5.0,
+   "gap": 4.713,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "OSWALSEEDS",
+   "date": "2024-02-02",
+   "ratio": 1.2,
+   "gap": 1.077,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "PAISALO",
+   "date": "2022-06-30",
+   "ratio": 10.0,
+   "gap": 9.844,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PAISALO",
+   "date": "2024-03-20",
+   "ratio": 2.0,
+   "gap": 1.914,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PANAMAPET",
+   "date": "2017-10-03",
+   "ratio": 1.5,
+   "gap": 1.492,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "PARAS",
+   "date": "2025-07-04",
+   "ratio": 2.0,
+   "gap": 1.979,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "PATANJALI",
+   "date": "2025-09-11",
+   "ratio": 3.0,
+   "gap": 2.99,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "PAVNAIND",
+   "date": "2025-09-01",
+   "ratio": 10.0,
+   "gap": 9.873,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PCBL",
+   "date": "2018-04-19",
+   "ratio": 5.0,
+   "gap": 4.93,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "PCBL",
+   "date": "2022-04-11",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PCJEWELLER",
+   "date": "2017-07-06",
+   "ratio": 2.0,
+   "gap": 1.999,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PCJEWELLER",
+   "date": "2024-12-16",
+   "ratio": 10.0,
+   "gap": 10.185,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PDSL",
+   "date": "2022-08-26",
+   "ratio": 5.0,
+   "gap": 4.918,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "PERSISTENT",
+   "date": "2015-03-10",
+   "ratio": 2.0,
+   "gap": 2.061,
+   "how": "nse",
+   "subject": "Bonus 1 : 1"
+  },
+  {
+   "stock": "PERSISTENT",
+   "date": "2024-03-28",
+   "ratio": 2.0,
+   "gap": 1.991,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "PETRONET",
+   "date": "2017-07-03",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PFC",
+   "date": "2016-08-26",
+   "ratio": 2.0,
+   "gap": 1.999,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PFC",
+   "date": "2023-09-21",
+   "ratio": 1.25,
+   "gap": 1.25,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "PGEL",
+   "date": "2024-07-10",
+   "ratio": 10.0,
+   "gap": 9.897,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PGIL",
+   "date": "2024-01-05",
+   "ratio": 2.0,
+   "gap": 1.93,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "PGIL",
+   "date": "2026-09-11",
+   "ratio": 2.0,
+   "gap": 1.981,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PHOENIXLTD",
+   "date": "2024-09-20",
+   "ratio": 2.0,
+   "gap": 1.941,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PIDILITIND",
+   "date": "2025-09-23",
+   "ratio": 2.0,
+   "gap": 1.98,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PILANIINVS",
+   "date": "2020-12-31",
+   "ratio": 1.4,
+   "gap": 1.222,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "PILITA",
+   "date": "2016-08-24",
+   "ratio": 4.0,
+   "gap": 3.836,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 4/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PINCON",
+   "date": "2016-06-23",
+   "ratio": 2.0,
+   "gap": 1.855,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PITTIENG",
+   "date": "2015-04-16",
+   "ratio": 2.0,
+   "gap": 1.961,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "PLASTIBLEN",
+   "date": "2017-07-03",
+   "ratio": 2.0,
+   "gap": 2.009,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PNCINFRA",
+   "date": "2016-08-12",
+   "ratio": 5.0,
+   "gap": 5.093,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Rs 2"
+  },
+  {
+   "stock": "POCL",
+   "date": "2024-10-16",
+   "ratio": 2.0,
+   "gap": 1.997,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "POCL",
+   "date": "2026-07-21",
+   "ratio": 2.5,
+   "gap": 2.459,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "POKARNA",
+   "date": "2017-10-18",
+   "ratio": 5.0,
+   "gap": 5.002,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "POLYMED",
+   "date": "2015-02-02",
+   "ratio": 2.0,
+   "gap": 1.994,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "POLYMED",
+   "date": "2017-03-24",
+   "ratio": 2.0,
+   "gap": 2.024,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "POWERGRID",
+   "date": "2021-07-29",
+   "ratio": 1.3333,
+   "gap": 1.334,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "POWERGRID",
+   "date": "2023-09-12",
+   "ratio": 1.3333,
+   "gap": 1.303,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "POWERMECH",
+   "date": "2024-10-08",
+   "ratio": 2.0,
+   "gap": 1.987,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "PRAKASHSTL",
+   "date": "2016-03-03",
+   "ratio": 10.0,
+   "gap": 8.644,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PRAXIS",
+   "date": "2021-09-07",
+   "ratio": 2.0,
+   "gap": 1.932,
+   "how": "prices"
+  },
+  {
+   "stock": "PRECWIRE",
+   "date": "2016-03-21",
+   "ratio": 2.0,
+   "gap": 2.01,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "PRECWIRE",
+   "date": "2021-12-22",
+   "ratio": 5.0,
+   "gap": 4.907,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PRECWIRE",
+   "date": "2022-12-22",
+   "ratio": 1.5,
+   "gap": 1.384,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "PREMEXPLN",
+   "date": "2024-06-21",
+   "ratio": 5.0,
+   "gap": 4.9,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "PREMIERPOL",
+   "date": "2024-11-05",
+   "ratio": 5.0,
+   "gap": 4.78,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "PTL",
+   "date": "2021-12-23",
+   "ratio": 2.0,
+   "gap": 2.018,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "RADHIKAJWE",
+   "date": "2023-05-26",
+   "ratio": 5.0,
+   "gap": 4.942,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RADIOCITY",
+   "date": "2019-02-20",
+   "ratio": 5.0,
+   "gap": 4.806,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RADIOCITY",
+   "date": "2020-03-12",
+   "ratio": 1.25,
+   "gap": 1.052,
+   "how": "skipped: no gap in prices",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "RAJMET",
+   "date": "2021-09-02",
+   "ratio": 1.5,
+   "gap": 1.512,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "RAJMET",
+   "date": "2022-09-15",
+   "ratio": 1.5,
+   "gap": 1.477,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "RAJMET",
+   "date": "2022-11-30",
+   "ratio": 10.0,
+   "gap": 9.565,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "RAJRATAN",
+   "date": "2022-03-15",
+   "ratio": 5.0,
+   "gap": 4.85,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RAMAPHO",
+   "date": "2025-02-07",
+   "ratio": 2.0,
+   "gap": 1.941,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "RAMASTEEL",
+   "date": "2016-03-14",
+   "ratio": 10.0,
+   "gap": 9.688,
+   "how": "nse",
+   "subject": "Bonus 4:1/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "RAMASTEEL",
+   "date": "2022-08-25",
+   "ratio": 5.0,
+   "gap": 4.977,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "RAMASTEEL",
+   "date": "2023-01-06",
+   "ratio": 5.0,
+   "gap": 4.549,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "RAMASTEEL",
+   "date": "2024-03-19",
+   "ratio": 3.0,
+   "gap": 2.802,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "RAMRAT",
+   "date": "2022-09-28",
+   "ratio": 2.0,
+   "gap": 1.982,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RAMRAT",
+   "date": "2025-12-26",
+   "ratio": 2.0,
+   "gap": 1.992,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RATNAMANI",
+   "date": "2022-06-30",
+   "ratio": 1.5,
+   "gap": 1.397,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "RECLTD",
+   "date": "2016-09-28",
+   "ratio": 2.0,
+   "gap": 2.025,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RECLTD",
+   "date": "2022-08-17",
+   "ratio": 1.3333,
+   "gap": 1.327,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "REDINGTON",
+   "date": "2021-08-18",
+   "ratio": 2.0,
+   "gap": 1.996,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "REDTAPE",
+   "date": "2025-02-04",
+   "ratio": 4.0,
+   "gap": 3.907,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "REFEX",
+   "date": "2024-03-22",
+   "ratio": 5.0,
+   "gap": 4.97,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RELAXO",
+   "date": "2015-07-01",
+   "ratio": 2.0,
+   "gap": 1.98,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RELAXO",
+   "date": "2019-06-26",
+   "ratio": 2.0,
+   "gap": 2.015,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RELIANCE",
+   "date": "2017-09-07",
+   "ratio": 2.0,
+   "gap": 1.999,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RELIANCE",
+   "date": "2024-10-28",
+   "ratio": 2.0,
+   "gap": 1.986,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "REMSONSIND",
+   "date": "2024-07-05",
+   "ratio": 5.0,
+   "gap": 5.012,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RGL",
+   "date": "2022-07-19",
+   "ratio": 5.0,
+   "gap": 4.996,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RITES",
+   "date": "2019-08-08",
+   "ratio": 1.25,
+   "gap": 1.186,
+   "how": "nse",
+   "subject": "Bonus  1:4"
+  },
+  {
+   "stock": "RITES",
+   "date": "2024-09-20",
+   "ratio": 2.0,
+   "gap": 1.92,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RKFORGE",
+   "date": "2022-03-14",
+   "ratio": 5.0,
+   "gap": 4.94,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "RMDRIP",
+   "date": "2025-09-26",
+   "ratio": 10.0,
+   "gap": 10.034,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "RMDRIP",
+   "date": "2026-04-10",
+   "ratio": 1.7143,
+   "gap": 1.653,
+   "how": "nse",
+   "subject": "Bonus 5:7"
+  },
+  {
+   "stock": "RNBDENIMS",
+   "date": "2026-04-02",
+   "ratio": 3.0,
+   "gap": 3.158,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "ROLEXRINGS",
+   "date": "2025-10-17",
+   "ratio": 10.0,
+   "gap": 9.97,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ROTO",
+   "date": "2023-07-07",
+   "ratio": 2.0,
+   "gap": 1.938,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "ROTO",
+   "date": "2024-11-08",
+   "ratio": 2.0,
+   "gap": 1.976,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ROTO",
+   "date": "2025-07-11",
+   "ratio": 3.0,
+   "gap": 2.876,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "RPEL",
+   "date": "2024-11-29",
+   "ratio": 2.0,
+   "gap": 1.973,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RPPL",
+   "date": "2024-02-26",
+   "ratio": 3.0,
+   "gap": 2.786,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "RPPL",
+   "date": "2024-09-17",
+   "ratio": 2.0,
+   "gap": 1.964,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "RSSOFTWARE",
+   "date": "2015-01-21",
+   "ratio": 2.0,
+   "gap": 1.966,
+   "how": "nse",
+   "subject": "Interim Dividend - Rs 1.50/- Per Share / Face Value Split - From Rs 10/- Per Share To Rs 5/- Per Share (Purpose Revised)"
+  },
+  {
+   "stock": "RUBYMILLS",
+   "date": "2015-10-21",
+   "ratio": 2.0,
+   "gap": 1.99,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RUBYMILLS",
+   "date": "2022-09-23",
+   "ratio": 2.0,
+   "gap": 1.859,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "RUCHIRA",
+   "date": "2022-10-10",
+   "ratio": 1.1,
+   "gap": 1.016,
+   "how": "nse",
+   "subject": "Bonus 1:10"
+  },
+  {
+   "stock": "RUSHIL",
+   "date": "2024-08-09",
+   "ratio": 10.0,
+   "gap": 9.947,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SADHNANIQ",
+   "date": "2023-07-05",
+   "ratio": 1.2222,
+   "gap": 1.056,
+   "how": "nse",
+   "subject": "Bonus 2:9"
+  },
+  {
+   "stock": "SADHNANIQ",
+   "date": "2024-09-13",
+   "ratio": 1.3333,
+   "gap": 1.371,
+   "how": "prices"
+  },
+  {
+   "stock": "SAFARI",
+   "date": "2023-12-12",
+   "ratio": 2.0,
+   "gap": 1.971,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SAGCEM",
+   "date": "2021-08-17",
+   "ratio": 5.0,
+   "gap": 4.915,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SAKSOFT",
+   "date": "2022-09-23",
+   "ratio": 10.0,
+   "gap": 10.446,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SAKSOFT",
+   "date": "2024-09-19",
+   "ratio": 1.25,
+   "gap": 1.118,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "SAKUMA",
+   "date": "2018-11-12",
+   "ratio": 10.0,
+   "gap": 9.99,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SAKUMA",
+   "date": "2024-08-09",
+   "ratio": 4.212,
+   "gap": 4.212,
+   "how": "nse date, price ratio",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "SALASAR",
+   "date": "2021-07-13",
+   "ratio": 2.0,
+   "gap": 1.907,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SALASAR",
+   "date": "2022-06-27",
+   "ratio": 10.0,
+   "gap": 9.675,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "SALASAR",
+   "date": "2024-02-01",
+   "ratio": 5.0,
+   "gap": 4.551,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "SANDUMA",
+   "date": "2024-02-02",
+   "ratio": 6.0,
+   "gap": 5.649,
+   "how": "nse",
+   "subject": "Bonus 5:1"
+  },
+  {
+   "stock": "SANDUMA",
+   "date": "2025-09-22",
+   "ratio": 3.0,
+   "gap": 2.934,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "SANGHVIMOV",
+   "date": "2024-09-27",
+   "ratio": 2.0,
+   "gap": 1.989,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SANWARIA",
+   "date": "2017-07-03",
+   "ratio": 2.0,
+   "gap": 1.86,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SAPPHIRE",
+   "date": "2024-09-05",
+   "ratio": 5.0,
+   "gap": 4.797,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SARDAEN",
+   "date": "2023-08-04",
+   "ratio": 10.0,
+   "gap": 9.954,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SAREGAMA",
+   "date": "2022-04-26",
+   "ratio": 10.0,
+   "gap": 9.886,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SARLAPOLY",
+   "date": "2015-10-29",
+   "ratio": 10.0,
+   "gap": 9.637,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Re 1 (Record Date Revised)"
+  },
+  {
+   "stock": "SARVESHWAR",
+   "date": "2023-09-15",
+   "ratio": 30.0,
+   "gap": 29.622,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SATIA",
+   "date": "2019-10-15",
+   "ratio": 10.0,
+   "gap": 9.858,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SBC",
+   "date": "2022-02-22",
+   "ratio": 20.0,
+   "gap": 19.032,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SBC",
+   "date": "2024-01-19",
+   "ratio": 1.5,
+   "gap": 1.375,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "SBC",
+   "date": "2025-03-10",
+   "ratio": 1.5,
+   "gap": 1.439,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "SBCL",
+   "date": "2022-10-12",
+   "ratio": 1.5,
+   "gap": 1.312,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "SBGLP",
+   "date": "2024-04-18",
+   "ratio": 10.0,
+   "gap": 9.823,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SCHAEFFLER",
+   "date": "2022-02-08",
+   "ratio": 5.0,
+   "gap": 4.991,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SDBL",
+   "date": "2020-10-15",
+   "ratio": 2.0,
+   "gap": 1.979,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SDBL",
+   "date": "2024-05-24",
+   "ratio": 2.5,
+   "gap": 2.493,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SECURCRED",
+   "date": "2023-01-04",
+   "ratio": 4.0,
+   "gap": 3.65,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "SECURKLOUD",
+   "date": "2016-10-10",
+   "ratio": 2.6667,
+   "gap": 2.587,
+   "how": "nse",
+   "subject": "Bonus 1:3/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SENCO",
+   "date": "2025-01-31",
+   "ratio": 2.0,
+   "gap": 2.007,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SERVOTECH",
+   "date": "2023-02-03",
+   "ratio": 5.0,
+   "gap": 5.268,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SERVOTECH",
+   "date": "2023-07-28",
+   "ratio": 2.0,
+   "gap": 1.905,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SESHAPAPER",
+   "date": "2019-08-19",
+   "ratio": 5.0,
+   "gap": 4.856,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SFL",
+   "date": "2022-12-21",
+   "ratio": 2.0,
+   "gap": 1.89,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SHAH",
+   "date": "2016-10-13",
+   "ratio": 10.0,
+   "gap": 9.819,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Re 1"
+  },
+  {
+   "stock": "SHAILY",
+   "date": "2023-11-23",
+   "ratio": 5.0,
+   "gap": 4.93,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SHAKTIPUMP",
+   "date": "2024-11-25",
+   "ratio": 6.0,
+   "gap": 5.714,
+   "how": "nse",
+   "subject": "Bonus 5:1"
+  },
+  {
+   "stock": "SHARDAMOTR",
+   "date": "2021-04-16",
+   "ratio": 5.0,
+   "gap": 4.905,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SHARDAMOTR",
+   "date": "2025-07-04",
+   "ratio": 2.0,
+   "gap": 1.955,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SHAREINDIA",
+   "date": "2024-06-27",
+   "ratio": 5.0,
+   "gap": 4.989,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SHILPAMED",
+   "date": "2015-11-06",
+   "ratio": 2.0,
+   "gap": 1.903,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SHILPAMED",
+   "date": "2025-10-03",
+   "ratio": 2.0,
+   "gap": 1.947,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SHIVAMAUTO",
+   "date": "2015-10-08",
+   "ratio": 2.0,
+   "gap": 1.909,
+   "how": "nse",
+   "subject": "Bonus 1: 1"
+  },
+  {
+   "stock": "SHRADHA",
+   "date": "2023-01-20",
+   "ratio": 2.0,
+   "gap": 1.942,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SHRADHA",
+   "date": "2024-12-10",
+   "ratio": 2.5,
+   "gap": 2.451,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SHRENIK",
+   "date": "2020-10-08",
+   "ratio": 6.0,
+   "gap": 5.463,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SHRIPISTON",
+   "date": "2023-07-24",
+   "ratio": 2.0,
+   "gap": 1.919,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SHRIRAMFIN",
+   "date": "2025-01-10",
+   "ratio": 5.0,
+   "gap": 4.964,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SIEMENS",
+   "date": "2025-04-07",
+   "ratio": 2.0,
+   "gap": 2.011,
+   "how": "prices"
+  },
+  {
+   "stock": "SIGACHI",
+   "date": "2023-10-09",
+   "ratio": 10.0,
+   "gap": 10.059,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SIGMA",
+   "date": "2025-10-06",
+   "ratio": 10.0,
+   "gap": 9.964,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SIGNET",
+   "date": "2015-08-17",
+   "ratio": 10.0,
+   "gap": 9.702,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "SIKKO",
+   "date": "2022-10-28",
+   "ratio": 1.5,
+   "gap": 1.429,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "SIKKO",
+   "date": "2025-11-27",
+   "ratio": 10.0,
+   "gap": 9.949,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SIKKO",
+   "date": "2025-12-08",
+   "ratio": 2.0,
+   "gap": 1.907,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SIRCA",
+   "date": "2023-05-11",
+   "ratio": 2.0,
+   "gap": 1.954,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SIS",
+   "date": "2020-01-15",
+   "ratio": 2.0,
+   "gap": 1.961,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SIYSIL",
+   "date": "2017-10-25",
+   "ratio": 5.0,
+   "gap": 4.918,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SKMEGGPROD",
+   "date": "2026-01-12",
+   "ratio": 2.0,
+   "gap": 2.017,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SKYGOLD",
+   "date": "2024-12-16",
+   "ratio": 10.0,
+   "gap": 9.524,
+   "how": "nse",
+   "subject": "Bonus 9:1"
+  },
+  {
+   "stock": "SMCGLOBAL",
+   "date": "2025-11-14",
+   "ratio": 2.0,
+   "gap": 1.932,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SMSPHARMA",
+   "date": "2015-12-17",
+   "ratio": 10.0,
+   "gap": 9.769,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SOLARINDS",
+   "date": "2016-07-13",
+   "ratio": 5.0,
+   "gap": 4.955,
+   "how": "prices"
+  },
+  {
+   "stock": "SONAMLTD",
+   "date": "2022-07-14",
+   "ratio": 2.0,
+   "gap": 2.108,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SONAMLTD",
+   "date": "2024-05-10",
+   "ratio": 2.0,
+   "gap": 1.904,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SONATSOFTW",
+   "date": "2022-09-08",
+   "ratio": 1.3333,
+   "gap": 1.203,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "SONATSOFTW",
+   "date": "2023-12-12",
+   "ratio": 2.0,
+   "gap": 1.986,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SOTL",
+   "date": "2022-09-01",
+   "ratio": 5.0,
+   "gap": 4.966,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SPLPETRO",
+   "date": "2023-01-06",
+   "ratio": 2.0,
+   "gap": 1.997,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 4/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SPORTKING",
+   "date": "2024-09-13",
+   "ratio": 10.0,
+   "gap": 9.89,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SRF",
+   "date": "2021-10-13",
+   "ratio": 5.0,
+   "gap": 4.908,
+   "how": "nse",
+   "subject": "Bonus 4:1"
+  },
+  {
+   "stock": "SRPL",
+   "date": "2023-05-19",
+   "ratio": 10.0,
+   "gap": 9.636,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SRSLTD",
+   "date": "2015-06-25",
+   "ratio": 2.0,
+   "gap": 1.841,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SSWL",
+   "date": "2021-11-18",
+   "ratio": 2.0,
+   "gap": 1.921,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SSWL",
+   "date": "2022-11-10",
+   "ratio": 5.0,
+   "gap": 4.934,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "STEELCAS",
+   "date": "2025-08-29",
+   "ratio": 5.0,
+   "gap": 5.069,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "STEELXIND",
+   "date": "2022-07-12",
+   "ratio": 10.0,
+   "gap": 10.067,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "STERTOOLS",
+   "date": "2017-01-09",
+   "ratio": 5.0,
+   "gap": 4.903,
+   "how": "prices"
+  },
+  {
+   "stock": "SUKHJITS",
+   "date": "2024-10-25",
+   "ratio": 2.0,
+   "gap": 2.033,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SUMEETINDS",
+   "date": "2018-08-02",
+   "ratio": 1.25,
+   "gap": 1.311,
+   "how": "nse",
+   "subject": "Bonus 1:4"
+  },
+  {
+   "stock": "SUMEETINDS",
+   "date": "2025-10-03",
+   "ratio": 5.0,
+   "gap": 4.762,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "SUNILHITEC",
+   "date": "2016-12-01",
+   "ratio": 20.0,
+   "gap": 19.038,
+   "how": "nse",
+   "subject": "Bonus 1:1/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SUNTECK",
+   "date": "2017-07-25",
+   "ratio": 2.0,
+   "gap": 1.987,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "SURYAROSNI",
+   "date": "2023-10-06",
+   "ratio": 2.0,
+   "gap": 1.975,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "SURYAROSNI",
+   "date": "2025-01-01",
+   "ratio": 2.0,
+   "gap": 1.96,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SUTLEJTEX",
+   "date": "2017-09-26",
+   "ratio": 10.0,
+   "gap": 9.839,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "SUULD",
+   "date": "2022-03-30",
+   "ratio": 2.0,
+   "gap": 1.906,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SWELECTES",
+   "date": "2019-08-22",
+   "ratio": 1.5,
+   "gap": 1.429,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "SYMPHONY",
+   "date": "2016-09-14",
+   "ratio": 2.0,
+   "gap": 1.952,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "SYNGENE",
+   "date": "2019-06-11",
+   "ratio": 2.0,
+   "gap": 1.966,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TALBROAUTO",
+   "date": "2023-10-27",
+   "ratio": 5.0,
+   "gap": 4.912,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "TARACHAND",
+   "date": "2024-12-05",
+   "ratio": 5.0,
+   "gap": 4.851,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "TARIL",
+   "date": "2017-09-28",
+   "ratio": 10.0,
+   "gap": 9.982,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TARIL",
+   "date": "2025-02-14",
+   "ratio": 2.0,
+   "gap": 1.949,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TATACOFFEE",
+   "date": "2015-01-23",
+   "ratio": 10.0,
+   "gap": 9.852,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division): From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TATAELXSI",
+   "date": "2017-09-18",
+   "ratio": 2.0,
+   "gap": 1.979,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TATAINVEST",
+   "date": "2025-10-14",
+   "ratio": 10.0,
+   "gap": 9.522,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TATASTEEL",
+   "date": "2022-07-28",
+   "ratio": 10.0,
+   "gap": 9.78,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TCS",
+   "date": "2018-05-31",
+   "ratio": 2.0,
+   "gap": 2.027,
+   "how": "nse",
+   "subject": "Bonus 1:1 /Dividend- Rs 29 Per Share"
+  },
+  {
+   "stock": "TDPOWERSYS",
+   "date": "2022-10-31",
+   "ratio": 5.0,
+   "gap": 4.979,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "TDPOWERSYS",
+   "date": "2026-08-24",
+   "ratio": 2.0,
+   "gap": 1.98,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TECHM",
+   "date": "2015-03-19",
+   "ratio": 4.0,
+   "gap": 4.029,
+   "how": "nse",
+   "subject": "Bonus 1:1 / Face Value Split - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "TECHNO",
+   "date": "2016-09-06",
+   "ratio": 2.0,
+   "gap": 1.91,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TEMBO",
+   "date": "2026-08-05",
+   "ratio": 10.0,
+   "gap": 9.617,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TFCILTD",
+   "date": "2025-09-19",
+   "ratio": 5.0,
+   "gap": 5.001,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "THANGAMAYL",
+   "date": "2023-07-17",
+   "ratio": 2.0,
+   "gap": 1.904,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "THEMISMED",
+   "date": "2023-10-10",
+   "ratio": 10.0,
+   "gap": 9.853,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "THYROCARE",
+   "date": "2025-11-28",
+   "ratio": 3.0,
+   "gap": 2.892,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "TIMETECHNO",
+   "date": "2025-09-23",
+   "ratio": 2.0,
+   "gap": 1.942,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TIPSMUSIC",
+   "date": "2023-04-21",
+   "ratio": 10.0,
+   "gap": 9.866,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TIRUMALCHM",
+   "date": "2018-08-14",
+   "ratio": 10.0,
+   "gap": 9.785,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TIRUPATIFL",
+   "date": "2021-10-07",
+   "ratio": 8.75,
+   "gap": 8.331,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "TITAGARH",
+   "date": "2015-04-23",
+   "ratio": 5.0,
+   "gap": 4.948,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "TMPV",
+   "date": "2025-10-14",
+   "ratio": 1.6667,
+   "gap": 1.652,
+   "how": "prices"
+  },
+  {
+   "stock": "TORNTPHARM",
+   "date": "2022-07-08",
+   "ratio": 2.0,
+   "gap": 1.973,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TPHQ",
+   "date": "2023-12-14",
+   "ratio": 10.0,
+   "gap": 10.0,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "TPLPLASTEH",
+   "date": "2021-09-16",
+   "ratio": 2.0,
+   "gap": 1.883,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "TPLPLASTEH",
+   "date": "2022-10-19",
+   "ratio": 5.0,
+   "gap": 4.963,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "TRENT",
+   "date": "2016-09-12",
+   "ratio": 10.0,
+   "gap": 10.468,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Re 1"
+  },
+  {
+   "stock": "TRENT",
+   "date": "2026-06-04",
+   "ratio": 1.5,
+   "gap": 1.504,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "TRIDENT",
+   "date": "2019-12-13",
+   "ratio": 10.0,
+   "gap": 9.824,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "TRIVENI",
+   "date": "2026-07-22",
+   "ratio": 1.6667,
+   "gap": 1.626,
+   "how": "prices"
+  },
+  {
+   "stock": "TTKPRESTIG",
+   "date": "2019-05-15",
+   "ratio": 1.2,
+   "gap": 1.096,
+   "how": "nse",
+   "subject": "Bonus 1:5"
+  },
+  {
+   "stock": "TTKPRESTIG",
+   "date": "2021-12-14",
+   "ratio": 10.0,
+   "gap": 9.572,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10 Per Share To Re 1 Per Share"
+  },
+  {
+   "stock": "TTL",
+   "date": "2025-02-12",
+   "ratio": 10.0,
+   "gap": 9.692,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "UNIPLY",
+   "date": "2018-06-25",
+   "ratio": 5.0,
+   "gap": 5.01,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "UNITDSPR",
+   "date": "2018-06-15",
+   "ratio": 5.0,
+   "gap": 4.973,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "UNIVASTU",
+   "date": "2025-10-13",
+   "ratio": 3.0,
+   "gap": 2.913,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "UNOMINDA",
+   "date": "2016-09-12",
+   "ratio": 5.0,
+   "gap": 5.132,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Rs 2"
+  },
+  {
+   "stock": "UNOMINDA",
+   "date": "2018-07-11",
+   "ratio": 3.0,
+   "gap": 2.914,
+   "how": "nse",
+   "subject": "Bonus 2:1/Dividend- Rs 1.60 Per Share"
+  },
+  {
+   "stock": "UNOMINDA",
+   "date": "2022-07-07",
+   "ratio": 2.0,
+   "gap": 1.829,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "UPL",
+   "date": "2019-07-02",
+   "ratio": 1.5,
+   "gap": 1.488,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "V2RETAIL",
+   "date": "2026-03-25",
+   "ratio": 10.0,
+   "gap": 9.883,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "VAIBHAVGBL",
+   "date": "2021-05-07",
+   "ratio": 5.0,
+   "gap": 4.935,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VAISHALI",
+   "date": "2024-10-15",
+   "ratio": 10.0,
+   "gap": 9.393,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VAKRANGEE",
+   "date": "2017-12-21",
+   "ratio": 2.0,
+   "gap": 1.963,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "VALIANTORG",
+   "date": "2020-12-24",
+   "ratio": 2.0,
+   "gap": 1.975,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "VARDMNPOLY",
+   "date": "2024-05-17",
+   "ratio": 10.0,
+   "gap": 9.818,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "VBL",
+   "date": "2019-07-25",
+   "ratio": 1.5,
+   "gap": 1.499,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "VBL",
+   "date": "2021-06-10",
+   "ratio": 1.5,
+   "gap": 1.386,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "VBL",
+   "date": "2022-06-06",
+   "ratio": 1.5,
+   "gap": 1.467,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "VBL",
+   "date": "2023-06-15",
+   "ratio": 2.0,
+   "gap": 1.97,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "VBL",
+   "date": "2024-09-12",
+   "ratio": 2.5,
+   "gap": 2.469,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VCL",
+   "date": "2023-02-15",
+   "ratio": 2.0,
+   "gap": 1.725,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "VEEDOL",
+   "date": "2016-03-16",
+   "ratio": 4.0,
+   "gap": 4.019,
+   "how": "nse",
+   "subject": "Bonus 1:1/Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
+  },
+  {
+   "stock": "VEEDOL",
+   "date": "2021-07-26",
+   "ratio": 5.0,
+   "gap": 4.762,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "VENKEYS",
+   "date": "2015-12-21",
+   "ratio": 1.5,
+   "gap": 1.541,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "VERTOZ",
+   "date": "2024-07-05",
+   "ratio": 20.0,
+   "gap": 19.043,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "VESUVIUS",
+   "date": "2025-06-10",
+   "ratio": 10.0,
+   "gap": 9.897,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "VGUARD",
+   "date": "2016-08-30",
+   "ratio": 10.0,
+   "gap": 9.93,
+   "how": "nse",
+   "subject": "Face Value Split From Rs 10 To Re 1"
+  },
+  {
+   "stock": "VGUARD",
+   "date": "2017-03-15",
+   "ratio": 1.4,
+   "gap": 1.36,
+   "how": "nse",
+   "subject": "Bonus 2:5"
+  },
+  {
+   "stock": "VIMTALABS",
+   "date": "2025-06-13",
+   "ratio": 2.0,
+   "gap": 1.991,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "VINATIORGA",
+   "date": "2020-02-05",
+   "ratio": 2.0,
+   "gap": 1.976,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Rs 1/- Per Share"
+  },
+  {
+   "stock": "VISAKAIND",
+   "date": "2023-05-15",
+   "ratio": 5.0,
+   "gap": 4.909,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VISHAL",
+   "date": "2020-12-16",
+   "ratio": 1.5,
+   "gap": 1.531,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "VISHAL",
+   "date": "2022-03-10",
+   "ratio": 3.0,
+   "gap": 2.902,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "VISHNU",
+   "date": "2023-01-13",
+   "ratio": 5.0,
+   "gap": 4.997,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VISHWARAJ",
+   "date": "2021-10-21",
+   "ratio": 5.0,
+   "gap": 5.04,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VIVIDHA",
+   "date": "2015-05-28",
+   "ratio": 11.0,
+   "gap": 10.3,
+   "how": "nse",
+   "subject": "Bonus 10:1"
+  },
+  {
+   "stock": "VIVIDHA",
+   "date": "2016-03-30",
+   "ratio": 1.3333,
+   "gap": 1.275,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "VIVIMEDLAB",
+   "date": "2016-04-06",
+   "ratio": 5.0,
+   "gap": 4.968,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "VMART",
+   "date": "2025-06-23",
+   "ratio": 4.0,
+   "gap": 3.93,
+   "how": "nse",
+   "subject": "Bonus 3:1"
+  },
+  {
+   "stock": "VRLLOG",
+   "date": "2025-08-14",
+   "ratio": 2.0,
+   "gap": 1.992,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "VSSL",
+   "date": "2023-05-26",
+   "ratio": 2.0,
+   "gap": 1.944,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "VSTIND",
+   "date": "2024-09-06",
+   "ratio": 11.0,
+   "gap": 9.394,
+   "how": "nse",
+   "subject": "Bonus 10:1"
+  },
+  {
+   "stock": "VTL",
+   "date": "2022-03-24",
+   "ratio": 5.0,
+   "gap": 4.899,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "WABAG",
+   "date": "2015-03-26",
+   "ratio": 2.0,
+   "gap": 2.041,
+   "how": "nse",
+   "subject": "Bonus 1 : 1"
+  },
+  {
+   "stock": "WATERBASE",
+   "date": "2026-08-17",
+   "ratio": 1.6667,
+   "gap": 1.611,
+   "how": "prices"
+  },
+  {
+   "stock": "WEBELSOLAR",
+   "date": "2025-11-14",
+   "ratio": 10.0,
+   "gap": 10.021,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "WEL",
+   "date": "2024-11-12",
+   "ratio": 10.0,
+   "gap": 9.932,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "WELSPUNLIV",
+   "date": "2016-03-21",
+   "ratio": 10.0,
+   "gap": 9.997,
+   "how": "nse",
+   "subject": "Interim Div - Rs 6/- Per Share + Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "WHEELS",
+   "date": "2018-08-08",
+   "ratio": 2.0,
+   "gap": 1.976,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "WIPRO",
+   "date": "2017-06-13",
+   "ratio": 2.0,
+   "gap": 2.024,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "WIPRO",
+   "date": "2019-03-06",
+   "ratio": 1.3333,
+   "gap": 1.325,
+   "how": "nse",
+   "subject": "Bonus 1:3"
+  },
+  {
+   "stock": "WIPRO",
+   "date": "2024-12-03",
+   "ratio": 2.0,
+   "gap": 1.979,
+   "how": "nse",
+   "subject": "Bonus 1:1"
+  },
+  {
+   "stock": "XPROINDIA",
+   "date": "2022-07-01",
+   "ratio": 1.5,
+   "gap": 1.491,
+   "how": "nse",
+   "subject": "Bonus 1:2"
+  },
+  {
+   "stock": "YESBANK",
+   "date": "2017-09-21",
+   "ratio": 5.0,
+   "gap": 5.01,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ZENSARTECH",
+   "date": "2018-09-07",
+   "ratio": 5.0,
+   "gap": 4.887,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10 /- Per Share To Rs 2/- Per Share"
+  },
+  {
+   "stock": "ZFCVINDIA",
+   "date": "2026-06-24",
+   "ratio": 6.0,
+   "gap": 5.716,
+   "how": "nse",
+   "subject": "Bonus 5:1"
+  },
+  {
+   "stock": "ZIMLAB",
+   "date": "2022-12-22",
+   "ratio": 3.0,
+   "gap": 3.014,
+   "how": "nse",
+   "subject": "Bonus 2:1"
+  },
+  {
+   "stock": "ZYDUSLIFE",
+   "date": "2015-10-06",
+   "ratio": 5.0,
+   "gap": 4.973,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 5/- Per Share To Re 1/- Per Share"
+  },
+  {
+   "stock": "ZYDUSWELL",
+   "date": "2025-09-18",
+   "ratio": 5.0,
+   "gap": 4.94,
+   "how": "nse",
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+  }
+ ],
+ "etfs": [
+  "ABGSEC",
+  "ABSL10BANK",
+  "ABSLBANETF",
+  "ABSLLIQUID",
+  "ABSLMSCIN",
+  "ABSLNN50ET",
+  "ABSLPSE",
+  "ALPHA",
+  "ALPHAETF",
+  "ALPL30IETF",
+  "AONEGOLD",
+  "AONELIQUID",
+  "AONENIFTY",
+  "AONESILVER",
+  "AONETMMQ50",
+  "AONETOTAL",
+  "AUTOBEES",
+  "AUTOIETF",
+  "AXISBPSETF",
+  "BANK10ADD",
+  "BANK10BETF",
+  "BANKADD",
+  "BANKBEES",
+  "BANKBETA",
+  "BANKBETF",
+  "BANKETF",
+  "BANKIETF",
+  "BANKNIFTY1",
+  "BANKPSU",
+  "BBETF0432",
+  "BBNPNBETF",
+  "BBNPPGOLD",
+  "BFSI",
+  "BNKETFAXIS",
+  "BSE500IETF",
+  "BSLGOLDETF",
+  "BSLNIFTY",
+  "BSLSENETFG",
+  "CASHIETF",
+  "CEMNTGROWW",
+  "CHEMICAL",
+  "CHOICEGOLD",
+  "COMMOIETF",
+  "CONS",
+  "CONSUMAXIS",
+  "CONSUMBEES",
+  "CONSUMER",
+  "CONSUMIETF",
+  "CPSEETF",
+  "CRMFGETF",
+  "DEFENCE",
+  "DIVIDEND",
+  "DIVOPPBEES",
+  "EBANK10",
+  "EBANKNIFTY",
+  "EBBETF0423",
+  "EBBETF0425",
+  "EBBETF0430",
+  "EBBETF0431",
+  "EBBETF0433",
+  "ECAPINSURE",
+  "EGOLD",
+  "ELIQUID",
+  "ELM250",
+  "ELMDIV",
+  "EMETAL",
+  "EMULTIMQ",
+  "ENERGY",
+  "ENERGYAXIS",
+  "ENEXT50",
+  "ENIFTY",
+  "EQUAL200",
+  "EQUAL50",
+  "EQUAL50ADD",
+  "ESENSEX",
+  "ESG",
+  "ESILVER",
+  "EVIETF",
+  "EVINDIA",
+  "FINIETF",
+  "FLEXIADD",
+  "FMCGADD",
+  "FMCGIETF",
+  "GILT10BETA",
+  "GILT5BETA",
+  "GILT5YBEES",
+  "GOLD1",
+  "GOLD360",
+  "GOLDADD",
+  "GOLDAXIS",
+  "GOLDBEES",
+  "GOLDBETA",
+  "GOLDBND",
+  "GOLDCASE",
+  "GOLDETF",
+  "GOLDIETF",
+  "GROWWCAPM",
+  "GROWWCHEM",
+  "GROWWDEFNC",
+  "GROWWEV",
+  "GROWWGOLD",
+  "GROWWHOSPI",
+  "GROWWLIQID",
+  "GROWWLOVOL",
+  "GROWWMC150",
+  "GROWWMETAL",
+  "GROWWMOM50",
+  "GROWWN200",
+  "GROWWNET",
+  "GROWWNIFTY",
+  "GROWWNXT50",
+  "GROWWPOWER",
+  "GROWWPSE",
+  "GROWWPSUBK",
+  "GROWWRAIL",
+  "GROWWRLTY",
+  "GROWWSC250",
+  "GROWWSLVR",
+  "GSEC10ABSL",
+  "GSEC10ADD",
+  "GSEC10IETF",
+  "GSEC10YEAR",
+  "GSEC5IETF",
+  "HDFCBSE500",
+  "HDFCGOLD",
+  "HDFCGROWTH",
+  "HDFCLIQUID",
+  "HDFCLOWVOL",
+  "HDFCMID150",
+  "HDFCMOMENT",
+  "HDFCNEXT50",
+  "HDFCNIF100",
+  "HDFCNIFBAN",
+  "HDFCNIFIT",
+  "HDFCNIFTY",
+  "HDFCNIMEG",
+  "HDFCPSUBK",
+  "HDFCPVTBAN",
+  "HDFCQUAL",
+  "HDFCSENSEX",
+  "HDFCSILVER",
+  "HDFCSML250",
+  "HDFCVALUE",
+  "HEALTHADD",
+  "HEALTHAXIS",
+  "HEALTHCARE",
+  "HEALTHIETF",
+  "HEALTHY",
+  "HNGSNGBEES",
+  "HSBCGOLD",
+  "HYBRIDETF",
+  "IBMFNIFTY",
+  "ICICIB22",
+  "ICICIGOLD",
+  "ICICILOVOL",
+  "ICICINF100",
+  "ICICINIFTY",
+  "ICICINXT50",
+  "ICICIQTY30",
+  "ICICISILVE",
+  "IDFNIFTYET",
+  "IIFLNIFTY",
+  "INFRA",
+  "INFRABEES",
+  "INFRAIETF",
+  "INSUREIETF",
+  "INTERNET",
+  "ISENSEX",
+  "IT",
+  "ITADD",
+  "ITAXIS",
+  "ITBEES",
+  "ITBETA",
+  "ITETF",
+  "ITIETF",
+  "IVZBANKNF",
+  "IVZINGOLD",
+  "IVZINNIFTY",
+  "IVZSENSEX",
+  "JUNIORBEES",
+  "LARGEMID50",
+  "LICMFGOLD",
+  "LICNETFGSC",
+  "LICNETFN50",
+  "LICNETFSEN",
+  "LICNFENGP",
+  "LICNFNHGP",
+  "LICNMID100",
+  "LIQGRWBEES",
+  "LIQUID",
+  "LIQUID1",
+  "LIQUIDADD",
+  "LIQUIDBEES",
+  "LIQUIDBETA",
+  "LIQUIDBETF",
+  "LIQUIDCASE",
+  "LIQUIDETF",
+  "LIQUIDIETF",
+  "LIQUIDPLUS",
+  "LIQUIDSBI",
+  "LIQUIDSHRI",
+  "LOWVOL",
+  "LOWVOL1",
+  "LOWVOLIETF",
+  "LTGILTBEES",
+  "LTGILTCASE",
+  "MAFANG",
+  "MAHKTECH",
+  "MAKEINDIA",
+  "MANUFGBEES",
+  "MASPTOP50",
+  "METAL",
+  "METALIETF",
+  "MGOLD",
+  "MID150",
+  "MID150BEES",
+  "MID150CASE",
+  "MIDBANKADD",
+  "MIDCAP",
+  "MIDCAPADD",
+  "MIDCAPBETA",
+  "MIDCAPETF",
+  "MIDCAPIETF",
+  "MIDQ50ADD",
+  "MIDSELIETF",
+  "MIDSMALL",
+  "MNC",
+  "MOALPHA50",
+  "MOBANK10",
+  "MOCAPITAL",
+  "MODEFENCE",
+  "MOENERGY",
+  "MOGOLD",
+  "MOGSEC",
+  "MOHEALTH",
+  "MOINFRA",
+  "MOIPO",
+  "MOLOWVOL",
+  "MOM100",
+  "MOM30IETF",
+  "MOM50",
+  "MOMENTUM",
+  "MOMENTUM30",
+  "MOMENTUM50",
+  "MOMETAL",
+  "MOMGF",
+  "MOMIDMTM",
+  "MOMMIDCAP",
+  "MOMNC",
+  "MOMOMENTUM",
+  "MON100",
+  "MON50EQUAL",
+  "MONEXT50",
+  "MONIFTY100",
+  "MONIFTY500",
+  "MONQ50",
+  "MOOILGAS",
+  "MOPSE",
+  "MOQUALITY",
+  "MOREALTY",
+  "MOSERVICE",
+  "MOSILVER",
+  "MOSMALL250",
+  "MOTOUR",
+  "MOVALUE",
+  "MSCI360",
+  "MSCIADD",
+  "MSCIINDIA",
+  "MULTICAP",
+  "NAVINIFTY",
+  "NETF",
+  "NETFLTGILT",
+  "NETFPHARMA",
+  "NETFSDL26",
+  "NEXT30ADD",
+  "NEXT50",
+  "NEXT50ADD",
+  "NEXT50BETA",
+  "NEXT50ETF",
+  "NEXT50IETF",
+  "NIF100BEES",
+  "NIF100IETF",
+  "NIF100IWIN",
+  "NIF500BETA",
+  "NIFTY1",
+  "NIFTY100EW",
+  "NIFTYADD",
+  "NIFTYAXIS",
+  "NIFTYBEES",
+  "NIFTYBETA",
+  "NIFTYBETF",
+  "NIFTYCASE",
+  "NIFTYEES",
+  "NIFTYETF",
+  "NIFTYIETF",
+  "NIFTYJBLK",
+  "NIFTYQLITY",
+  "NPBET",
+  "NV20",
+  "NV20BEES",
+  "NV20IETF",
+  "OILIETF",
+  "PHARMABEES",
+  "PSUBANK",
+  "PSUBANKADD",
+  "PSUBNKBEES",
+  "PSUBNKIETF",
+  "PVTBANIETF",
+  "PVTBANK",
+  "PVTBANKADD",
+  "PVTBKGROWW",
+  "QGOLDHALF",
+  "QNIFTY",
+  "QUAL30IETF",
+  "QUALITY30",
+  "RELGOLD",
+  "RELNIFTY",
+  "SBIBPB",
+  "SBIETFCON",
+  "SBIETFIT",
+  "SBIETFPB",
+  "SBIETFQLTY",
+  "SBILIQETF",
+  "SBIMIDMOM",
+  "SBINEQWETF",
+  "SBINMID150",
+  "SBISILVER",
+  "SBISMLETF",
+  "SBIVALETF",
+  "SDL24BEES",
+  "SDL26BEES",
+  "SECLEDBETA",
+  "SELECTIPO",
+  "SENSEXADD",
+  "SENSEXAXIS",
+  "SENSEXBETA",
+  "SENSEXETF",
+  "SENSEXIETF",
+  "SETF10GILT",
+  "SETFGOLD",
+  "SETFNIF50",
+  "SETFNIFBK",
+  "SETFNN50",
+  "SHARIABEES",
+  "SILVER",
+  "SILVER001",
+  "SILVER1",
+  "SILVER360",
+  "SILVERADD",
+  "SILVERAG",
+  "SILVERAXIS",
+  "SILVERBEES",
+  "SILVERBETA",
+  "SILVERBND",
+  "SILVERCASE",
+  "SILVERIETF",
+  "SILVERTUC",
+  "SMALL250",
+  "SMALLADD",
+  "SMALLCAP",
+  "SMALLGROWW",
+  "SMALLIETF",
+  "SML100CASE",
+  "SNXT30BEES",
+  "SNXT50BETA",
+  "SSDL",
+  "TATAGOLD",
+  "TATSILV",
+  "TECH",
+  "TNIDETF",
+  "TOP100CASE",
+  "TOP10ADD",
+  "TOP15IETF",
+  "TOP20",
+  "TWCGOLDETF",
+  "UNIONGOLD",
+  "VAL30IETF",
+  "VALUE",
+  "VALUEAXIS"
+ ],
+ "indexLike": {}
+}

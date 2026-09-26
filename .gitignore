@@ -16,3 +16,7 @@ study/prices_extra.json
 # momentum book build
 book/node_modules/
 ~$*
+
+# all-NSE study data (raw NSE file and the cache study/nse_data.py builds from it; too large for git)
+study/NSE_all_stocks_daily_2015_onwards.parquet
+study/nse_prices.npz

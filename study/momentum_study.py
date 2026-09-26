@@ -48,7 +48,7 @@ class Params:
     market_ma: int = 200             # None = never go to the liquid fund
     market_check: str = "daily"      # "monthly" (month-end close only) | "daily"
     confirm_days: int = 3            # daily check: exit after this many closes in a row below the MA
-    rebalance: str = "month_end"     # "month_end" | "offset:k" (k trading days before) | "mid_month" | "quarterly"
+    rebalance: str = "month_end"     # "month_end" | "weekly" | "offset:k" (k trading days before) | "mid_month" | "quarterly"
     cost: float = 0.0025             # per side
     universe: str = "pit500"         # "pit500" (point-in-time Nifty 500 lists) | "today500" | "fixed750"
     taxes: bool = False
@@ -262,6 +262,12 @@ class Features:
 # ---------------------------------------------------------------- backtest
 
 def rebalance_days(calendar, rule, start):
+    if rule == "weekly":  # last trading day of each week; the last week only if it ended on a Friday
+        wk = [date.fromisoformat(d).isocalendar()[:2] for d in calendar]
+        out = [i for i in range(len(calendar) - 1) if wk[i + 1] != wk[i]]
+        if date.fromisoformat(calendar[-1]).weekday() == 4:
+            out.append(len(calendar) - 1)
+        return [t for t in out if t >= start]
     months = {}
     for i, d in enumerate(calendar):
         months.setdefault(d[:7], []).append(i)
