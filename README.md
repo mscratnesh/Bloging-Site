@@ -103,6 +103,22 @@ py study\etf_study.py
 py study\etf_report.py
 ```
 
+### Multi-year breakout study (`breakout-study.html`, `study/breakout_*`)
+
+Backtests of buying Nifty 500 stocks (point-in-time lists) that close above their highest price of the last 2, 3 or 4 years, where that high was set at least a year earlier. Each lookback is a separate backtest from the first day it can be measured, run with three stop-losses: the previous week's lowest close, the lowest close of the last 2 weeks, and the 2-week low that stops trailing once it is 5% above the buy price and then rises 1% every 2 months. Up to 10 stocks from a watchlist of the best 20 recent breakouts, bought on Friday's close; ₹10 lakh to start (₹1 lakh a slot); idle money waits in one GOLDBEES pool shared equally by the empty slots; dividends added on the ex-date; 0.25% cost per side on stocks and GOLDBEES. Breakouts and stops use split-adjusted closes (the price cache has no daily lows).
+
+Unlike the momentum and ETF studies, the **full report is public**: `breakout-study.html` is linked from the homepage ("Backtest study" card) and ships in `dist`.
+
+- `study/fetch_dividends.py` — dividend history from Yahoo into `study/dividends.json`, stored as yields (dividend ÷ previous close) so splits don't distort them.
+- `study/breakout_study.py` — runs the nine backtests (needs `numpy`, ~1 minute) and writes `breakout_study.json`.
+- `study/breakout_report.py` — writes `study/breakout_report.html` and the public copy `breakout-study.html` at the site root (reuses `study/backtest_report_template.html`'s look).
+
+```powershell
+py study\fetch_dividends.py      # only to refresh dividends
+py study\breakout_study.py
+py study\breakout_report.py
+```
+
 ### Momentum book (`book/`)
 
 "Riding the Winners", a plain-English book (Word, A4) on momentum investing built from the study: what momentum is, its history, why it works, the exact rules, the honest backtest and every stress test. All numbers and charts come from `momentum_study.json`, so rebuild it after rerunning the study. Not part of the site build.
@@ -124,7 +140,7 @@ py -m PyInstaller --noconfirm LetMoneyEarn.spec
 py -m PyInstaller --noconfirm LetMoneyEarnAdmin.spec
 ```
 
-Then copy the site files next to the executables in `dist\`: every `*.html`, `*.js`, `*.css`, plus `breakout_data.json`, `momentum_teaser.json` and `etf_teaser.json` (not `momentum_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
+Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, plus `breakout_data.json`, `momentum_teaser.json` and `etf_teaser.json` (not `momentum_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
 
 ## Punam Numerology (subdomain site)
 
