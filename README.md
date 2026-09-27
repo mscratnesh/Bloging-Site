@@ -58,6 +58,10 @@ Two pages in the site menu are data-driven stock tools rather than articles: Bre
 
 A one-page sales page (menu: **Sheets**) for the two Google Sheets, ₹500 each: the Momentum Sharpe Scan (`apps-script/MomentumScan.gs`) and the Multi-Year Breakout Tracker (`apps-script/BreakoutTracker.gs`). It describes what each sheet does and deliberately doesn't link to the studies. Orders go through the same `/api/call-request` route as the Services form and land in the `call_requests` table with `service` set to the chosen sheet (for example `Momentum Sharpe Scan sheet (₹500)`). Buyers pay first by UPI (`mscratnesh@oksbi`; the QR code is `upi-qr.png`, cropped from the Google Pay QR, and on phones a `upi://pay` link carries the amount for the chosen option) and enter the UPI transaction ID in the form; it is saved at the start of `message`. There is no admin page for orders yet, so read them from the database, match the transaction ID against the UPI app, then share a copy of the sheet with the buyer's Google account. Keep the feature lists on the page in step with the scripts when their rules change.
 
+### Gold vs Nifty (`gold-vs-nifty.html`)
+
+A one-page summary of the Gold vs Nifty rotation (NiftyBeES or a Momentum 50 ETF vs GoldBeES, switching when their price ratio breaks out of its recent range): the idea, headline backtest results for both versions (Feb 2010 to May 2026, after 20% STCG and STT) and limits, ending in a link to the ebook on Amazon. It keeps the exact rules for the book, and it isn't in the site menu. Its numbers come from the handbook (section 7.2). The source files (`study/GoldVsNifty.xlsx`, the handbook PDF and Word file) are git-ignored because the handbook is sold; the spreadsheet's trade log uses 15% STCG, so it doesn't match the handbook's 20% figures.
+
 ### Breakout Desk (`breakout-desk.html`)
 
 NSE stocks breaking out of multi-year bases and cup-and-handle patterns.
