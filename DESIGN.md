@@ -52,7 +52,7 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | Table | Key columns | Notes |
 |---|---|---|
 | `posts` | title, summary, content, category, status (`draft`/`published`), active (0/1), author, image | listed publicly only when `status='published' AND active=1` |
-| `call_requests` | service, name, email, phone, message | Mutual Fund enquiry form; admin-only read (no route shown for listing yet — check `admin.html`) |
+| `call_requests` | service, name, email, phone, message | Mutual Fund enquiry form and sheet orders from `sheets.html`; admin-only read (no route shown for listing yet — check `admin.html`) |
 | `questions` | name, email, message | from `question.html`; admin view is `admin_questions.html` |
 | `reviews` | name, review, rating, status (`pending`/`approved`/`rejected`), image_url | public submissions default `pending`; admin-added reviews (`/api/admin/reviews` POST) are inserted pre-`approved` |
 | `comments` | post_id (FK→posts), name, comment, status | same pending/approve flow as reviews, scoped per post |
@@ -65,6 +65,7 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `index.html` | home, post grid | `/api/posts` | — |
 | `post.html` | article detail | `/api/posts/:id`, `/api/comments/:id` | `/api/comments` (submit) |
 | `services.html` | Mutual Fund enquiry | — | `/api/call-request` |
+| `sheets.html` | sells the Momentum and Breakout Google Sheets (₹500 each) | — | `/api/call-request` (service = chosen sheet) |
 | `question.html` | ask-a-question form | — | `/api/questions` |
 | `review.html` | submit a review | — | `/api/reviews` |
 | `calculators.html` | finance calculators | client-side only (`calculators.js`) | — |

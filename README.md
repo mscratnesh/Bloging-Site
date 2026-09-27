@@ -52,7 +52,11 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-Two pages in the site menu are data-driven stock tools rather than articles: Breakout Desk and Momentum Study. Both are for information only and carry a not-investment-advice disclaimer.
+Two pages in the site menu are data-driven stock tools rather than articles: Breakout Desk and Momentum Study. A third, Sheets, sells the Google Sheets behind them. All three are for information only and carry a not-investment-advice disclaimer.
+
+### Sheets for sale (`sheets.html`)
+
+A one-page sales page (menu: **Sheets**) for the two Google Sheets, ₹500 each: the Momentum Sharpe Scan (`apps-script/MomentumScan.gs`) and the Multi-Year Breakout Tracker (`apps-script/BreakoutTracker.gs`). It describes what each sheet does and deliberately doesn't link to the studies. Orders go through the same `/api/call-request` route as the Services form and land in the `call_requests` table with `service` set to the chosen sheet (for example `Momentum Sharpe Scan sheet (₹500)`). Buyers pay first by UPI (`mscratnesh@oksbi`; the QR code is `upi-qr.png`, cropped from the Google Pay QR, and on phones a `upi://pay` link carries the amount for the chosen option) and enter the UPI transaction ID in the form; it is saved at the start of `message`. There is no admin page for orders yet, so read them from the database, match the transaction ID against the UPI app, then share a copy of the sheet with the buyer's Google account. Keep the feature lists on the page in step with the scripts when their rules change.
 
 ### Breakout Desk (`breakout-desk.html`)
 
@@ -141,7 +145,7 @@ py -m PyInstaller --noconfirm LetMoneyEarn.spec
 py -m PyInstaller --noconfirm LetMoneyEarnAdmin.spec
 ```
 
-Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, plus `breakout_data.json`, `momentum_teaser.json` and `etf_teaser.json` (not `momentum_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
+Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, `upi-qr.png` (the payment QR on `sheets.html`), plus `breakout_data.json`, `momentum_teaser.json` and `etf_teaser.json` (not `momentum_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
 
 ## Punam Numerology (subdomain site)
 
