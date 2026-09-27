@@ -355,6 +355,61 @@ const DATA = {json.dumps(data, separators=(",", ":")).replace("</", "<\\/")};
 </html>
 """
 (HERE / "breakout_report.html").write_text(page, encoding="utf-8")
-(ROOT / "breakout-study.html").write_text(page, encoding="utf-8")
+
+# ---- public copy: the site's header and footer instead of the back link. The menu is taken from
+# sheets.html so it stays in sync; colours come from the report's theme variables (light and dark).
+SITE_HEAD = """<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+.site-header { position: relative; height: 86px; padding: 0 max(16px, calc((100% - 1080px) / 2)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg); font-family: "Manrope", system-ui, sans-serif; }
+.site-header .brand, .site-footer .brand { display: flex; align-items: center; }
+.site-header .brand img { display: block; height: 64px; width: auto; }
+.site-header nav { display: flex; align-items: center; gap: 32px; }
+.site-header nav a { color: var(--text); text-decoration: none; font-size: 13px; white-space: nowrap; }
+.site-header nav a:hover, .nav-toggle:hover, .nav-group:focus-within .nav-toggle { color: #ef795d; }
+.site-header .menu { display: none; background: transparent; border: 0; cursor: pointer; }
+.site-header .menu i { display: block; width: 22px; height: 1px; background: var(--text); margin: 5px; transition: transform .2s ease; }
+.nav-group { position: relative; display: flex; align-items: center; padding: 14px 0; margin: -14px 0; }
+.nav-toggle { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text); font: 13px "Manrope", system-ui, sans-serif; white-space: nowrap; }
+.nav-toggle:after { content: ""; display: inline-block; width: 5px; height: 5px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: translateY(-3px) rotate(45deg); margin-left: 8px; }
+.nav-sub { display: none; position: absolute; top: 100%; left: -18px; min-width: 210px; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--text); padding: 6px 0; z-index: 30; }
+.site-header .nav-sub a { display: block; padding: 10px 18px; }
+.nav-group:hover .nav-sub, .nav-group:focus-within .nav-sub, .nav-group.is-open .nav-sub { display: block; }
+.site-footer { max-width: 1080px; margin: 0 auto; padding: 27px 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 11px "DM Mono", monospace; border-top: 1px solid var(--border); }
+.site-footer .brand img { height: 32px; }
+.site-footer span:last-child { color: var(--text); }
+@media (min-width: 701px) and (max-width: 960px) { .site-header nav { gap: 18px; } }
+@media (max-width: 700px) {
+  .site-header { height: 68px; }
+  .site-header .brand img { height: 52px; }
+  .site-header nav { display: none; }
+  .site-header .menu { display: block; position: relative; z-index: 21; }
+  .site-header .menu.is-open i:first-child { transform: translateY(3px) rotate(45deg); }
+  .site-header .menu.is-open i:last-child { transform: translateY(-3px) rotate(-45deg); }
+  .site-header.nav-open nav { display: flex; flex-direction: column; align-items: stretch; gap: 2px; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 8px 6vw 20px; z-index: 20; }
+  .site-header.nav-open nav a { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .nav-group { display: block; padding: 0; margin: 0; }
+  .nav-toggle { display: block; width: 100%; text-align: left; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: default; color: var(--muted); font: 11px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
+  .nav-toggle:after { display: none; }
+  .nav-sub { display: block; position: static; min-width: 0; border: 0; background: none; padding: 0; }
+  .site-header.nav-open .nav-sub a { padding-left: 16px; }
+  .site-footer { display: grid; gap: 16px; }
+  .site-footer span { display: none; }
+  .site-footer span:last-child { display: block; }
+}
+</style>
+"""
+site = (ROOT / "sheets.html").read_text(encoding="utf-8")
+header = re.search(r'<header class="site-header">.*?</header>', site, re.S).group(0)
+footer = re.search(r"<footer>.*?</footer>", site, re.S).group(0).replace("<footer>", '<footer class="site-footer">', 1)
+back = '<div class="wrap site-top"><a class="site-back" href="breakout-desk.html">&larr; Breakout Desk</a></div>'
+for part in ("<title>Multi-Year Breakout Report</title>", "</head>", back, "</body>"):
+    assert page.count(part) == 1, part
+public = (page.replace("<title>Multi-Year Breakout Report</title>", "<title>Multi-Year Breakout Study | Let Money Earn</title>")
+          .replace("</head>", SITE_HEAD + "</head>")
+          .replace(back, header)
+          .replace("</body>", footer + '\n<script src="nav.js"></script>\n</body>'))
+(ROOT / "breakout-study.html").write_text(public, encoding="utf-8")
 print("wrote study/breakout_report.html and breakout-study.html", len(page) // 1024, "KB")
 

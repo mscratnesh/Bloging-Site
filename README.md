@@ -119,7 +119,7 @@ Unlike the momentum and ETF studies, the **full report is public**: `breakout-st
 
 - `study/fetch_dividends.py` — dividend history from Yahoo into `study/dividends.json`, stored as yields (dividend ÷ previous close) so splits don't distort them.
 - `study/breakout_study.py` — runs the nine backtests (needs `numpy`, ~1 minute) and writes `breakout_study.json`.
-- `study/breakout_report.py` — writes `study/breakout_report.html` and the public copy `breakout-study.html` at the site root (reuses `study/backtest_report_template.html`'s look).
+- `study/breakout_report.py` — writes `study/breakout_report.html` and the public copy `breakout-study.html` at the site root (reuses `study/backtest_report_template.html`'s look). The public copy gets the site's header and footer, with the menu copied from `sheets.html`, so rerun it after changing the menu.
 
 ```powershell
 py study\fetch_dividends.py      # only to refresh dividends
