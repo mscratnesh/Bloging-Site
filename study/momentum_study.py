@@ -34,6 +34,7 @@ COVERAGE = 0.9
 LIQUID_ANNUAL = 0.065
 ALL_LOOKBACKS = (21, 63, 126, 184, 189, 252)
 TAX_CHANGE = "2024-07-23"  # Budget 2024: STCG 15% -> 20%, LTCG 10% -> 12.5%
+DIV_TAX = 0.30  # dividends are taxed at the slab rate; the tax runs take the 30% slab off when paid
 
 
 @dataclass(frozen=True)
@@ -51,7 +52,14 @@ class Params:
     rebalance: str = "month_end"     # "month_end" | "weekly" | "offset:k" (k trading days before) | "mid_month" | "quarterly"
     cost: float = 0.0025             # per side
     universe: str = "pit500"         # "pit500" (point-in-time Nifty 500 lists) | "today500" | "fixed750"
+                                     # whole NSE (study/momentum_nse_study.py): "nse" (EQ, BE, BZ) | "nse_eq"
     taxes: bool = False
+    dividends: bool = True           # paid into cash on the ex-date, where the data has them (data.div)
+    skip_locked: bool = False        # don't buy a stock that closed at an upper circuit (data.locked)
+    # No new buys at a rebalance whose close of data.buy_gate (the Nifty500 Momentum 50 on the whole-NSE
+    # study) is below its `buy_gate_ma`-day average; sells go on as usual and free money waits in cash.
+    buy_gate_ma: int = None
+    buy_gate_fill: bool = False      # and on the day it closes back above, fill the empty slots right away
     # Extra exit: sell a holding that falls `stop_pct` within the month.
     #   "from_rebalance": daily, close <= (1 - stop_pct) x its close at the last rebalance (or buy price)
     #   "trailing":       daily, close <= (1 - stop_pct) x its highest close since the last rebalance
@@ -353,6 +361,9 @@ def backtest(feat, p, rng=None, record=False):
     rebal = rebalance_days(cal, p.rebalance, start)
     rebal_set = set(rebal)
     sma = market_sma(d.index, p.market_ma) if p.market_ma else None
+    gate = getattr(d, "buy_gate", None) if p.buy_gate_ma else None
+    gate_sma = market_sma(gate, p.buy_gate_ma) if gate is not None else None
+    gate_below = lambda t: gate_sma is not None and not np.isnan(gate_sma[t]) and gate[t] < gate_sma[t]
     liquid_daily = (1 + LIQUID_ANNUAL) ** (1 / TRADING_DAYS) - 1
     streak = np.zeros(len(cal), dtype=int)  # closes in a row below the market MA, up to each day
     if sma is not None:
@@ -364,16 +375,39 @@ def backtest(feat, p, rng=None, record=False):
     in_asset = False  # cash currently parked in p.cash_asset
     ref, peak = {}, {}  # per holding: close at the last rebalance, highest close since then
     tax = Tax() if p.taxes else None
+    div = getattr(d, "div", None) if p.dividends else None
     equity, trades, events, turnover_traded = [], [], [], 0.0
     exposure, positions_log = [], []
+
+    def buy(buys, t, day):
+        """Splits the cash equally over `buys` at today's close."""
+        nonlocal cash, in_asset, turnover_traded
+        if not buys or cash <= 0:
+            return
+        if in_asset:  # sell the ETF to fund the buys
+            cash *= 1 - p.cost
+            in_asset = False
+        share = cash * (1 - p.cost) / len(buys)
+        for j in buys:
+            hold[j] = share
+            entry[j] = {"day": day, "t": t, "basis": share, "price": d.close[t, j]}
+            turnover_traded += share
+            if record:
+                positions_log.append({"t": t, "col": j, "value": share})
+        cash = 0.0
+
     t0 = rebal[0]
     for t in range(t0, len(cal)):
         day = cal[t]
         if t > t0:
+            paid = 0.0
             for j in hold:
                 r = d.ret[t, j]
+                if div is not None and div[t, j] and not np.isnan(r):  # no price drop seen, no dividend
+                    paid += hold[j] * div[t, j]
                 hold[j] *= 1 + (0.0 if np.isnan(r) else r)
             cash *= 1 + (d.cash_ret[p.cash_asset][t] if p.cash_asset else liquid_daily)
+            cash += paid * (1 - DIV_TAX if tax else 1)
             if tax and day[5:7] == "04" and cal[t - 1][5:7] == "03":  # new financial year
                 due = tax.settle()
                 total = cash + sum(hold.values())
@@ -443,21 +477,29 @@ def backtest(feat, p, rng=None, record=False):
                 cash += proceeds
                 turnover_traded += v
             fell_now = {j for j in sold if fell(j)}  # don't buy straight back what the stop just sold
-            buys = [j for j in order.tolist() if j not in hold and j not in fell_now][:p.top_n - len(hold)]
-            if buys and cash > 0:
-                if in_asset:  # sell the ETF to fund the buys
-                    cash *= 1 - p.cost
-                    in_asset = False
-                share = cash * (1 - p.cost) / len(buys)
-                for j in buys:
-                    hold[j] = share
-                    entry[j] = {"day": day, "t": t, "basis": share, "price": d.close[t, j]}
-                    turnover_traded += share
-                    if record:
-                        positions_log.append({"t": t, "col": j, "value": share})
-                cash = 0.0
+            locked = getattr(d, "locked", None) if p.skip_locked else None  # no sellers: pass to the next
+            buys = [j for j in order.tolist() if j not in hold and j not in fell_now
+                    and not (locked is not None and locked[t, j])][:p.top_n - len(hold)]
+            if gate_below(t):
+                buys = []
+            buy(buys, t, day)
             if sold or buys:
                 events.append({"date": day, "type": "ENTER" if was_empty else "SWAP", "n": len(sold) + len(buys)})
+        elif (p.buy_gate_fill and gate_sma is not None and 0 < t and not below and len(hold) < p.top_n
+              and cash > 0 and not gate_below(t) and gate_below(t - 1)):
+            # The gate index just closed back above its average: fill the empty slots now, not at the
+            # next rebalance.
+            order = feat.ranking(t, p, d.universe_mask(p.universe, day))
+            if rng is not None:
+                order = rng.permutation(order)
+            locked = getattr(d, "locked", None) if p.skip_locked else None
+            buys = [j for j in order.tolist() if j not in hold
+                    and not (locked is not None and locked[t, j])][:p.top_n - len(hold)]
+            buy(buys, t, day)
+            for j in buys:
+                ref[j] = peak[j] = d.close[t, j]
+            if buys:
+                events.append({"date": day, "type": "FILL", "n": len(buys)})
         if t in rebal_set:  # the stop is measured from each rebalance's close
             for j in hold:
                 price = d.close[t, j]

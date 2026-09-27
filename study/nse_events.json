@@ -1907,7 +1907,7 @@
    "ratio": 10.0,
    "gap": 8.987,
    "how": "nse",
-   "subject": "Bonus 1:1"
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
   },
   {
    "stock": "AIIL",
@@ -2591,7 +2591,7 @@
    "ratio": 15.0,
    "gap": 13.697,
    "how": "nse",
-   "subject": "Bonus 1:2"
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
   },
   {
    "stock": "BHAGCHEM",
@@ -2915,7 +2915,7 @@
    "ratio": 4.0,
    "gap": 3.766,
    "how": "nse",
-   "subject": "Face Value Split (Sub-Division) - From Rs 2/- Per Share To Re 1/- Per Share"
+   "subject": "Bonus 1:1"
   },
   {
    "stock": "CGCL",
@@ -5175,7 +5175,7 @@
    "ratio": 4.0,
    "gap": 3.807,
    "how": "nse",
-   "subject": "Bonus 1:1"
+   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 5/- Per Share"
   },
   {
    "stock": "LODHA",
@@ -7780,7 +7780,7 @@
    "ratio": 10.0,
    "gap": 9.393,
    "how": "nse",
-   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Rs 2/- Per Share"
+   "subject": "Bonus 1:1"
   },
   {
    "stock": "VAKRANGEE",
@@ -7884,7 +7884,7 @@
    "ratio": 20.0,
    "gap": 19.043,
    "how": "nse",
-   "subject": "Face Value Split (Sub-Division) - From Rs 10/- Per Share To Re 1/- Per Share"
+   "subject": "Bonus 1:1"
   },
   {
    "stock": "VESUVIUS",
@@ -8539,5 +8539,45 @@
   "VALUE",
   "VALUEAXIS"
  ],
- "indexLike": {}
+ "indexLike": {},
+ "dividends": 14547,
+ "dividendsDropped": [
+  {
+   "stock": "AURUM",
+   "date": "2020-12-23",
+   "rupees": 974.0,
+   "close": 985.65,
+   "yield": 0.988,
+   "subject": "Interim Dividend - Rs 974 Per Share"
+  },
+  {
+   "stock": "GENESYS",
+   "date": "2019-09-18",
+   "rupees": 125.0,
+   "close": 81.95,
+   "yield": 1.525,
+   "subject": "Annual General Meeting/Dividend - Rs.0125 Per Share"
+  },
+  {
+   "stock": "SETCO",
+   "date": "2026-06-02",
+   "rupees": 13.0,
+   "close": 28.62,
+   "yield": 0.454,
+   "subject": "Interim Dividend - Rs 13 Per Share"
+  },
+  {
+   "stock": "VARDHACRLC",
+   "date": "2021-10-28",
+   "rupees": 25.0,
+   "close": 72.35,
+   "yield": 0.346,
+   "subject": "Interim Dividend - Rs 25 Per Share"
+  }
+ ],
+ "barsBySeries": {
+  "EQ": 4115539,
+  "BE": 271174,
+  "BZ": 39826
+ }
 }

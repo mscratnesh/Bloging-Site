@@ -52,7 +52,7 @@ const f2 = v => v == null ? "–" : v.toFixed(2);
 const R = k => DATA.rows.find(r => r.key === k);
 const W = n => R("w" + n), M = n => R("m" + n);
 const name = r => `${r.freqLabel}, top ${r.topN} / exit ${r.exitRank}`;
-const B = DATA.bench;
+const B = DATA.bench, M50 = DATA.mom50;
 
 function render() {
   const D = DATA, best = R(D.best);
@@ -64,13 +64,13 @@ function render() {
   <h1>Momentum on all NSE stocks: how many to hold, and how often to rebalance</h1>
   <p class="sub">The Momentum Scan rules on every NSE stock (not just the Nifty 500), ${D.stocks.toLocaleString("en-IN")} stocks in all, from ${fdate(D.from)} to ${fdate(D.asOf)}.
   Buy the top N (10 to 50), sell a holding once it drops below rank 2N, and rebalance at each week's or each month's last close: 18 combinations.</p>
-  <nav class="nav"><a href="#findings">Findings</a><a href="#compare">Comparison</a><a href="#byn">By N</a><a href="#curve">Equity</a><a href="#robust">Robustness</a><a href="#years">Year by year</a><a href="#load">Trading load</a><a href="#bestd">Best in detail</a><a href="#method">Method</a></nav>
+  <nav class="nav"><a href="#findings">Findings</a><a href="#compare">Comparison</a><a href="#byn">By N</a><a href="#curve">Equity</a><a href="#robust">Robustness</a><a href="#years">Year by year</a><a href="#load">Trading load</a><a href="#bestd">Best in detail</a><a href="#ma50">50 DMA rule</a><a href="#method">Method</a></nav>
 
   <div class="tiles">
     <div class="tile"><div class="k">Best overall</div><div class="v">${best.freqLabel} ${best.topN}/${best.exitRank}</div><div class="c">average rank on 6 measures</div></div>
-    <div class="tile"><div class="k">Its CAGR</div><div class="v">${pct(best.cagr)}</div><div class="c">Nifty 500: ${pct(B.cagr)}</div></div>
-    <div class="tile"><div class="k">Its worst fall</div><div class="v">${pct(best.maxDD)}</div><div class="c">Nifty 500: ${pct(B.maxDD)}</div></div>
-    <div class="tile"><div class="k">Its Sharpe</div><div class="v">${f2(best.sharpe)}</div><div class="c">Nifty 500: ${f2(B.sharpe)}</div></div>
+    <div class="tile"><div class="k">Its CAGR</div><div class="v">${pct(best.cagr)}</div><div class="c">Nifty 500: ${pct(B.cagr)} · Momentum 50: ${pct(M50.cagr)}</div></div>
+    <div class="tile"><div class="k">Its worst fall</div><div class="v">${pct(best.maxDD)}</div><div class="c">Nifty 500: ${pct(B.maxDD)} · Momentum 50: ${pct(M50.maxDD)}</div></div>
+    <div class="tile"><div class="k">Its Sharpe</div><div class="v">${f2(best.sharpe)}</div><div class="c">Nifty 500: ${f2(B.sharpe)} · Momentum 50: ${f2(M50.sharpe)}</div></div>
     <div class="tile"><div class="k">After tax</div><div class="v">${pct(best.afterTax)}</div><div class="c">a year, STCG/LTCG paid each April</div></div>
   </div>
 
@@ -88,7 +88,8 @@ function render() {
       <th class="sort n" data-k="cagr">CAGR</th><th class="sort n" data-k="maxDD">Worst fall</th><th class="sort n" data-k="vol">Volatility</th><th class="sort n" data-k="sharpe">Sharpe</th><th class="sort n" data-k="sortino">Sortino</th><th class="sort n" data-k="calmar">Calmar</th>
       <th class="sort n" data-k="afterTax">After tax</th><th class="sort n" data-k="worst3y">Worst 3 yrs</th><th class="sort n" data-k="weakHalf">Weaker half</th><th class="sort n" data-k="multiple">₹1 became</th><th class="sort n" data-k="score">Overall</th></tr></thead>
     <tbody></tbody>
-    <tfoot><tr><td colspan="3">Nifty 500 index (price only)</td><td class="n">${pct(B.cagr)}</td><td class="n">${pct(B.maxDD)}</td><td class="n">${pct(B.vol)}</td><td class="n">${f2(B.sharpe)}</td><td class="n">${f2(B.sortino)}</td><td class="n">${f2(B.calmar)}</td><td class="n"></td><td class="n">${pct(B.worst3y)}</td><td class="n">${pct(Math.min(B.firstHalf, B.secondHalf))}</td><td class="n">₹${B.multiple.toFixed(2)}</td><td></td></tr></tfoot>
+    <tfoot><tr><td colspan="3">Nifty 500 index (price only)</td><td class="n">${pct(B.cagr)}</td><td class="n">${pct(B.maxDD)}</td><td class="n">${pct(B.vol)}</td><td class="n">${f2(B.sharpe)}</td><td class="n">${f2(B.sortino)}</td><td class="n">${f2(B.calmar)}</td><td class="n"></td><td class="n">${pct(B.worst3y)}</td><td class="n">${pct(Math.min(B.firstHalf, B.secondHalf))}</td><td class="n">₹${B.multiple.toFixed(2)}</td><td></td></tr>
+      <tr><td colspan="3">Nifty500 Momentum 50 index (price only)</td><td class="n">${pct(M50.cagr)}</td><td class="n">${pct(M50.maxDD)}</td><td class="n">${pct(M50.vol)}</td><td class="n">${f2(M50.sharpe)}</td><td class="n">${f2(M50.sortino)}</td><td class="n">${f2(M50.calmar)}</td><td class="n"></td><td class="n">${pct(M50.worst3y)}</td><td class="n">${pct(Math.min(M50.firstHalf, M50.secondHalf))}</td><td class="n">₹${M50.multiple.toFixed(2)}</td><td></td></tr></tfoot>
   </table></div>
 
   <h2 id="byn">3. Weekly vs monthly, by how many stocks are held</h2>
@@ -104,18 +105,19 @@ function render() {
   <h2 id="curve">4. Equity</h2>
   <p class="sub">₹1 from ${fdate(D.from)}, log scale. Pick how many stocks are held.</p>
   <div class="seg" id="nSeg">${D.topNs.map(n => `<button type="button" data-n="${n}">${n}</button>`).join("")}</div>
-  <div class="card"><div class="legend"><span><i style="background:var(--s1);height:3px"></i>Weekly</span><span><i style="background:var(--s2);height:3px"></i>Monthly</span><span><i style="background:var(--text-2)"></i>Nifty 500</span></div>
+  <div class="card"><div class="legend"><span><i style="background:var(--s1);height:3px"></i>Weekly</span><span><i style="background:var(--s2);height:3px"></i>Monthly</span><span><i style="background:var(--text-2)"></i>Nifty 500</span><span><i style="background:var(--s3)"></i>Nifty500 Momentum 50</span></div>
   <div class="chart" id="eqChart"></div></div>
 
   <h2 id="robust">5. Robustness</h2>
-  <p class="sub">Does the result hold in both halves (before and after ${D.split.slice(0, 4)}), over every 3-year stretch, with tax, with wider trading costs, and against random picks? "Random picks": same filters, same selling rule, but the buys are drawn at random from the stocks that pass the filters, instead of the top of the ranking (median of ${D.randomSeeds} draws). The gap to it is what the ranking itself adds.</p>
+  <p class="sub">Does the result hold in both halves (before and after ${D.split.slice(0, 4)}), over every 3-year stretch, with tax, with wider trading costs, without the BE/BZ stocks, without dividends, and against random picks? "EQ only" buys only stocks in the normal EQ series, the rule before BE/BZ were let in. "Skip circuit buys" passes over a stock that closed locked at its upper circuit (at the day's high, up 1.9% or more), where a real buy order would likely not fill, and buys the next one; ${pct(D.locked.beBz, 0)} of BE/BZ closes look like that, against ${pct(D.locked.eq, 1)} of EQ closes. "Random picks": same filters, same selling rule, but the buys are drawn at random from the stocks that pass the filters, instead of the top of the ranking (median of ${D.randomSeeds} draws). The gap to it is what the ranking itself adds.</p>
   <div class="card tbl-wrap"><table id="robTbl">
     <thead><tr><th class="sort" data-k="freqLabel">Rebalance</th><th class="sort n" data-k="topN">Top N</th><th class="sort n" data-k="cagr">CAGR</th>
       <th class="sort n" data-k="firstHalf">To ${D.split.slice(0, 4) - 1}</th><th class="sort n" data-k="secondHalf">${D.split.slice(0, 4)} on</th>
       <th class="sort n" data-k="worst3y">Worst 3 yrs</th><th class="sort n" data-k="median3y">Median 3 yrs</th><th class="sort n" data-k="beat3y">3 yrs ahead of Nifty 500</th><th class="sort n" data-k="worst1y">Worst 12 months</th>
-      <th class="sort n" data-k="afterTax">After tax</th><th class="sort n" data-k="cost50">At 0.5% a side</th><th class="sort n" data-k="rndMed">Random picks</th><th class="sort n" data-k="edge">Ranking adds</th></tr></thead>
+      <th class="sort n" data-k="afterTax">After tax</th><th class="sort n" data-k="cost50">At 0.5% a side</th><th class="sort n" data-k="eqOnly">EQ only</th><th class="sort n" data-k="skipLocked">Skip circuit buys</th><th class="sort n" data-k="noDiv">No dividends</th><th class="sort n" data-k="rndMed">Random picks</th><th class="sort n" data-k="edge">Ranking adds</th></tr></thead>
     <tbody></tbody>
-    <tfoot><tr><td colspan="2">Nifty 500</td><td class="n">${pct(B.cagr)}</td><td class="n">${pct(B.firstHalf)}</td><td class="n">${pct(B.secondHalf)}</td><td class="n">${pct(B.worst3y)}</td><td class="n">${pct(B.median3y)}</td><td class="n"></td><td class="n">${pct(B.worst1y)}</td><td colspan="4"></td></tr></tfoot>
+    <tfoot><tr><td colspan="2">Nifty 500</td><td class="n">${pct(B.cagr)}</td><td class="n">${pct(B.firstHalf)}</td><td class="n">${pct(B.secondHalf)}</td><td class="n">${pct(B.worst3y)}</td><td class="n">${pct(B.median3y)}</td><td class="n"></td><td class="n">${pct(B.worst1y)}</td><td colspan="7"></td></tr>
+      <tr><td colspan="2">Momentum 50</td><td class="n">${pct(M50.cagr)}</td><td class="n">${pct(M50.firstHalf)}</td><td class="n">${pct(M50.secondHalf)}</td><td class="n">${pct(M50.worst3y)}</td><td class="n">${pct(M50.median3y)}</td><td class="n">${pct(M50.beat3y, 0)}</td><td class="n">${pct(M50.worst1y)}</td><td colspan="7"></td></tr></tfoot>
   </table></div>
 
   <h2 id="years">6. Year by year</h2>
@@ -143,17 +145,28 @@ function render() {
       <tbody>${best.trade.worst.map(t => `<tr><td>${esc(t.symbol)}</td><td>${fdate(t.entry)}</td><td>${fdate(t.exit)}</td><td class="n">${spct(t.ret)}</td></tr>`).join("")}</tbody></table></div>
   </div>
 
-  <h2 id="method">9. Method and limits</h2>
+  <h2 id="ma50">9. 50 DMA rule on the Momentum 50 vs the 200 DMA switch</h2>
+  <p class="sub">Every combination run a second way. The 200 DMA switch (sell everything after 3 closes of the Nifty 500 below its 200-day simple average, wait in the liquid fund) is replaced by a 50 DMA rule on the Nifty500 Momentum 50 index: no new buys while it closes below its 50-day simple average, and the empty slots are filled on the day it closes back above; holdings are sold only by the ranking. Each cell shows the 200 DMA switch first, then the 50 DMA rule. Green: the 50 DMA rule did better. "Fill days": days it bought on the cross.</p>
+  <div class="seg" id="maSeg"><button type="button" data-f="all">Both</button><button type="button" data-f="weekly">Weekly</button><button type="button" data-f="month_end">Monthly</button></div>
+  <div class="card tbl-wrap"><table id="maTbl">
+    <thead><tr><th class="sort" data-k="freqLabel">Rebalance</th><th class="sort n" data-k="topN">Top N</th>
+      <th class="sort n" data-k="gCagr">CAGR</th><th class="sort n" data-k="gDD">Worst fall</th><th class="sort n" data-k="gSharpe">Sharpe</th><th class="sort n" data-k="gCalmar">Calmar</th>
+      <th class="sort n" data-k="gW3">Worst 3 yrs</th><th class="sort n" data-k="gW1">Worst 12 months</th><th class="sort n" data-k="gTax">After tax</th><th class="sort n" data-k="gInv">Invested</th><th class="sort n" data-k="gFills">Fill days</th></tr></thead>
+    <tbody></tbody>
+  </table></div>
+
+  <h2 id="method">10. Method and limits</h2>
   <div class="card"><ul class="rules" style="margin:0;padding-left:20px">
     <li><b>Ranking</b> (the Momentum Scan rule): for 252, 184, 126 and 63 trading days, the plain % return divided by the annualised daily volatility; the score is the average of the four. A stock needs 90% of the days in each window.</li>
-    <li><b>Filters:</b> close less than 25% below its highest price since Jan 2015, above its 233-day average, at least ₹1 crore average daily traded value over the last year, and trading in the EQ series that day (BE/BZ trade-to-trade stocks and ETFs are never bought).</li>
+    <li><b>Filters:</b> close less than 25% below its highest price since Jan 2015, above its 233-day average, at least ₹1 crore average daily traded value over the last year, and traded that day in any series: EQ, or BE/BZ, the trade-to-trade series NSE moves a stock into for surveillance or non-compliance (delivery only, no intraday netting). ETFs are never bought. ${pct(D.events.barsBySeries.BE / (D.events.barsBySeries.EQ + D.events.barsBySeries.BE + D.events.barsBySeries.BZ), 1)} of the price bars are BE and ${pct(D.events.barsBySeries.BZ / (D.events.barsBySeries.EQ + D.events.barsBySeries.BE + D.events.barsBySeries.BZ), 1)} BZ.</li>
     <li><b>Portfolio:</b> equal amounts in the top N. At each rebalance a holding is kept while it ranks 2N or better (and still passes the filters); the rest are sold and the free money is split over the best-ranked stocks not held.</li>
     <li><b>Market switch:</b> after 3 closes in a row below the Nifty 500's 200-day average, everything is sold that day and the money waits in a liquid fund at 6.5% a year; it is bought back at the first rebalance that closes above the average. Weekly rebalancing gets back in sooner.</li>
-    <li><b>Costs and tax:</b> 0.25% a side (brokerage, STT, spread). The "0.5% a side" column doubles it, closer to what small stocks cost to trade. Tax: STCG 15% / LTCG 10% until 23 Jul 2024, 20% / 12.5% after, losses set off and carried forward, paid each April; the ₹1.25 lakh LTCG exemption is ignored.</li>
-    <li><b>Data:</b> NSE daily bhavcopy from Jan 2015, all series, including stocks since delisted (so no survivorship bias). ${D.events.joins} renamed symbols joined to their new names; ${D.events.adjustments} splits, bonuses and demergers adjusted (from NSE's corporate-actions list, and ${D.events.fromPrices} found from prices alone); ${D.events.etfs} ETFs removed. Stocks whose traded value never reached ₹80 lakh a day are left out; the ₹1 crore floor applies on each day.</li>
-    <li><b>No dividends.</b> The NSE file has none, so returns are understated by roughly the dividend yield of what is held (about 0.5-1% a year for momentum stocks). The Nifty 500 line is the price index, also without dividends, so the comparison is fair.</li>
+    <li><b>Costs and tax:</b> 0.25% a side (brokerage, STT, spread). The "0.5% a side" column doubles it, closer to what small stocks cost to trade. Tax: STCG 15% / LTCG 10% until 23 Jul 2024, 20% / 12.5% after, losses set off and carried forward, paid each April; dividends taxed at 30% when paid; the ₹1.25 lakh LTCG exemption is ignored.</li>
+    <li><b>Data:</b> NSE daily bhavcopy from Jan 2015, all series, including stocks since delisted (so no survivorship bias). ${D.events.joins} renamed symbols joined to their new names; ${D.events.adjustments} splits, bonuses and demergers adjusted (from NSE's corporate-actions list, and ${D.events.fromPrices} found from prices alone); ${D.events.dividends.toLocaleString("en-IN")} dividends from the same list; ${D.events.etfs} ETFs removed. Stocks whose traded value never reached ₹80 lakh a day are left out; the ₹1 crore floor applies on each day.</li>
+    <li><b>Dividends</b> are paid into cash on the ex-date (the amount over the close the day before, from NSE's list; the rare ones over 25% of the price are left out) and go into the next buys. The Nifty 500 line is the price index, without dividends (its yield is about 1-1.5% a year; NSE does not publish the total-return index in a form this study can fetch). For a like-for-like comparison with it, use the "No dividends" column in section 5.</li>
+    <li><b>Nifty500 Momentum 50</b> is the second benchmark: NSE's own momentum index (the 50 highest-scoring Nifty 500 stocks, rebalanced twice a year), which index funds and ETFs track, so it is what this strategy has to beat to be worth the work. Price index, without dividends. Index closes to ${fdate(M50.indexTo)}, then the daily moves of a Momentum 50 ETF (it followed the index within 0.1 point over the seven months where both exist). Its "3 yrs ahead" column is against the Nifty 500.</li>
     <li><b>Start:</b> the first year of data is used to build the 252-day score, so trading starts in ${D.from.slice(0, 4)}. The "highest price" behind the 25% rule only goes back to Jan 2015.</li>
-    <li><b>Not modelled:</b> stocks stuck at an upper or lower circuit (the backtest buys and sells at the close regardless), and the price impact of larger orders (see capacity). Both matter more for small stocks and for weekly trading. Demergers of over 60% in a day are treated as no loss (holders got the new shares); the new company's shares are not tracked.</li>
+    <li><b>Not modelled:</b> stocks stuck at a circuit limit (the headline backtest buys and sells at the close regardless; the "Skip circuit buys" column shows the cost of passing on upper-circuit buys, but a holding stuck at its lower circuit is still sold at that close, which flatters BE/BZ stocks most), and the price impact of larger orders (see capacity). Both matter more for small stocks and for weekly trading. Demergers of over 60% in a day are treated as no loss (holders got the new shares); the new company's shares are not tracked.</li>
   </ul></div>`);
   $("#app").innerHTML = h.join("");
 
@@ -164,13 +177,20 @@ function render() {
     <td class="n">${pct(r.weakHalf)}<span class="rk">#${r.ranks.weakHalf}</span></td><td class="n">₹${r.multiple.toFixed(2)}</td><td class="n"><b>${r.score.toFixed(1)}</b></td></tr>`;
   const robRow = r => `<tr class="${r.key === D.best ? "best" : ""}"><td>${r.freqLabel}</td><td class="n">${r.topN}</td><td class="n">${pct(r.cagr)}</td>
     <td class="n">${pct(r.firstHalf)}</td><td class="n">${pct(r.secondHalf)}</td><td class="n">${spct(r.worst3y)}</td><td class="n">${pct(r.median3y)}</td><td class="n">${pct(r.beat3y, 0)}</td><td class="n">${spct(r.worst1y)}</td>
-    <td class="n">${pct(r.afterTax)}</td><td class="n">${pct(r.cost50)}</td><td class="n">${pct(r.rndMed)}<span class="rk">${pct(r.random.worst, 0)} to ${pct(r.random.best, 0)}</span></td><td class="n">${spct(r.edge)}</td></tr>`;
+    <td class="n">${pct(r.afterTax)}</td><td class="n">${pct(r.cost50)}</td><td class="n">${pct(r.eqOnly)}</td><td class="n">${pct(r.skipLocked)}</td><td class="n">${pct(r.noDiv)}</td><td class="n">${pct(r.rndMed)}<span class="rk">${pct(r.random.worst, 0)} to ${pct(r.random.best, 0)}</span></td><td class="n">${spct(r.edge)}</td></tr>`;
+  const vs = (a, b, fmt, higher = true) => `<td class="n">${fmt(a)} → <b style="color:var(${(higher ? b > a : b < a) ? "--s3" : b === a ? "--text" : "--neg"})">${fmt(b)}</b></td>`;
+  const maRow = r => `<tr class="${r.key === D.best ? "best" : ""}"><td>${r.freqLabel}</td><td class="n">${r.topN}</td>
+    ${vs(r.cagr, r.ma50.cagr, v => pct(v))}${vs(r.maxDD, r.ma50.maxDD, v => pct(v))}${vs(r.sharpe, r.ma50.sharpe, f2)}${vs(r.calmar, r.ma50.calmar, f2)}
+    ${vs(r.worst3y, r.ma50.worst3y, v => spct(v))}${vs(r.worst1y, r.ma50.worst1y, v => spct(v))}${vs(r.afterTax, r.ma50.afterTax, v => pct(v))}
+    <td class="n">${pct(r.invested, 0)} → ${pct(r.ma50.invested, 0)}</td><td class="n">${r.ma50.fills}</td></tr>`;
   const loadRow = r => `<tr class="${r.key === D.best ? "best" : ""}"><td>${r.freqLabel}</td><td class="n">${r.topN}</td><td class="n">${r.trades.toLocaleString("en-IN")}</td><td class="n">${r.tpy.toFixed(0)}</td><td class="n">${r.turnoverPerYear.toFixed(1)}×</td>
     <td class="n">${Math.round(r.avgHoldDays)}</td><td class="n">${pct(r.winRate, 0)}</td><td class="n">${f2(r.payoff)}</td><td class="n">${pct(r.top5, 0)}</td>
     <td class="n">${pct(r.invested, 0)}</td><td class="n">${r.exits}</td><td class="n">${pct(r.cap10l, 2)}</td><td class="n">${pct(r.cap1c, 1)}</td><td class="n">${pct(r.cap1cOver, 0)}</td></tr>`;
   const years = (D.asOf.slice(0, 4) - D.from.slice(0, 4)) + (D.asOf.slice(5) > D.from.slice(5) ? 1 : 0);
   D.rows.forEach(r => {
     r.rndMed = r.random.median; r.edge = r.cagr - r.random.median;
+    Object.assign(r, { gCagr: r.ma50.cagr, gDD: r.ma50.maxDD, gSharpe: r.ma50.sharpe, gCalmar: r.ma50.calmar, gW3: r.ma50.worst3y,
+      gW1: r.ma50.worst1y, gTax: r.ma50.afterTax, gInv: r.ma50.invested, gFills: r.ma50.fills });
     r.tpy = r.trades / ((new Date(D.asOf) - new Date(D.from)) / 3.156e10);
     r.payoff = r.trade ? r.trade.payoff : null; r.top5 = r.trade ? r.trade.top5ShareOfGains : null;
     const cap = c => r.capacity.find(x => x.capital === c);
@@ -185,6 +205,14 @@ function render() {
     sortableTable("#loadTbl", D.rows, "topN", 1, loadRow);
     document.querySelectorAll("#freqSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === freq));
   };
+  let maFreq = "all";
+  const maTable = () => {
+    const t = $("#maTbl"), f = t.cloneNode(true); t.replaceWith(f);
+    sortableTable("#maTbl", D.rows.filter(r => maFreq === "all" || r.freq === maFreq), "gCagr", -1, maRow);
+    document.querySelectorAll("#maSeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === maFreq));
+  };
+  maTable();
+  document.querySelectorAll("#maSeg button").forEach(b => b.addEventListener("click", () => { maFreq = b.dataset.f; maTable(); }));
   document.querySelectorAll("#freqSeg button").forEach(b => b.addEventListener("click", () => { freq = b.dataset.f; tables(); }));
   tables();
 
@@ -196,7 +224,8 @@ function render() {
     const bg = v => v == null ? "" : `background: color-mix(in srgb, var(${v >= 0 ? "--s1" : "--neg"}) ${Math.round(Math.abs(v) / mx * 45)}%, transparent)`;
     $("#yTbl").innerHTML = `<thead><tr><th>Top N</th>${ys.map(y => `<th class="n">${y}</th>`).join("")}</tr></thead><tbody>` +
       rows.map(r => `<tr class="${r.key === D.best ? "best" : ""}"><td>${r.topN} / ${r.exitRank}</td>${ys.map(y => `<td class="n" style="${bg(r.yearly[y])}">${pct(r.yearly[y], 0)}</td>`).join("")}</tr>`).join("") +
-      `<tr><td>Nifty 500</td>${ys.map(y => `<td class="n" style="${bg(B.yearly[y])}">${pct(B.yearly[y], 0)}</td>`).join("")}</tr></tbody>`;
+      `<tr><td>Nifty 500</td>${ys.map(y => `<td class="n" style="${bg(B.yearly[y])}">${pct(B.yearly[y], 0)}</td>`).join("")}</tr>` +
+      `<tr><td>Momentum 50</td>${ys.map(y => `<td class="n" style="${bg(M50.yearly[y])}">${pct(M50.yearly[y], 0)}</td>`).join("")}</tr></tbody>`;
     document.querySelectorAll("#ySeg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.f === f));
   };
   document.querySelectorAll("#ySeg button").forEach(b => b.addEventListener("click", () => yearTable(b.dataset.f)));
@@ -262,6 +291,7 @@ function drawCharts() {
   const rs = v => "₹" + v.toFixed(2);
   lineChart($("#eqChart"), { height: 340, log: true, ticksY: ticks, fmtY: t => t + "×", series: [
     { k: "nifty500", name: "Nifty 500", c: "--text-2", w: 1.2, fmt: rs },
+    { k: "mom50", name: "Momentum 50 index", c: "--s3", w: 1.4, fmt: rs },
     { k: "m" + curN, name: `Monthly, top ${curN}`, c: "--s2", w: 2, fmt: rs },
     { k: "w" + curN, name: `Weekly, top ${curN}`, c: "--s1", w: 2.2, fmt: rs }] });
 }

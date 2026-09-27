@@ -13,12 +13,16 @@ Steps:
      whole ratio (1.33, 1.5, 2, 3, 5, 10 ...) from a close of Rs 5 or more, with volume rising to match, and no
      NSE record near it, is adjusted too (from prices alone; listed as such in study/nse_events.json).
      An NSE record with no matching gap uses the ex-date's own gap if it is 30% or more, else is skipped.
-  3. Drops ETFs: NSE's current ETF list (study/nse_etf_list.csv), older ETF symbols by hand (OLD_ETFS),
+  3. Dividends from the same NSE list ('Final Dividend - Rs 194/ Special Dividend - Rs 183' = Rs 377), each
+     stored as a yield: the amount over the unadjusted close before the ex-date, so on the share basis of
+     the day. Yields over 25% are left out as likely errors (listed in study/nse_events.json).
+  4. Drops ETFs: NSE's current ETF list (study/nse_etf_list.csv), older ETF symbols by hand (OLD_ETFS),
      and anything that tracks the Nifty 500 (correlation over 0.95) or barely moves (under 10% a year).
-  4. Keeps stocks whose 1-year average traded value ever passed Rs 80 lakh (the study floor is Rs 1 crore).
-  5. Nifty 500 index (^CRSLDX) from Yahoo, cached in study/nse_index.json.
+  5. Keeps stocks whose 1-year average traded value ever passed Rs 80 lakh (the study floor is Rs 1 crore).
+  6. Nifty 500 index (^CRSLDX) from Yahoo, cached in study/nse_index.json.
 Output:
-  study/nse_prices.npz   calendar, symbols, adjusted close/high/low, traded value, EQ-series flag, index
+  study/nse_prices.npz   calendar, symbols, adjusted close/high/low, traded value, series (1 EQ, 2 BE, 3 BZ),
+                         dividend yield on each ex-date, index
   study/nse_events.json  every join and adjustment made, for checking
 Run: py study/nse_data.py        (needs pandas, pyarrow, numpy, curl; yfinance for the index on the first run)
 """
@@ -55,6 +59,9 @@ NETFNV20 NETFPHARMA NETFSDL26 NETFSILVER NIF100IWIN NIF10GETF NIF5GETF NIFITETF 
 NIFTYIWIN NV20IWIN PSUBANKICI RELGOLD RELGRNIFTY RELNIFTY RETFMID150 RRSLGETF SBIGETS SDL24BEES SDL26BEES SENSEXIWIN
 SETFBANK SETFNIFJR SETFNIFTY SILVERETF SILVERTUC SILVRETF SSDL UTIBANKETF UTINEXT50 UTINIFTETF UTISENSETF UTISXN50
 """.split())
+SERIES = {"EQ": 1, "BE": 2, "BZ": 3}
+MAX_DIV_YIELD = 0.25
+ACTIONS_VERSION = 2  # 2: dividends kept too
 STRICT = (4 / 3, 1.5, 5 / 3, 2.0, 2.5, 3.0, 4.0, 5.0, 6.0, 10.0, 20.0)
 
 
@@ -138,11 +145,14 @@ def liquid_stocks(df):
 
 
 def nse_actions():
-    """Splits and bonus issues from NSE's corporate-actions list, one request per year, cached."""
+    """Splits, bonus issues and dividends from NSE's corporate-actions list, one request per year, cached.
+    Returns splits/bonuses as (symbol, day, ratio, subject) and dividends as (symbol, day, rupees, subject)."""
     import re
     import subprocess
     from datetime import datetime
     cache = json.loads(ACTIONS.read_text(encoding="utf-8")) if ACTIONS.exists() else {}
+    if cache.pop("version", None) != ACTIONS_VERSION:
+        cache = {}
     this_year = datetime.now().year
     todo = [y for y in range(2015, this_year + 1) if str(y) not in cache or y == this_year]
     if todo:
@@ -156,19 +166,70 @@ def nse_actions():
                                   "Referer: https://www.nseindia.com/companies-listing/corporate-filings-actions", url],
                                  capture_output=True, text=True, encoding="utf-8").stdout
             rows = json.loads(raw)
-            cache[str(y)] = [{"symbol": r["symbol"], "exDate": r["exDate"], "subject": r["subject"].strip()}
-                             for r in rows if re.search(r"bonus|split|sub-division|subdivision", r["subject"], re.I)]
-            print(f"  NSE {y}: {len(cache[str(y)])} splits/bonuses")
-        ACTIONS.write_text(json.dumps(cache, indent=0), encoding="utf-8")
+            cache[str(y)] = [{"symbol": r["symbol"], "exDate": r["exDate"], "subject": r["subject"].strip(),
+                              "faceVal": r.get("faceVal")}
+                             for r in rows if re.search(r"bonus|split|sub-division|subdivision|divid", r["subject"], re.I)]
+            print(f"  NSE {y}: {len(cache[str(y)])} splits/bonuses/dividends")
+        ACTIONS.write_text(json.dumps({"version": ACTIONS_VERSION, **cache}, separators=(",", ":")), encoding="utf-8")
         Path(jar).unlink(missing_ok=True)
-    out = []
+    splits, divs = [], []
     for rows in cache.values():
         for r in rows:
+            day = datetime.strptime(r["exDate"], "%d-%b-%Y").strftime("%Y-%m-%d")
             ratio = action_ratio(r["subject"])
             if ratio:
-                day = datetime.strptime(r["exDate"], "%d-%b-%Y").strftime("%Y-%m-%d")
-                out.append((r["symbol"], day, ratio, r["subject"]))
-    return out
+                splits.append((r["symbol"], day, ratio, r["subject"]))
+            rupees = dividend_amount(r["subject"], r.get("faceVal"))
+            if rupees:
+                divs.append((r["symbol"], day, rupees, r["subject"]))
+    return splits, divs
+
+
+def dividend_amount(subject, face_value=None):
+    """'Interim Dividend - Rs 4 Per Share' -> 4; 'Final Dividend - Rs  194/ Special Dividend - Rs 183' -> 377;
+    'Dividend - 50%' -> half the face value. Parts of the subject without 'dividend' are ignored."""
+    import re
+    total = 0.0
+    for part in re.split(r"/(?!-)", subject):  # 'Rs 5/- Per Share' is one part
+        if not re.search(r"divid", part, re.I):
+            continue
+        m = re.search(r"\br[se]\.?\s*(\d+(?:\.\d+)?)", part, re.I)
+        if m:
+            total += float(m.group(1))
+            continue
+        m = re.search(r"(\d+(?:\.\d+)?)\s*%", part)
+        if m and face_value:
+            try:
+                total += float(m.group(1)) / 100 * float(face_value)
+            except ValueError:
+                pass
+    return total or None
+
+
+def dividend_yields(df, divs, stock_of):
+    """Each dividend as a yield on its ex-date: the amount over the unadjusted close of the session before
+    (so run before adjust(), while the close is on the share basis the dividend was declared on)."""
+    by_stock = {}
+    for sym, day, rupees, subject in divs:
+        st = stock_of.get(sym)
+        if st:
+            by_stock.setdefault(st, []).append((day, rupees, subject))
+    out, dropped = {}, []
+    for s, g in df.groupby("stock", sort=False):
+        if s not in by_stock:
+            continue
+        dates, close = g["date"].to_numpy(), g["close"].to_numpy()
+        for day, rupees, subject in by_stock[s]:
+            i = int(np.searchsorted(dates, day))
+            if i == 0 or i >= len(g):
+                continue  # before the data starts or after it ends
+            y = rupees / close[i - 1]
+            if y > MAX_DIV_YIELD:
+                dropped.append({"stock": s, "date": dates[i], "rupees": rupees, "close": float(close[i - 1]),
+                                "yield": round(float(y), 3), "subject": subject})
+                continue
+            out[(s, dates[i])] = out.get((s, dates[i]), 0.0) + y  # two on one day add
+    return out, dropped
 
 
 def action_ratio(subject):
@@ -274,9 +335,12 @@ def main():
     df = df[df["stock"].isin(keep)].reset_index(drop=True)
     print(f"dropped {len(etfs)} ETFs by name and {len(funds)} by behaviour: {funds}")
     print(f"{len(keep)} stocks ever above Rs {MIN_TURNOVER_EVER / 1e7:.1f} Cr a day")
-    actions = nse_actions()
+    actions, divs = nse_actions()
     stock_of = dict(zip(df["symbol"], df["stock"]))
     df["value"] = df["close"] * df["volume"]  # traded value, the same before and after adjusting
+    yields, big_divs = dividend_yields(df, divs, stock_of)
+    print(f"{len(yields)} dividends on {len({s for s, _ in yields})} stocks; "
+          f"{len(big_divs)} over {MAX_DIV_YIELD:.0%} left out")
     df, events = adjust(df, actions, stock_of)
     events_done = [e for e in events if not e["how"].startswith("skipped")]
     hows = pd.Series([e["how"] for e in events]).value_counts().to_dict()
@@ -293,11 +357,19 @@ def main():
         a = np.full((T, N), np.nan, dtype=np.float64)
         a[ti, tj] = df[name].to_numpy()
         arrays[name] = a
-    eq = np.zeros((T, N), dtype=bool)
-    eq[ti, tj] = (df["series"] == "EQ").to_numpy()
-    np.savez_compressed(OUT, calendar=np.array(calendar), symbols=np.array(stocks), eq=eq,
+    series = np.zeros((T, N), dtype=np.int8)
+    series[ti, tj] = df["series"].map(SERIES).fillna(0).to_numpy(np.int8)
+    div = np.zeros((T, N))
+    for (s, day), y in yields.items():
+        if s in col:
+            div[pos[day], col[s]] = y
+    by_series = {k: int((series == v).sum()) for k, v in SERIES.items()}
+    print(f"bars by series: {by_series}")
+    np.savez_compressed(OUT, calendar=np.array(calendar), symbols=np.array(stocks), series=series, div=div,
                         index=index, **arrays)
-    EVENTS.write_text(json.dumps({"joins": joins, "adjustments": events, "etfs": sorted(etfs), "indexLike": funds}, indent=1), encoding="utf-8")
+    EVENTS.write_text(json.dumps({"joins": joins, "adjustments": events, "etfs": sorted(etfs), "indexLike": funds,
+                                  "dividends": int((div > 0).sum()), "dividendsDropped": big_divs,
+                                  "barsBySeries": by_series}, indent=1), encoding="utf-8")
     print("wrote", OUT, "and", EVENTS)
 
 
