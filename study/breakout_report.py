@@ -360,7 +360,7 @@ const DATA = {json.dumps(data, separators=(",", ":")).replace("</", "<\\/")};
 # sheets.html so it stays in sync; colours come from the report's theme variables (light and dark).
 SITE_HEAD = """<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 .site-header { position: relative; height: 86px; padding: 0 max(16px, calc((100% - 1080px) / 2)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg); font-family: "Manrope", system-ui, sans-serif; }
 .site-header .brand, .site-footer .brand { display: flex; align-items: center; }
@@ -376,6 +376,14 @@ SITE_HEAD = """<link rel="preconnect" href="https://fonts.googleapis.com">
 .nav-sub { display: none; position: absolute; top: 100%; left: -18px; min-width: 210px; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--text); padding: 6px 0; z-index: 30; }
 .site-header .nav-sub a { display: block; padding: 10px 18px; }
 .nav-group:hover .nav-sub, .nav-group:focus-within .nav-sub, .nav-group.is-open .nav-sub { display: block; }
+.study-hero { border-bottom: 1px solid var(--border); }
+.study-hero > div { max-width: 1080px; margin: 0 auto; padding: 40px 16px 28px; }
+.study-hero p { max-width: 680px; margin: 24px 0 0; color: var(--muted); font: 16px/24px "Manrope", system-ui, sans-serif; }
+.study-hero .eyebrow { font: 500 16px "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+.study-hero h1 { max-width: 820px; margin: 18px 0 0; color: var(--text); font: 600 clamp(36px, 4.8vw, 56px)/.99 "Fraunces", Georgia, serif; letter-spacing: -.03em; }
+.study-hero .stamp { font: 16px "DM Mono", monospace; }
+#app > h1, #app > h1 + .sub { display: none; }
+#app > .theme-btn { float: none; display: block; margin: 0 0 10px auto; }
 .site-footer { max-width: 1080px; margin: 0 auto; padding: 27px 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 11px "DM Mono", monospace; border-top: 1px solid var(--border); }
 .site-footer .brand img { height: 32px; }
 .site-footer span:last-child { color: var(--text); }
@@ -400,6 +408,16 @@ SITE_HEAD = """<link rel="preconnect" href="https://fonts.googleapis.com">
 }
 </style>
 """
+MONTHS = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split()
+day = lambda d: f"{int(d[8:])} {MONTHS[int(d[5:7]) - 1]} {d[:4]}"
+first = min(st["from"] for st in data["studies"])
+hero = f"""<section class="study-hero"><div>
+  <p class="eyebrow">Research · Nifty 500 · multi-year breakouts</p>
+  <h1>Multi-Year Breakout Study</h1>
+  <p>Buying Nifty 500 stocks that break above a 2, 3 or 4-year high, each lookback tested separately, with three stop-losses: the previous week's low, the lowest close of the last 2 weeks, and the 2-week low that stops trailing once it is 5% above the buy price and then rises 1% every 2 months.</p>
+  <p>Every week uses the Nifty 500 as it stood at the time, idle money waits in GOLDBEES, dividends are added and costs are charged on every trade.</p>
+  <p class="stamp">Tested {day(first)} to {day(data["asOf"])} · ₹{data["capital"] / 1e5:g} lakh to start · fixed snapshot</p>
+</div></section>"""
 site = (ROOT / "sheets.html").read_text(encoding="utf-8")
 header = re.search(r'<header class="site-header">.*?</header>', site, re.S).group(0)
 footer = re.search(r"<footer>.*?</footer>", site, re.S).group(0).replace("<footer>", '<footer class="site-footer">', 1)
@@ -408,7 +426,7 @@ for part in ("<title>Multi-Year Breakout Report</title>", "</head>", back, "</bo
     assert page.count(part) == 1, part
 public = (page.replace("<title>Multi-Year Breakout Report</title>", "<title>Multi-Year Breakout Study | Let Money Earn</title>")
           .replace("</head>", SITE_HEAD + "</head>")
-          .replace(back, header)
+          .replace(back, header + "\n" + hero)
           .replace("</body>", footer + '\n<script src="nav.js"></script>\n</body>'))
 (ROOT / "breakout-study.html").write_text(public, encoding="utf-8")
 print("wrote study/breakout_report.html and breakout-study.html", len(page) // 1024, "KB")
