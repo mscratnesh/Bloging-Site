@@ -32,7 +32,6 @@
     .pitch{color:var(--muted);font-size:15px;margin:16px 0 22px;max-width:480px}
     .product h3{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--coral-text);margin:20px 0 10px}
     .product ul{list-style:none;padding:0;margin:0}.product li{padding:9px 0 9px 22px;border-top:1px solid var(--line);font-size:14px;position:relative}.product li:before{content:"↗";position:absolute;left:0;color:var(--coral);font-size:13px}
-    .tabs{display:flex;flex-wrap:wrap;gap:6px}.tabs span{border:1px solid var(--line);padding:5px 10px;font:11px var(--mono);color:var(--muted)}
     .buy{margin-top:28px;align-self:flex-start;border:0;cursor:pointer;color:var(--paper);background:var(--ink);padding:13px 18px;font:600 11px var(--mono);text-decoration:none}.buy:hover{background:var(--coral-text)}
     .how{padding:0 max(24px,calc((100% - 1180px)/2)) 90px}.how ol{list-style:none;counter-reset:step;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}.how li{counter-increment:step;border-top:1px solid var(--line);padding-top:14px;font-size:14px;color:var(--muted)}.how li:before{content:"0" counter(step);display:block;font:12px var(--mono);color:var(--coral-text);margin-bottom:10px}.how li strong{display:block;color:var(--ink);font:600 20px var(--serif);margin-bottom:6px}
     .pay{padding:0 max(24px,calc((100% - 1180px)/2)) 90px}.pay-body{display:grid;grid-template-columns:280px 1fr;gap:56px;align-items:center;padding-top:26px}
@@ -68,8 +67,6 @@
             <li>Watches the Nifty 500 against its 200-day average and flags when to move to a liquid fund</li>
             <li>Builds a month-end rebalance plan: what to sell, what to buy, and how to split the money</li>
           </ul>
-          <h3>Tabs</h3>
-          <div class="tabs"><span>Rules</span><span>Momentum Rank</span><span>Portfolio</span><span>Rebalance Plan</span></div>
           <button class="buy" type="button" data-sheet="Momentum Sharpe Scan sheet (₹500)">Buy this sheet · ₹500 ↗</button>
         </article>
         <article class="product" id="breakout">
@@ -84,8 +81,6 @@
             <li>Sizes each trade from your capital and risk per trade (1% by default), with an initial stop-loss</li>
             <li>Logs trades every Saturday and manages exits in two stages: stop, failed breakout, breakeven, then a 10-week trailing average</li>
           </ul>
-          <h3>Tabs</h3>
-          <div class="tabs"><span>Rules</span><span>MasterData</span><span>Final List</span><span>CupHandle</span><span>Tracker</span><span>Settings</span></div>
           <button class="buy" type="button" data-sheet="Multi-Year Breakout Tracker sheet (₹500)">Buy this sheet · ₹500 ↗</button>
         </article>
       </div>
