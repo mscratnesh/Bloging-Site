@@ -1,11 +1,11 @@
 // Builds book/Momentum_Investing_Book.docx from momentum_study.json, etf_study.json, momentum_nse_study.json, and book/charts/*.png.
-// Run: py book/make_charts.py && node book/build_book.js
+// Run: py book/make_charts.py && py book/make_cover.py && node book/build_book.js
 const fs = require("fs");
 const path = require("path");
 const {
   Document, Packer, Paragraph, TextRun, HeadingLevel, AlignmentType, Table, TableRow, TableCell, WidthType,
   BorderStyle, ShadingType, ImageRun, PageBreak, TableOfContents, Header, Footer, PageNumber, LevelFormat,
-  TabStopType, TabStopPosition,
+  TabStopType, TabStopPosition, HorizontalPositionRelativeFrom, VerticalPositionRelativeFrom, TextWrappingType,
 } = require("docx");
 
 const ROOT = path.resolve(__dirname, "..");
@@ -134,7 +134,15 @@ function table(head, rows, opts = {}) {
 }
 const r_ = (cells, hl = false) => ({ cells, hl });
 
-// ------------------------------------------------------------------ title pages
+// ------------------------------------------------------------------ cover and title pages
+// full-bleed cover (book/charts/cover.png from make_cover.py), pinned to the page corner behind an empty paragraph
+const coverPage = [new Paragraph({ children: [new ImageRun({
+  type: "png", data: fs.readFileSync(path.join(__dirname, "charts", "cover.png")),
+  transformation: { width: 794, height: 1123 },  // A4 at 96 px per inch
+  floating: { horizontalPosition: { relative: HorizontalPositionRelativeFrom.PAGE, offset: 0 }, verticalPosition: { relative: VerticalPositionRelativeFrom.PAGE, offset: 0 },
+    wrap: { type: TextWrappingType.NONE }, behindDocument: true },
+  altText: { title: "Cover", description: "Riding the Winners: cover", name: "cover.png" },
+})] })];
 const titlePage = [
   new Paragraph({ spacing: { before: 2600 }, children: [new TextRun({ text: "LET MONEY EARN  ·  RESEARCH", color: ACCENT, bold: true, size: 20, characterSpacing: 40 })] }),
   new Paragraph({ spacing: { before: 300, after: 200 }, children: [new TextRun({ text: "Riding the Winners", font: SERIF, size: 76, bold: true, color: INK })] }),
@@ -694,6 +702,7 @@ const doc = new Document({
     ],
   },
   sections: [
+    { properties: { page: { size: { width: PAGE_W, height: 16838 }, margin: { top: 0, bottom: 0, left: 0, right: 0, header: 0, footer: 0 } } }, children: coverPage },
     { properties: { page: { size: { width: PAGE_W, height: 16838 }, margin: { top: 1300, bottom: 1300, left: MARGIN, right: MARGIN } } }, children: titlePage },
     {
       properties: { page: { size: { width: PAGE_W, height: 16838 }, margin: { top: 1300, bottom: 1300, left: MARGIN, right: MARGIN }, pageNumbers: { start: 1 } } },

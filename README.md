@@ -126,6 +126,7 @@ py study\breakout_report.py
 ```powershell
 cd book; npm install; cd ..        # once (installs docx; node_modules is git-ignored)
 py book\make_charts.py             # charts\*.png and book_extra.json (needs momentum_study.json and etf_study.json)
+py book\make_cover.py              # charts\cover.png, the full-page front cover
 node book\build_book.js            # Momentum_Investing_Book.docx
 ```
 
