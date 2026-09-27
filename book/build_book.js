@@ -153,7 +153,7 @@ const titlePage = [
   new Paragraph({ children: [new PageBreak()] }),
   new Paragraph({ spacing: { before: 400, after: 160 }, children: [new TextRun({ text: "Before you read", bold: true, size: 26, font: SERIF })] }),
   new Paragraph({ spacing: { after: 140, line: 290 }, children: runs("This book is for information and education only. It is **not investment advice** and not a recommendation to buy or sell any security. Everything in it is based on a **backtest**: rules applied to past prices to see what would have happened. Backtests are hypothetical. Real trading has costs, delays and emotions that a backtest can't fully capture, and past results do not guarantee future returns. Stock names appear only because the rules picked them in the past; they are not suggestions. Please do your own research, and speak to a SEBI-registered adviser before investing.") }),
-  new Paragraph({ spacing: { after: 140, line: 290 }, children: runs(`Price data: Yahoo Finance. Index lists: NSE Indices (current and archived copies via the Wayback Machine). Chapter 11: NSE daily trading files and corporate-action lists. Study periods: Nifty 500 ${fdate(B.from)} to ${fdate(B.to)}; every NSE stock ${fdate(A.from)} to ${fdate(A.asOf)}; ETFs ${fdate(E.stats[0].from)} to ${fdate(E.stats[0].to)}.`) }),
+  new Paragraph({ spacing: { after: 140, line: 290 }, children: runs(`Price data: Yahoo Finance. Index lists: NSE Indices (current and archived copies via the Wayback Machine). Chapter 11: NSE daily trading files and corporate-action lists. Chapter 11 benchmark: Nifty500 Momentum 50 index closes (to May 2026, then a Momentum 50 ETF). Study periods: Nifty 500 ${fdate(B.from)} to ${fdate(B.to)}; every NSE stock ${fdate(A.from)} to ${fdate(A.asOf)}; ETFs ${fdate(E.stats[0].from)} to ${fdate(E.stats[0].to)}.`) }),
   new Paragraph({ spacing: { before: 600 }, children: [new TextRun({ text: "© 2026 Let Money Earn. All rights reserved.", size: 18, color: MUTED })] }),
   new Paragraph({ children: [new PageBreak()] }),
   new Paragraph({ spacing: { after: 200 }, children: [new TextRun({ text: "Contents", bold: true, size: 36, font: SERIF })] }),
@@ -390,7 +390,7 @@ P("Momentum's biggest danger is a falling market. When the whole market drops, y
 figure("06_switch.png", "The Nifty 500, its 200-day average, and the periods the strategy spent in the liquid fund (shaded).");
 H2("Every time the switch moved to cash");
 table(["Sold everything on", "Bought back on", "Nifty 500 meanwhile", "Liquid fund"], G.spells.map(s => r_([fdate(s.from), s.to ? fdate(s.to) : "still out", pct(s.nifty500, 1, true), pct(s.liquid, 1, true)])), { widths: [1.3, 1.3, 1.3, 1.1], title: "The strategy's periods in the liquid fund." });
-P(`In this period the switch often stepped out just before the market steadied, so the index was slightly higher by the time the strategy bought back. That is the price of insurance: most of the time it costs a little. It pays off in a long, deep fall, which this six-year period didn't have. The longer whole-NSE test in Chapter 11 did include one: in the March 2020 crash the Nifty 500 fell ${pct(-crash.nifty500, 0)} from its February level, while the rules there fell ${pct(-crash[A.best], 0)}, having moved to the liquid fund early in the fall. The 2008 crash, when Indian stocks fell by more than half, is the kind of event the switch is designed for.`);
+P(`In this period the switch often stepped out just before the market steadied, so the index was slightly higher by the time the strategy bought back. That is the price of insurance: most of the time it costs a little. It pays off in a long, deep fall, which this six-year period didn't have. The longer whole-NSE test in Chapter 11 did include one: in the March 2020 crash the Nifty 500 fell ${pct(-crash.nifty500, 0)} from its February level, while the rules there (top 30 stocks, weekly) fell ${pct(-crash[A.best], 0)}, having moved to the liquid fund early in the fall. The 2008 crash, when Indian stocks fell by more than half, is the kind of event the switch is designed for.`);
 H2("Checking daily vs. once a month");
 table(["Market check", "CAGR", "Worst fall", "Sharpe"], [
   "200-DMA, checked at month-end only", "200-DMA, exit after 1 close below", "200-DMA, exit after 2 closes", "200-DMA, exit after 3 closes", "200-DMA, exit after 5 closes", "No market filter",
@@ -446,7 +446,7 @@ table(["Industry", "Average share of the portfolio"], R.industry.avgWeights.map(
 // Chapter 11: the whole NSE
 {
   const AR = k => A.rows.find(r => r.key === k);
-  const W = n => AR("w" + n), Mo = n => AR("m" + n), AB = A.bench;
+  const W = n => AR("w" + n), Mo = n => AR("m" + n), AB = A.bench, AM = A.mom50;
   const best = AR(A.best), bt = best.trade, dd = best.drawdowns;
   const ayears = Object.keys(AB.yearly);
   const part = y => y + (y === ayears[0] || y === ayears[ayears.length - 1] ? " (part)" : "");
@@ -455,70 +455,96 @@ table(["Industry", "Average share of the portfolio"], R.industry.avgWeights.map(
   const range = y => [Math.min(...A.rows.map(r => r.yearly[y])), Math.max(...A.rows.map(r => r.yearly[y]))];
   const capA = c => best.capacity.find(x => x.capital === c);
   const rupees = c => (c >= 1e7 ? "₹" + c / 1e7 + " crore" : "₹" + c / 1e5 + " lakh");
+  const G = n => W(n).ma50, GM = n => Mo(n).ma50;
+  const gWins = A.rows.filter(r => r.ma50.cagr > r.cagr).length, gSharpe = A.rows.filter(r => r.ma50.sharpe > r.sharpe).length;
 
   H1("11. The same rules on every NSE stock");
-  P(`Everything in Chapters 4 to 11 was tested on the Nifty 500. But more than ${Math.floor(A.stocks / 100) * 100} companies traded on the NSE during the last ten years, and momentum is often strongest in the smaller ones outside the index. This chapter runs the same rules on **every stock on the NSE**, from ${fmonth(A.from)} to ${fmonth(A.asOf)} (${yrsA.toFixed(1)} years), and asks two practical questions: **how many stocks should you hold, and should you rebalance every week or every month?**`);
+  P(`Everything in Chapters 4 to 10 was tested on the Nifty 500. But more than ${Math.floor(A.stocks / 100) * 100} companies traded on the NSE during the last ten years, and momentum is often strongest in the smaller ones outside the index. This chapter runs the same rules on **every stock on the NSE**, from ${fmonth(A.from)} to ${fmonth(A.asOf)} (${yrsA.toFixed(1)} years), and asks two practical questions: **how many stocks should you hold, and should you rebalance every week or every month?** It then tests a different safety rule.`);
   H2("How it was tested");
   bullets([
     `**The stocks:** NSE's own daily trading files, which list every stock that traded each day, including companies that later merged, were delisted or collapsed. So there is no survivorship bias of the kind Chapter 5 warns about: a stock enters the test when it starts trading and leaves when it stops, just as it did for real investors. ${A.stocks.toLocaleString("en-IN")} stocks passed the ₹1 crore turnover floor at some point.`,
-    `**The prices** were adjusted for ${A.events.adjustments} splits and bonus issues, and ${A.events.joins} renamed stocks were joined to their new symbols. ETFs and trade-to-trade (BE/BZ series) stocks were excluded.`,
+    `**All series are included.** Besides the normal EQ series, NSE moves some stocks into the BE and BZ series for extra surveillance or non-compliance. These trade for delivery only (no intraday trading) and often have tighter circuit limits. They can be bought, so the test includes them; the section below shows what they added and what that is worth in practice.`,
+    `**The prices** were adjusted for ${A.events.adjustments} splits and bonus issues, and ${A.events.joins} renamed stocks were joined to their new symbols. ETFs were excluded.`,
+    `**Dividends are included.** ${A.events.dividends.toLocaleString("en-IN")} dividends from NSE's corporate-action list are paid into cash on the ex-date and go into the next buys.`,
     "**The rules** are the ones in Chapter 4: the same score, the same three filters (within 25% of the high, above the 233-day average, ₹1 crore traded a day), the same Nifty 500 safety switch and liquid fund, and 0.25% per trade.",
-    `**What changes:** the number of stocks held (top ${A.topNs[0]} to top ${A.topNs[A.topNs.length - 1]}), the sell rule (a stock is sold once it falls below twice that rank: top 25 is sold below rank 50), and how often the portfolio is rebalanced (at each week's last close, or each month's).`,
+    `**What changes:** the number of stocks held (top ${A.topNs[0]} to top ${A.topNs[A.topNs.length - 1]}), the sell rule (a stock is sold once it falls below twice that rank: top 30 is sold below rank 60), and how often the portfolio is rebalanced (at each week's last close, or each month's).`,
   ]);
   callout("Not the same test as Chapter 6.", `The period is longer (${fmonth(A.from)} onwards, not ${fmonth(B.from)}), the stock list is far wider, and the sell rule is different. The Nifty 500 itself earned ${pct(AB.cagr)} a year over this period. Compare the combinations in this chapter with each other and with the index, not with the numbers in Chapter 6.`);
   H2("How many stocks, and how often?");
   table(["Stocks held", "Weekly: CAGR", "Worst fall", "Sharpe", "Monthly: CAGR", "Worst fall", "Sharpe"],
     A.topNs.map(n => r_([`Top ${n} (sell below ${2 * n})`, pct(W(n).cagr), pct(W(n).maxDD), num(W(n).sharpe), pct(Mo(n).cagr), pct(Mo(n).maxDD), num(Mo(n).sharpe)], "w" + n === A.best)),
-    { widths: [1.9, 1, 0.9, 0.8, 1, 0.9, 0.8], title: `Every combination on the whole NSE, ${fdate(A.from)} to ${fdate(A.asOf)}. Before tax, after 0.25% costs. Nifty 500: ${pct(AB.cagr)} a year, worst fall ${pct(AB.maxDD)}.` });
-  figure("12_nse_by_n.png", "Yearly return and worst fall for each number of stocks held, rebalanced weekly and monthly.");
+    { widths: [1.9, 1, 0.9, 0.8, 1, 0.9, 0.8], title: `Every combination on the whole NSE, ${fdate(A.from)} to ${fdate(A.asOf)}. Before tax, after 0.25% costs, with dividends. Nifty 500: ${pct(AB.cagr)} a year, worst fall ${pct(AB.maxDD)}.` });
+  figure("12_nse_by_n.png", "Yearly return and worst fall for each number of stocks held, rebalanced weekly and monthly. Dashed lines: the 50-day rule described later in this chapter.");
   bullets([
     `**Every combination beat the Nifty 500 comfortably**, earning ${pct(Math.min(...A.rows.map(r => r.cagr)), 0)} to ${pct(Math.max(...A.rows.map(r => r.cagr)), 0)} a year against the index's ${pct(AB.cagr)}.`,
     `**Ten stocks is too few on the whole NSE.** Top 10 had the deepest falls (${pct(W(10).maxDD)} weekly, ${pct(Mo(10).maxDD)} monthly) and, over its worst 3-year stretch, earned less than a liquid fund (${pct(W(10).worst3y)} and ${pct(Mo(10).worst3y)} a year). The stocks at the very top of an all-NSE ranking are often small and fast-moving; ten of them swing too much together.`,
-    `**Around 25 to 30 stocks was the sweet spot.** Weekly top 25 earned **${pct(W(25).cagr)} a year** with a worst fall of ${pct(W(25).maxDD)}; top 30 was a near tie (${pct(W(30).cagr)}, ${pct(W(30).maxDD)}). That two neighbouring settings agree matters more than which one came first.`,
-    `**Beyond 30, little is gained.** Holding 50 weekly trimmed the worst fall to ${pct(W(50).maxDD)} but gave up ${pts(W(25).cagr - W(50).cagr).replace("+", "")} a year against top 25, and meant many more orders.`,
+    `**Around 25 to 35 stocks was the sweet spot.** Weekly top 30 earned **${pct(W(30).cagr)} a year** with a worst fall of only ${pct(W(30).maxDD)}; top 25 (${pct(W(25).cagr)}, ${pct(W(25).maxDD)}) and top 35 (${pct(W(35).cagr)}, ${pct(W(35).maxDD)}) were close behind. That neighbouring settings agree matters more than which one came first.`,
+    `**Beyond 30, little is gained.** Holding 50 weekly trimmed the worst fall to ${pct(W(50).maxDD)} but gave up ${pts(W(30).cagr - W(50).cagr).replace("+", "")} a year against top 30, and meant many more orders.`,
   ]);
-  H2("Weekly beat monthly");
-  P(`From 15 stocks upward, rebalancing every week earned more than every month, **and** fell less. At 25 stocks the gap was ${pts(W(25).cagr - Mo(25).cagr).replace("+", "")} a year (${pct(W(25).cagr)} against ${pct(Mo(25).cagr)}), with a worst fall of ${pct(W(25).maxDD)} against ${pct(Mo(25).maxDD)}. There are two reasons:`);
+  H2("Weekly beat monthly, from 25 stocks up");
+  P(`From 25 stocks upward, rebalancing every week earned more than every month, and from 30 upward it **also** fell less. At 30 stocks the gap was ${pts(W(30).cagr - Mo(30).cagr).replace("+", "")} a year (${pct(W(30).cagr)} against ${pct(Mo(30).cagr)}), with a worst fall of ${pct(W(30).maxDD)} against ${pct(Mo(30).maxDD)}. With 15 or 20 stocks, monthly made slightly more. There are two reasons weekly helps:`);
   bullets([
     "**Fading stocks are sold within a week**, not up to a month later. In small stocks a month is a long time to hold something that has stopped working.",
-    `**The money goes back in sooner after the safety switch.** Monthly waits for a month-end above the Nifty 500's 200-day average; weekly buys back at the first week-end above it. The weekly version was invested ${pct(W(25).invested, 0)} of the time against ${pct(Mo(25).invested, 0)}.`,
+    `**The money goes back in sooner after the safety switch.** Monthly waits for a month-end above the Nifty 500's 200-day average; weekly buys back at the first week-end above it. The weekly version was invested ${pct(W(30).invested, 0)} of the time against ${pct(Mo(30).invested, 0)}.`,
   ]);
-  P(`The price is more trading: about ${num(W(25).turnoverPerYear, 1)} portfolio turns a year weekly against ${num(Mo(25).turnoverPerYear, 1)} monthly. Even if every trade cost **0.5%** instead of 0.25%, weekly top 25 still earned ${pct(W(25).cost50)} against ${pct(Mo(25).cost50)} for monthly. With 10 stocks the order flipped: monthly was ahead (${pct(Mo(10).cagr)} against ${pct(W(10).cagr)}), another sign that 10 is too few here.`);
+  P(`The price is more trading: about ${num(W(30).turnoverPerYear, 1)} portfolio turns a year weekly against ${num(Mo(30).turnoverPerYear, 1)} monthly. Even if every trade cost **0.5%** instead of 0.25%, weekly top 30 still earned ${pct(W(30).cost50)} against ${pct(Mo(30).cost50)} for monthly.`);
+  H2("What the BE/BZ stocks and dividends added");
+  P(`Letting in the BE and BZ series added a lot. Weekly top 30 earned **${pct(W(30).eqOnly)}** a year when it could buy only EQ-series stocks, and **${pct(W(30).cagr)}** with all series allowed. At 10 stocks the gap was far bigger (${pct(W(10).eqOnly)} against ${pct(W(10).cagr)}), carried by a handful of trade-to-trade winners.`);
+  P(`Some of that gain could not have been captured. ${pct(A.locked.beBz, 0)} of BE/BZ closing prices were locked at the upper circuit (the day's high, after a rise), against ${pct(A.locked.eq, 1)} of EQ closes. At a locked upper circuit there are buyers but no sellers, so a real buy order would usually not fill. Skipping those buys and taking the next stock instead brought weekly top 30 down to **${pct(W(30).skipLocked)}**, still ahead of EQ only. The reverse problem, a holding stuck at its lower circuit that can't be sold, is not modelled and flatters the result further.`);
+  P(`Dividends added under a point a year: weekly top 30 made ${pct(W(30).noDiv)} without them. Momentum stocks tend to pay little.`);
   H2("The best combination in detail");
-  const cols = [["Top 25, weekly", best], ["Top 25, monthly", Mo(25)], ["Top 10, monthly", Mo(10)]];
-  table(["", ...cols.map(c => c[0]), "Nifty 500"], [
-    r_(["Yearly growth (CAGR)", ...cols.map(c => pct(c[1].cagr)), pct(AB.cagr)], true),
-    r_(["₹1 lakh became", ...cols.map(c => lakh(c[1].multiple)), lakh(AB.multiple)]),
-    r_(["Worst fall", ...cols.map(c => pct(c[1].maxDD)), pct(AB.maxDD)]),
-    r_(["Sharpe ratio", ...cols.map(c => num(c[1].sharpe)), num(AB.sharpe)]),
-    r_(["After capital-gains tax", ...cols.map(c => pct(c[1].afterTax)), "–"]),
-    r_(["With 0.5% per trade", ...cols.map(c => pct(c[1].cost50)), "–"]),
-    r_(["Worst 3 years, per year", ...cols.map(c => pct(c[1].worst3y)), pct(AB.worst3y)]),
-    r_(["Worst 12 months", ...cols.map(c => pct(c[1].worst1y)), pct(AB.worst1y)]),
-    r_([`To 2020 / from 2021, per year`, ...cols.map(c => `${pct(c[1].firstHalf, 0)} / ${pct(c[1].secondHalf, 0)}`), `${pct(AB.firstHalf, 0)} / ${pct(AB.secondHalf, 0)}`]),
-    r_(["Completed trades", ...cols.map(c => String(c[1].trades)), "–"]),
-  ], { widths: [2, 1.2, 1.2, 1.2, 1.1], title: "Three combinations side by side. Top 10 monthly is closest to the book's rules on the Nifty 500." });
-  figure("11_nse_growth.png", "Growth of ₹1 on the whole NSE. Flat stretches are the times the safety switch had the money in the liquid fund.");
-  P(`Weekly top 25 grew ₹1 lakh into about **${lakh(best.multiple)}** while the Nifty 500 grew it into ${lakh(AB.multiple)}. It did well in both halves of the period (${pct(best.firstHalf)} a year to 2020, ${pct(best.secondHalf)} from 2021), and it was ahead of the index over **${best.beat3y === 1 ? "every" : pct(best.beat3y, 0) + " of"} 3-year stretch${best.beat3y === 1 ? "" : "es"}**. Its trades look like Chapter 6's: only ${pct(bt.winRate, 0)} made money, but the average winner gained ${pct(bt.avgWin, 0, true)} and the average loser lost ${pct(bt.avgLoss, 0)}, and a typical stock was held for about ${Math.round(bt.medianHoldDays / 7)} weeks.`);
+  const cols = [["Top 30, weekly", best], ["Top 30, monthly", Mo(30)], ["Top 20, monthly, 50-day rule", GM(20)]];
+  const f = (v, fn) => (v == null ? "–" : fn(v));
+  table(["", ...cols.map(c => c[0]), "Momentum 50 index", "Nifty 500"], [
+    r_(["Yearly growth (CAGR)", ...cols.map(c => pct(c[1].cagr)), pct(AM.cagr), pct(AB.cagr)], true),
+    r_(["₹1 lakh became", ...cols.map(c => lakh(c[1].multiple)), lakh(AM.multiple), lakh(AB.multiple)]),
+    r_(["Worst fall", ...cols.map(c => pct(c[1].maxDD)), pct(AM.maxDD), pct(AB.maxDD)]),
+    r_(["Sharpe ratio", ...cols.map(c => num(c[1].sharpe)), num(AM.sharpe), num(AB.sharpe)]),
+    r_(["After capital-gains tax", ...cols.map(c => f(c[1].afterTax, pct)), "–", "–"]),
+    r_(["Worst 3 years, per year", ...cols.map(c => pct(c[1].worst3y)), pct(AM.worst3y), pct(AB.worst3y)]),
+    r_(["Worst 12 months", ...cols.map(c => pct(c[1].worst1y)), pct(AM.worst1y), pct(AB.worst1y)]),
+    r_([`To 2020 / from 2021, per year`, ...cols.map(c => `${pct(c[1].firstHalf, 0)} / ${pct(c[1].secondHalf, 0)}`), `${pct(AM.firstHalf, 0)} / ${pct(AM.secondHalf, 0)}`, `${pct(AB.firstHalf, 0)} / ${pct(AB.secondHalf, 0)}`]),
+  ], { widths: [1.8, 1.05, 1.05, 1.15, 1.05, 1], title: "Three combinations side by side, with two indices. The Nifty500 Momentum 50 index is the ready-made fund version of the momentum idea. Both indices are price indices, without dividends." });
+  figure("11_nse_growth.png", "Growth of ₹1 on the whole NSE, log scale. Flat stretches in the weekly line are times the safety switch had the money in the liquid fund.");
+  P(`Weekly top 30 grew ₹1 lakh into about **${lakh(best.multiple)}** while the Nifty 500 grew it into ${lakh(AB.multiple)}. It did well in both halves of the period (${pct(best.firstHalf)} a year to 2020, ${pct(best.secondHalf)} from 2021), and it was ahead of the index over **${best.beat3y === 1 ? "every" : pct(best.beat3y, 0) + " of"} 3-year stretch${best.beat3y === 1 ? "" : "es"}**. Its trades look like Chapter 6's: only ${pct(bt.winRate, 0)} made money, but the average winner gained ${pct(bt.avgWin, 0, true)} and the average loser lost ${pct(bt.avgLoss, 0)}, and a typical stock was held for about ${Math.round(bt.medianHoldDays / 7)} weeks.`);
+  P(`**Against the ready-made momentum index.** The Nifty500 Momentum 50 index, which index funds and ETFs track, earned ${pct(AM.cagr)} a year with a worst fall of ${pct(AM.maxDD)}. Weekly top 30 beat it by about ${pts(best.cagr - AM.cagr).replace("+", "")} a year, and even buying EQ stocks only and after tax it stays well ahead. The index holds larger stocks, changes only twice a year and never steps out of the market, so it took the full falls of 2018–20 (${pct(AM.drawdowns[0].depth, 0)}) and 2024–25 (${pct(AM.drawdowns[1].depth, 0)}). A fund also needs no work and has none of the small-stock trading problems above, so the backtest gap overstates what a person running the rules by hand would keep.`);
   H2("Year by year");
-  table(["Year", "Top 25, weekly", "Top 25, monthly", "Nifty 500"], ayears.map(y => r_([part(y), pct(best.yearly[y], 1, true), pct(Mo(25).yearly[y], 1, true), pct(AB.yearly[y], 1, true)])),
-    { widths: [1, 1.2, 1.2, 1.2], title: "Returns by calendar year." });
-  P(`Most of the gain came in a few big years (2017, 2020, 2021 and 2023), when small and mid-sized stocks rallied. ${["2018", "2019"].filter(down).join(" and ")} lost money for **every** combination tested (2018: ${pct(range("2018")[0], 0)} to ${pct(range("2018")[1], 0)}), and 2022 ranged from ${pct(range("2022")[0], 0)} to ${pct(range("2022")[1], 0, true)} depending on the settings.`);
-  P(`The worst fall for weekly top 25 came fast: it fell ${pct(-dd[0].depth)} in ${dd[0].daysDown} trading days in ${fmonth(dd[0].peak)}, the demonetisation shock, too quick for the safety switch. The most testing stretch was slower: from a high in ${fmonth(dd[1].peak)} the portfolio drifted down ${pct(-dd[1].depth)} and did not get back to that high until ${fmonth(dd[1].recovered)}, about two and a half years later. Chapter 10 describes what stretches like this feel like.`);
+  table(["Year", "Top 30, weekly", "Top 20, monthly, 50-day rule", "Momentum 50 index", "Nifty 500"],
+    ayears.map(y => r_([part(y), pct(best.yearly[y], 1, true), pct(GM(20).yearly[y], 1, true), pct(AM.yearly[y], 1, true), pct(AB.yearly[y], 1, true)])),
+    { widths: [1, 1.1, 1.3, 1.2, 1.1], title: "Returns by calendar year." });
+  P(`Most of the gain came in a few big years (2017, 2020–21 and 2023–24), when small and mid-sized stocks rallied. ${["2018", "2019", "2022"].filter(down).join(", ").replace(/, ([^,]*)$/, " and $1")} lost money for **every** combination tested (2018: ${pct(range("2018")[0], 0)} to ${pct(range("2018")[1], 0)}; 2022: ${pct(range("2022")[0], 0)} to ${pct(range("2022")[1], 0)}).`);
+  P(`The worst fall for weekly top 30 came fast: it fell ${pct(-dd[0].depth)} in ${dd[0].daysDown} trading days in ${fmonth(dd[0].peak)}, the demonetisation shock, too quick for the safety switch. The slower ones were harder to live with: from ${fmonth(dd[1].peak)} it fell ${pct(-dd[1].depth)} and did not get back to that high until ${fmonth(dd[1].recovered)}, and a ${pct(-dd[2].depth, 0)} fall from ${fmonth(dd[2].peak)} took until ${fmonth(dd[2].recovered)} to recover, about two and a half years. Chapter 10 describes what stretches like this feel like.`);
+  H2("A different safety rule: the 50-day average of the Momentum 50");
+  P("The Chapter 4 safety switch sells everything when the Nifty 500 closes below its 200-day average three days in a row. The study also ran every combination with a gentler rule in its place, one that never sells what you hold:");
+  bullets([
+    "**No new buys while the Nifty500 Momentum 50 index closes below its 50-day average.** Holdings are still sold when they fall below twice the target rank; the money from those sales waits in the liquid fund.",
+    "**On the first day it closes back above its 50-day average, the empty slots are filled**, that same day, without waiting for the next rebalance.",
+    "**There is no switch to the liquid fund.** The portfolio stays close to fully invested.",
+  ]);
+  table(["Stocks held", "Weekly: 200-day switch", "Weekly: 50-day rule", "Monthly: 200-day switch", "Monthly: 50-day rule"],
+    A.topNs.map(n => r_([`Top ${n}`, `${pct(W(n).cagr, 0)} / ${pct(W(n).maxDD, 0)}`, `${pct(G(n).cagr, 0)} / ${pct(G(n).maxDD, 0)}`, `${pct(Mo(n).cagr, 0)} / ${pct(Mo(n).maxDD, 0)}`, `${pct(GM(n).cagr, 0)} / ${pct(GM(n).maxDD, 0)}`])),
+    { widths: [1.2, 1.3, 1.3, 1.3, 1.3], title: "Yearly return / worst fall with each safety rule." });
+  bullets([
+    `**More return in ${gWins} of 18 combinations**, and a better Sharpe ratio in ${gSharpe}. The gain was largest with few stocks or monthly rebalancing: monthly top 20 earned ${pct(GM(20).cagr)} a year (Sharpe ${num(GM(20).sharpe)}) and weekly top 15 ${pct(G(15).cagr)}, against ${pct(Mo(20).cagr)} and ${pct(W(15).cagr)} with the 200-day switch.`,
+    `**Deeper falls with 25 stocks or more.** Weekly top 30 fell ${pct(G(30).maxDD)} at worst with the 50-day rule, against ${pct(W(30).maxDD)} with the switch, and its worst 12 months went from ${pct(W(30).worst1y)} to ${pct(G(30).worst1y)}. Staying invested ${pct(G(30).invested, 0)} of the time, against ${pct(W(30).invested, 0)}, is where both the extra return and the deeper falls come from.`,
+    `**It does not protect in a crash.** In March 2020 monthly top 20 with the 50-day rule fell ${pct(-crash.m20g, 0)}, close to the Nifty 500's ${pct(-crash.nifty500, 0)}, while weekly top 30 with the 200-day switch fell only ${pct(-crash[A.best], 0)}.`,
+    "**Much of its edge came in 2023 and 2026**, when the 200-day switch sat out rallies. Ten years hold only a few deep falls, so this could reverse in the next one.",
+  ]);
   H2("Is it the ranking, or just the filters?");
-  P(`As in Chapter 7, the study replaced the ranking with random picks from the same filtered list, ${A.randomSeeds} times for each combination. Random picks at 25 stocks weekly already earned about **${pct(best.random.median)}** a year, well ahead of the Nifty 500: on the whole NSE, simply owning stocks near their highs and in an uptrend, with the safety switch on, did a lot of the work. Ranking by the momentum score added **${pts(best.cagr - best.random.median).replace("+", "")} a year** on top. The best of the ${A.randomSeeds} random runs earned ${pct(best.random.best)}, still well below the ranked version.`);
+  P(`As in Chapter 7, the study replaced the ranking with random picks from the same filtered list, ${A.randomSeeds} times for each combination. Random picks at 30 stocks weekly already earned about **${pct(best.random.median)}** a year, well ahead of the Nifty 500: on the whole NSE, simply owning stocks near their highs and in an uptrend, with the safety switch on, did a lot of the work. Ranking by the momentum score added **${pts(best.cagr - best.random.median).replace("+", "")} a year** on top. The best of the ${A.randomSeeds} random runs earned ${pct(best.random.best)}, still well below the ranked version.`);
   H2("How much money can it handle?");
   table(["Starting capital", "Typical buy as % of a day's trading", "Buys over 10% of a day's trading"], best.capacity.map(c => r_([rupees(c.capital), pct(c.medianShareOfAdv, 1), pct(c.over10pct, 0)])),
-    { widths: [1.4, 1.6, 1.6], title: "Weekly top 25: each buy compared with the stock's normal daily trading." });
+    { widths: [1.4, 1.6, 1.6], title: "Weekly top 30: each buy compared with the stock's normal daily trading." });
   P(`This is where the whole NSE differs most from the Nifty 500. The stocks are smaller, so money runs out of room sooner. At ${rupees(1e7)} a typical buy is ${pct(capA(1e7).medianShareOfAdv, 1)} of a day's trading, which is fine, though ${pct(capA(1e7).over10pct, 0)} of buys are already large for the stock. At ${rupees(1e8)} a typical buy is ${pct(capA(1e8).medianShareOfAdv, 0)} of a day's trading, ${pct(capA(1e8).over10pct, 0)} of buys are too big, and these results would not hold. **This version suits individual investors, not large funds.**`);
   H2("What the study shows");
   bullets([
-    "**On the whole NSE, 10 stocks was too few.** Holding 25 to 30, sold below twice that rank, gave the best balance of return and falls.",
-    `**Weekly rebalancing beat monthly from 15 stocks up**, even at 0.5% per trade, for about ${num(W(25).turnoverPerYear / Mo(25).turnoverPerYear, 1)} times the trading.`,
-    "**The ranking added a lot on top of the filters**, just as it did on the Nifty 500.",
-    "**Smaller stocks bring limits a backtest can't fully capture:** wider gaps between buying and selling prices, circuit limits, and far less room for large amounts of money.",
+    "**On the whole NSE, 10 stocks was too few.** Holding 25 to 35, sold below twice that rank, gave the best balance of return and falls.",
+    `**Weekly rebalancing beat monthly from 25 stocks up**, even at 0.5% per trade, for about ${num(W(30).turnoverPerYear / Mo(30).turnoverPerYear, 1)} times the trading.`,
+    "**The ranking added a lot on top of the filters**, just as it did on the Nifty 500, and the rules beat the ready-made Momentum 50 index by a wide margin.",
+    "**The two safety rules suit different investors.** The 200-day switch kept falls smallest with 25 stocks or more; the 50-day rule earned more with fewer stocks or monthly rebalancing, at the cost of deeper falls and no crash protection.",
+    "**Smaller stocks bring limits a backtest can't fully capture:** trade-to-trade series, wider gaps between buying and selling prices, circuit limits, and far less room for large amounts of money.",
   ]);
-  callout("Be careful with this result.", `Eighteen combinations were tested and the best one is reported, so expect real results to be lower. The backtest trades at the closing price, even on days a small stock is stuck at its upper or lower circuit limit and couldn't really be bought or sold; that flatters weekly trading in small stocks most. Dividends are ignored for both the strategy and the index. And ${ayears[0]} to ${ayears[ayears.length - 1]} included several powerful small-cap rallies that may not repeat.`);
+  callout("Be careful with this result.", `Eighteen combinations were tested (thirty-six with the second safety rule) and the best are reported, so expect real results to be lower. The backtest trades at the closing price, even on days a small stock is stuck at its upper or lower circuit limit and couldn't really be bought or sold; skipping the upper-circuit buys alone cut weekly top 30 from ${pct(W(30).cagr)} to ${pct(W(30).skipLocked)} a year. The strategy includes dividends while the two indices do not, which flatters it by about 1–1.5 points a year. And ${ayears[0]} to ${ayears[ayears.length - 1]} included several powerful small-cap rallies that may not repeat.`);
 }
 
 
@@ -626,8 +652,8 @@ const faq = [
   ["Isn't this just chasing stocks that have already gone up?", "Yes, deliberately, but with rules. The evidence over a century is that stocks rising strongly and steadily tend to keep rising for months. The rules also make you sell when they stop, which casual chasing never does."],
   ["Why not just buy a momentum index fund?", "That's a perfectly good, simpler option. Index funds handle the rebalancing for you. The strategy in this book differs in its stock universe, scoring, number of stocks, and especially its safety switch, which index funds don't have."],
   ["Will future returns be " + pct(B.cagr, 0) + " a year?", "Almost certainly not. That figure comes from one six-year period that was good for Indian stocks, before tax, and with the luckiest trading day. Expect lower returns, and deeper falls, in real life. What the study shows is that the approach worked across many settings and beat random stock picking, not that the future will match the past."],
-  ["What if the market crashes like 2008?", `The safety switch would sell after three closes below the 200-day average. It wouldn't avoid the first part of the fall, but it is designed to avoid most of a long, deep decline. The six-year Nifty 500 period had no such crash. The longer whole-NSE test in Chapter 11 includes the March 2020 crash: from ${fdate(crash.from)} to the low, the Nifty 500 fell ${pct(-crash.nifty500, 0)}, while the momentum rules (top 25 stocks, weekly) fell ${pct(-crash[A.best], 0)}, because the switch had moved the money to the liquid fund early in the fall. One crash is not proof, but it is the kind of fall the switch was built for.`],
-  ["Does it work beyond the Nifty 500?", "Chapter 11 runs the same rules on every stock on the NSE, including small companies and ones that later disappeared. It worked there too, with more stocks held, but it can absorb far less money because the stocks are smaller."],
+  ["What if the market crashes like 2008?", `The safety switch would sell after three closes below the 200-day average. It wouldn't avoid the first part of the fall, but it is designed to avoid most of a long, deep decline. The six-year Nifty 500 period had no such crash. The longer whole-NSE test in Chapter 11 includes the March 2020 crash: from ${fdate(crash.from)} to the low, the Nifty 500 fell ${pct(-crash.nifty500, 0)}, while the momentum rules (top 30 stocks, weekly) fell ${pct(-crash[A.best], 0)}, because the switch had moved the money to the liquid fund early in the fall. One crash is not proof, but it is the kind of fall the switch was built for.`],
+  ["Does it work beyond the Nifty 500?", "Chapter 11 runs the same rules on every stock on the NSE, including small companies and ones that later disappeared. It worked there too, with more stocks held, but it can absorb far less money because the stocks are smaller, and some of them trade only for delivery (the BE and BZ series)."],
 ];
 faq.forEach(([q, a]) => { H3(q); P(a); });
 
@@ -660,7 +686,7 @@ bullets([
   "**Safety switch:** sell everything on the day the Nifty 500 completes three closes in a row below its 200-day simple moving average; buy back at a month-end close above it. Waiting money earns 6.5% a year.",
   "**Costs:** 0.25% of trade value on every buy and sell. Tax only where stated.",
   "**Benchmark:** Nifty 500 price index (no dividends).",
-  `**Chapter 11 (whole NSE):** ${fdate(A.from)} to ${fdate(A.asOf)}; every EQ-series stock in NSE's daily trading files, adjusted for splits and bonus issues from NSE's corporate-action list (and, where no record exists, from whole-ratio price gaps); ETFs excluded; the high filter uses the highest price since 2015; rebalanced at each week's or month's last close, and after a safety-switch exit, bought back at the first such close above the 200-day average.`,
+  `**Chapter 11 (whole NSE):** ${fdate(A.from)} to ${fdate(A.asOf)}; every stock in NSE's daily trading files in the EQ, BE and BZ series, adjusted for splits and bonus issues from NSE's corporate-action list (and, where no record exists, from whole-ratio price gaps), with dividends from the same list paid into cash on the ex-date; ETFs excluded; the high filter uses the highest price since 2015; rebalanced at each week's or month's last close, and after a safety-switch exit, bought back at the first such close above the 200-day average. The second safety rule compares the Nifty500 Momentum 50 index (closes to 22 May 2026, then carried on with a Momentum 50 ETF's daily moves) with its 50-day simple average of closes.`,
 ]);
 
 H1("Appendix C: Further reading");

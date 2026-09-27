@@ -212,27 +212,30 @@ ax.grid(axis="y", visible=False)
 ax.set_xlim(0, E["months"] * 1.08)
 save(fig, "10_etf_held.png")
 
-# 11. whole NSE: weekly 25, monthly 25 and monthly 10 vs the Nifty 500 (from momentum_nse_study.json)
+# 11. whole NSE: weekly 30 (200-day switch), monthly 20 (50-day rule), Momentum 50 and Nifty 500 (momentum_nse_study.json)
 A = json.loads((ROOT / "momentum_nse_study.json").read_text(encoding="utf-8"))
 xa = [d(p["d"]) for p in A["curve"]]
 fig, ax = plt.subplots(figsize=(6.5, 3.2))
 ax.plot(xa, [p["nifty500"] for p in A["curve"]], color=NIFTY, lw=1.2, ls="--", label="Nifty 500 index")
-ax.plot(xa, [p["m10"] for p in A["curve"]], color=AMBER, lw=1.2, label="Top 10, monthly")
-ax.plot(xa, [p["m25"] for p in A["curve"]], color=BLUE, lw=1.4, label="Top 25, monthly")
-ax.plot(xa, [p[A["best"]] for p in A["curve"]], color=STRAT, lw=2.2, label="Top 25, weekly")
+ax.plot(xa, [p["mom50"] for p in A["curve"]], color=AMBER, lw=1.2, label="Nifty500 Momentum 50 index")
+ax.plot(xa, [p["m20g"] for p in A["curve"]], color=BLUE, lw=1.4, label="Top 20, monthly, 50-day rule")
+ax.plot(xa, [p[A["best"]] for p in A["curve"]], color=STRAT, lw=2.2, label="Top 30, weekly")
 log_axis(ax, ticks=(1, 2, 5, 10, 20, 50))
 year_axis(ax)
 ax.set_ylabel("Growth of ₹1 (log scale)")
 ax.legend(loc="upper left")
 save(fig, "11_nse_growth.png")
 
-# 12. return and worst fall by number of stocks held, weekly vs monthly
-fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.5, 2.8))
+# 12. return and worst fall by number of stocks held, weekly vs monthly; dashed: the 50-day rule
+fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.5, 2.9))
 for freq, color, label in (("weekly", STRAT, "Weekly"), ("month_end", BLUE, "Monthly")):
     rs = [r for r in A["rows"] if r["freq"] == freq]
-    a1.plot([r["topN"] for r in rs], [r["cagr"] * 100 for r in rs], color=color, lw=2, marker="o", ms=3.5, label=label)
-    a2.plot([r["topN"] for r in rs], [-r["maxDD"] * 100 for r in rs], color=color, lw=2, marker="o", ms=3.5, label=label)
-a1.axhline(A["bench"]["cagr"] * 100, color=NIFTY, lw=1, ls="--")
+    ns = [r["topN"] for r in rs]
+    a1.plot(ns, [r["cagr"] * 100 for r in rs], color=color, lw=2, marker="o", ms=3.5, label=label)
+    a2.plot(ns, [-r["maxDD"] * 100 for r in rs], color=color, lw=2, marker="o", ms=3.5, label=label)
+    a1.plot(ns, [r["ma50"]["cagr"] * 100 for r in rs], color=color, lw=1.3, ls="--", label=label + ", 50-day rule")
+    a2.plot(ns, [-r["ma50"]["maxDD"] * 100 for r in rs], color=color, lw=1.3, ls="--")
+a1.axhline(A["bench"]["cagr"] * 100, color=NIFTY, lw=1, ls=":")
 a1.annotate("Nifty 500", (50, A["bench"]["cagr"] * 100), xytext=(0, 4), textcoords="offset points", ha="right", fontsize=8, color=MUTED)
 a1.set_title("Yearly return (%)", fontsize=9.5, color=INK)
 a2.set_title("Worst fall (%)", fontsize=9.5, color=INK)
@@ -241,7 +244,8 @@ a2.set_ylim(0, None)
 for ax in (a1, a2):
     ax.set_xlabel("Stocks held")
     ax.set_xticks(A["topNs"])
-a1.legend(loc="lower right")
+a2.set_ylim(0, 72)
+a2.legend(*a1.get_legend_handles_labels(), loc="upper right", fontsize=7, ncol=2, frameon=False)
 save(fig, "12_nse_by_n.png")
 
 # numbers the book text needs that are not in momentum_study.json
