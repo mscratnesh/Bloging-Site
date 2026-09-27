@@ -4,7 +4,7 @@ the previous-week-low stop and the 2-week-low stop. Rules, comparison, charts, e
 Reuses the look, chart and sortable-table code of study/backtest_report_template.html and fills it
 with breakout_study.json (run study/breakout_study.py first).
 Output: study/breakout_report.html, and breakout-study.html at the site root (the public copy,
-        shipped in dist/). Nothing on the site links to it.
+        shipped in dist/, linked from the site's Studies menu).
 Run: py study/breakout_report.py
 """
 import json

@@ -52,7 +52,7 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-Two pages in the site menu are data-driven stock tools rather than articles: Breakout Desk and Momentum Study. A third, Sheets, sells the Google Sheets behind them. All three are for information only and carry a not-investment-advice disclaimer.
+The site menu has Breakout Desk, a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer.
 
 ### Sheets for sale (`sheets.html`)
 
@@ -60,7 +60,7 @@ A one-page sales page (menu: **Sheets**) for the two Google Sheets, ₹500 each:
 
 ### Gold vs Nifty (`gold-vs-nifty.html`)
 
-A one-page summary of the Gold vs Nifty rotation (NiftyBeES or a Momentum 50 ETF vs GoldBeES, switching when their price ratio breaks out of its recent range): the idea, headline backtest results for both versions (Feb 2010 to May 2026, after 20% STCG and STT) and limits, ending in a link to the ebook on Amazon. It keeps the exact rules for the book, and it isn't in the site menu. Its numbers come from the handbook (section 7.2). The source files (`study/GoldVsNifty.xlsx`, the handbook PDF and Word file) are git-ignored because the handbook is sold; the spreadsheet's trade log uses 15% STCG, so it doesn't match the handbook's 20% figures.
+A one-page summary of the Gold vs Nifty rotation (NiftyBeES or a Momentum 50 ETF vs GoldBeES, switching when their price ratio breaks out of its recent range): the idea, headline backtest results for both versions (Feb 2010 to May 2026, after 20% STCG and STT) and limits, ending in a link to the ebook on Amazon. It keeps the exact rules for the book and sits under Studies in the menu. Its numbers come from the handbook (section 7.2). The source files (`study/GoldVsNifty.xlsx`, the handbook PDF and Word file) are git-ignored because the handbook is sold; the spreadsheet's trade log uses 15% STCG, so it doesn't match the handbook's 20% figures.
 
 ### Breakout Desk (`breakout-desk.html`)
 
@@ -115,7 +115,7 @@ py study\etf_report.py
 
 Backtests of buying Nifty 500 stocks (point-in-time lists) that close above their highest price of the last 2, 3 or 4 years, where that high was set at least a year earlier. Each lookback is a separate backtest from the first day it can be measured, run with three stop-losses: the previous week's lowest close, the lowest close of the last 2 weeks, and the 2-week low that stops trailing once it is 5% above the buy price and then rises 1% every 2 months. Up to 10 stocks from a watchlist of the best 20 recent breakouts, bought on Friday's close; ₹10 lakh to start (₹1 lakh a slot); idle money waits in one GOLDBEES pool shared equally by the empty slots; dividends added on the ex-date; 0.25% cost per side on stocks and GOLDBEES. Breakouts and stops use split-adjusted closes (the price cache has no daily lows).
 
-Unlike the momentum and ETF studies, the **full report is public**: `breakout-study.html` ships in `dist`, but nothing on the site links to it (the Breakout Desk links to the Breakout Tracker sheet on `sheets.html` instead).
+Unlike the momentum and ETF studies, the **full report is public**: `breakout-study.html` ships in `dist` and is linked from the Studies menu (the Breakout Desk itself links to the Breakout Tracker sheet on `sheets.html`).
 
 - `study/fetch_dividends.py` — dividend history from Yahoo into `study/dividends.json`, stored as yields (dividend ÷ previous close) so splits don't distort them.
 - `study/breakout_study.py` — runs the nine backtests (needs `numpy`, ~1 minute) and writes `breakout_study.json`.

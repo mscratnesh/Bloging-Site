@@ -26,13 +26,14 @@
     .price-mark{flex-shrink:0;width:150px;height:150px;border:1px solid var(--ink);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;transform:rotate(-8deg);font:600 34px var(--serif)}.price-mark small{font:9px var(--mono);letter-spacing:.1em;text-align:center;line-height:1.3;margin-top:4px}
     .products{padding:0 max(24px,calc((100% - 1180px)/2)) 90px}.products>header{border-top:1px solid var(--ink);padding:13px 0 26px;font:11px var(--mono);text-transform:uppercase;display:flex;justify-content:space-between}
     .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
-    .product{padding-top:4px;display:flex;flex-direction:column}
+    .product{display:flex;flex-direction:column;background:#fbfaf6;border:1px solid var(--line);border-top:3px solid var(--ink);padding:30px 32px 32px;box-shadow:0 14px 30px -24px rgba(23,32,27,.35);transition:border-color .2s,box-shadow .2s}.product:hover{border-top-color:var(--coral);box-shadow:0 18px 36px -22px rgba(23,32,27,.4)}
     .product-top{display:flex;justify-content:space-between;align-items:baseline;gap:16px}.product h2{font:600 36px var(--serif);line-height:1;letter-spacing:-.02em;margin:0}
     .price{font:600 30px var(--serif);white-space:nowrap}.price small{display:block;font:10px var(--mono);color:var(--muted);text-align:right;letter-spacing:.06em;text-transform:uppercase}
     .pitch{color:var(--muted);font-size:15px;margin:16px 0 22px;max-width:480px}
     .product h3{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--coral-text);margin:20px 0 10px}
     .product ul{list-style:none;padding:0;margin:0}.product li{padding:9px 0 9px 22px;border-top:1px solid var(--line);font-size:14px;position:relative}.product li:before{content:"↗";position:absolute;left:0;color:var(--coral);font-size:13px}
-    .buy{margin-top:28px;align-self:flex-start;border:0;cursor:pointer;color:var(--paper);background:var(--ink);padding:13px 18px;font:600 11px var(--mono);text-decoration:none}.buy:hover{background:var(--coral-text)}
+    .buy{align-self:flex-start;border:0;cursor:pointer;color:var(--paper);background:var(--ink);padding:13px 18px;font:600 11px var(--mono);text-decoration:none}.buy:hover{background:var(--coral-text)}
+    .buy-row{margin-top:auto;padding-top:28px}
     .how{padding:0 max(24px,calc((100% - 1180px)/2)) 90px}.how ol{list-style:none;counter-reset:step;padding:0;margin:0;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}.how li{counter-increment:step;border-top:1px solid var(--line);padding-top:14px;font-size:14px;color:var(--muted)}.how li:before{content:"0" counter(step);display:block;font:12px var(--mono);color:var(--coral-text);margin-bottom:10px}.how li strong{display:block;color:var(--ink);font:600 20px var(--serif);margin-bottom:6px}
     .pay{padding:0 max(24px,calc((100% - 1180px)/2)) 90px}.pay-body{display:grid;grid-template-columns:280px 1fr;gap:56px;align-items:center;padding-top:26px}
     .qr{background:#fff;border:1px solid var(--line);padding:14px;margin:0}.qr img{display:block;width:100%;height:auto}.qr figcaption{font:11px var(--mono);color:var(--muted);text-align:center;margin-top:8px}
@@ -44,12 +45,12 @@
     .order-form{display:grid;gap:14px;width:min(100%,420px)}.order-form input,.order-form textarea,.order-form select{width:100%;border:1px solid #3d4940;background:transparent;color:var(--paper);padding:13px;font:13px var(--sans)}.order-form select option{color:var(--ink)}.order-form input::placeholder,.order-form textarea::placeholder{color:#8a9389}.order-form input:focus,.order-form textarea:focus,.order-form select:focus{outline:0;border-color:var(--lime)}.order-form textarea{min-height:80px;resize:vertical}
     .order-form button{border:0;cursor:pointer;color:var(--ink);background:var(--lime);padding:13px 18px;font:600 11px var(--mono);justify-self:start}.order-form button:hover{background:#c3e35a}.order-status{font:11px var(--mono);color:#b9c2b8;margin:0}.order-status.status-ok{color:var(--lime)}.order-status.status-error{color:var(--coral)}
     .disclaimer{padding:28px max(24px,calc((100% - 1180px)/2));color:var(--muted);font-size:11px;border-bottom:1px solid var(--line)}.disclaimer strong{color:var(--ink);display:block;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
-    @media(max-width:900px){.product-grid{grid-template-columns:1fr;gap:56px}.product+.product{border-top:1px solid var(--ink);padding-top:22px}.how ol{grid-template-columns:1fr 1fr}}
-    @media(max-width:700px){.pay{padding:0 8vw 70px}.pay-body{grid-template-columns:1fr;gap:30px}.qr{max-width:280px}.pay h2{font-size:36px}.pay dl{grid-template-columns:110px 1fr}.upi-app{display:inline-block}.sheets-hero{padding:60px 8vw;display:block}.price-mark{width:105px;height:105px;font-size:24px;margin:40px 0 0 auto}.products,.how{padding:0 8vw 70px}.product h2{font-size:30px}.how ol{grid-template-columns:1fr}.order-band{display:block;padding:58px 8vw}.order-band h2{font-size:43px}.order-form{margin-top:28px}.disclaimer{padding:25px 8vw}}
+    @media(max-width:900px){.product-grid{grid-template-columns:1fr;gap:28px}.how ol{grid-template-columns:1fr 1fr}}
+    @media(max-width:700px){.pay{padding:0 8vw 70px}.pay-body{grid-template-columns:1fr;gap:30px}.qr{max-width:280px}.pay h2{font-size:36px}.pay dl{grid-template-columns:110px 1fr}.upi-app{display:inline-block}.sheets-hero{padding:60px 8vw;display:block}.price-mark{width:105px;height:105px;font-size:24px;margin:40px 0 0 auto}.products,.how{padding:0 8vw 70px}.product h2{font-size:30px}.product{padding:24px 20px 26px}.how ol{grid-template-columns:1fr}.order-band{display:block;padding:58px 8vw}.order-band h2{font-size:43px}.order-form{margin-top:28px}.disclaimer{padding:25px 8vw}}
   </style>
 </head>
 <body>
-  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><a href="momentum-study.html">Momentum Study</a><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><a href="breakout-desk.html">Breakout Desk</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
     <section class="sheets-hero"><div><p class="eyebrow">Google Sheets for Indian stocks</p><h1>Two ready-made sheets.<br><em>The rules run themselves.</em></h1><p>A momentum scanner and a multi-year breakout tracker, built in Google Sheets with the scripts already set up. You get your own copy, fetch fresh prices with one click or on a schedule, and keep full control of every setting.</p></div><div class="price-mark"><strong>₹500</strong><small>PER SHEET<br>ONE-TIME</small></div></section>
 
@@ -67,7 +68,7 @@
             <li>Watches the Nifty 500 against its 200-day average and flags when to move to a liquid fund</li>
             <li>Builds a month-end rebalance plan: what to sell, what to buy, and how to split the money</li>
           </ul>
-          <button class="buy" type="button" data-sheet="Momentum Sharpe Scan sheet (₹500)">Buy this sheet · ₹500 ↗</button>
+          <div class="buy-row"><button class="buy" type="button" data-sheet="Momentum Sharpe Scan sheet (₹500)">Buy this sheet · ₹500 ↗</button></div>
         </article>
         <article class="product" id="breakout">
           <div class="product-top"><h2>Multi-Year Breakout Tracker</h2><p class="price">₹500<small>one-time</small></p></div>
@@ -81,7 +82,7 @@
             <li>Sizes each trade from your capital and risk per trade (1% by default), with an initial stop-loss</li>
             <li>Logs trades every Saturday and manages exits in two stages: stop, failed breakout, breakeven, then a 10-week trailing average</li>
           </ul>
-          <button class="buy" type="button" data-sheet="Multi-Year Breakout Tracker sheet (₹500)">Buy this sheet · ₹500 ↗</button>
+          <div class="buy-row"><button class="buy" type="button" data-sheet="Multi-Year Breakout Tracker sheet (₹500)">Buy this sheet · ₹500 ↗</button></div>
         </article>
       </div>
     </section>
