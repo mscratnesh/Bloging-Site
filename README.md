@@ -52,7 +52,7 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-The site menu has Breakout Desk, a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer.
+The site menu has a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer.
 
 ### Sheets for sale (`sheets.html`)
 
@@ -63,6 +63,8 @@ A one-page sales page (menu: **Sheets**) for the two Google Sheets, ₹500 each:
 A one-page summary of the Gold vs Nifty rotation (NiftyBeES or a Momentum 50 ETF vs GoldBeES, switching when their price ratio breaks out of its recent range): the idea, headline backtest results for both versions (Feb 2010 to May 2026, after 20% STCG and STT) and limits, ending in a link to the ebook on Amazon. It keeps the exact rules for the book and sits under Studies in the menu. Its numbers come from the handbook (section 7.2). The source files (`study/GoldVsNifty.xlsx`, the handbook PDF and Word file) are git-ignored because the handbook is sold; the spreadsheet's trade log uses 15% STCG, so it doesn't match the handbook's 20% figures.
 
 ### Breakout Desk (`breakout-desk.html`)
+
+Not in the site menu and not linked from any page; it still ships in `dist` and opens at `/breakout-desk.html`.
 
 NSE stocks breaking out of multi-year bases and cup-and-handle patterns.
 
