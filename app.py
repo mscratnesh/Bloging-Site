@@ -11,6 +11,7 @@ import re
 import secrets
 import sqlite3
 import sys
+import threading
 import time
 import http.client
 import http.cookiejar
@@ -35,8 +36,11 @@ BREAKOUT_SHEET_ID = "1gLrCYp_GmRSpEkrCVwwEn_Ec97IQr6YfNo7mvPQLZgk"
 BREAKOUT_SHEET_GID_CH = "649235540"
 BREAKOUT_SHEET_GID_MYB = "1080335833"
 BREAKOUT_CACHE_TTL = 15 * 60
+MF_API_URL = "https://api.mfapi.in/mf"
+MF_CACHE_DIR = ROOT / "mf_nav_cache"
+MF_CODE_RE = re.compile(r"^\d{1,8}$")
 SITE_URL = "https://letmoneyearn.in"
-SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "calculators.html", "review.html", "question.html")
+SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "calculators.html", "mf-compare.html", "review.html", "question.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -336,6 +340,103 @@ def get_symbol_fundamentals(symbol):
     return data, False
 
 
+MF_FETCH_ERRORS = HISTORY_FETCH_ERRORS + (TypeError, AttributeError, http.client.HTTPException)
+MF_SEARCH_CACHE = {}
+
+
+def fetch_mfapi_json(path):
+    request = urllib.request.Request(f"{MF_API_URL}/{path}", headers={"User-Agent": "Mozilla/5.0"})
+    with urllib.request.urlopen(request, timeout=12) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def last_ist_midnight():
+    return datetime.now(IST).replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
+
+
+def search_mf_schemes(query):
+    """Scheme codes and names matching a query, from mfapi.in. Kept in memory until midnight (IST)."""
+    key = query.lower()
+    now = time.time()
+    entry = MF_SEARCH_CACHE.get(key)
+    if entry and entry[0] >= last_ist_midnight():
+        return entry[1]
+    rows = fetch_mfapi_json(f"search?q={urllib.parse.quote(query)}")
+    results = [{"code": str(row["schemeCode"]), "name": row["schemeName"]} for row in rows[:60]]
+    if len(MF_SEARCH_CACHE) > 500:
+        MF_SEARCH_CACHE.clear()
+    MF_SEARCH_CACHE[key] = (now, results)
+    return results
+
+
+def parse_mf_history(payload):
+    """mfapi.in gives dd-mm-yyyy dates, newest first; return ISO dates, oldest first."""
+    meta = payload["meta"]
+    navs = {}
+    for row in payload["data"]:
+        try:
+            nav = float(row["nav"])
+            day, month, year = row["date"].split("-")
+        except (KeyError, TypeError, ValueError):
+            continue
+        if nav > 0:
+            navs[f"{year}-{month}-{day}"] = nav
+    return {
+        "code": str(meta["scheme_code"]),
+        "name": meta["scheme_name"],
+        "house": meta.get("fund_house") or "",
+        "category": meta.get("scheme_category") or "",
+        "points": sorted(navs.items()),
+    }
+
+
+def get_mf_history(code):
+    """Full NAV history for one scheme, cached on disk (one file per scheme) until midnight (IST)."""
+    path = MF_CACHE_DIR / f"{code}.json"
+    entry = load_json_cache(path)
+    now = time.time()
+    if entry and entry.get("fetchedAt", 0) >= last_ist_midnight():
+        return entry["data"], False
+    try:
+        data = parse_mf_history(fetch_mfapi_json(code))
+        if not data["points"]:
+            raise ValueError("No NAV history.")
+    except MF_FETCH_ERRORS:
+        if entry:
+            return entry["data"], True
+        return None, False
+    try:
+        MF_CACHE_DIR.mkdir(exist_ok=True)
+    except OSError:
+        pass
+    save_json_cache(path, {"fetchedAt": now, "data": data})
+    return data, False
+
+
+def refresh_mf_cache():
+    """Forget searches and re-fetch every cached fund whose copy is from before midnight (IST).
+    A fund that fails keeps its old copy."""
+    MF_SEARCH_CACHE.clear()
+    try:
+        codes = sorted(path.stem for path in MF_CACHE_DIR.glob("*.json"))
+    except OSError:
+        codes = []
+    for code in codes:
+        if MF_CODE_RE.match(code):
+            get_mf_history(code)
+            time.sleep(1)
+
+
+def refresh_mf_cache_nightly():
+    """Refresh the fund cache just after each midnight (IST), so the day starts on fresh NAVs
+    (AMFI publishes the day's NAVs by about 11 pm)."""
+    while True:
+        now = datetime.now(IST)
+        next_midnight = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+        time.sleep((next_midnight - now).total_seconds() + 60)
+        refresh_mf_cache()
+
+
 def format_sitemap_date(value):
     try:
         return datetime.strptime(value, "%d %b %Y").strftime("%Y-%m-%d")
@@ -616,6 +717,29 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/momentum":
             self.send_json(momentum.load_state(ROOT))
+            return
+        if route == "/api/mf/search":
+            query = parse_qs(urlparse(self.path).query).get("q", [""])[0].strip()
+            if not 3 <= len(query) <= 80:
+                self.send_json({"results": []})
+                return
+            try:
+                results = search_mf_schemes(query)
+            except MF_FETCH_ERRORS:
+                self.send_json({"error": "Could not search funds right now."}, 502)
+                return
+            self.send_json({"results": results})
+            return
+        if route.startswith("/api/mf/nav/"):
+            code = route.rsplit("/", 1)[1]
+            if not MF_CODE_RE.match(code):
+                self.send_json({"error": "Invalid scheme code."}, 400)
+                return
+            data, stale = get_mf_history(code)
+            if data is None:
+                self.send_json({"error": "Could not load NAV history."}, 502)
+                return
+            self.send_json({**data, "stale": stale})
             return
         if route.startswith("/api/breakout-desk/fundamentals/"):
             symbol = urllib.parse.unquote(route.rsplit("/", 1)[1]).upper()
@@ -971,6 +1095,7 @@ if __name__ == "__main__":
     host = os.environ.get("LET_MONEY_EARN_HOST", "127.0.0.1")
     port = int(os.environ.get("LET_MONEY_EARN_PORT", "8000"))
     server = ThreadingHTTPServer((host, port), BlogHandler)
+    threading.Thread(target=refresh_mf_cache_nightly, daemon=True).start()
     display_host = "127.0.0.1" if host == "0.0.0.0" else host
     print(f"Let Money Earn is running at http://{display_host}:{port}")
     try:

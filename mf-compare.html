@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Compare Indian mutual funds on rolling returns: 1, 3, 5, 7 and 10-year rolling CAGR, how often each fund beat the others, return ranges, trailing returns and worst falls. NAV data from AMFI.">
+<link rel="canonical" href="https://letmoneyearn.in/mf-compare.html">
+<meta name="robots" content="index, follow">
+<title>Mutual Fund Rolling Returns | Let Money Earn</title>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Let Money Earn">
+<meta property="og:title" content="Mutual Fund Rolling Returns | Let Money Earn">
+<meta property="og:description" content="Compare mutual funds on rolling returns, consistency and worst falls, not just last year's number.">
+<meta property="og:url" content="https://letmoneyearn.in/mf-compare.html">
+<meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Mutual Fund Rolling Returns | Let Money Earn">
+<meta name="twitter:description" content="Compare mutual funds on rolling returns, consistency and worst falls, not just last year's number.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .mf-hero{padding:40px max(24px,calc((100% - 1180px)/2)) 28px;border-bottom:1px solid var(--line)}
+  .mf-hero h1{max-width:820px;font:600 clamp(36px,4.8vw,56px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .mf-hero p{max-width:680px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .mf-section{padding:0 max(24px,calc((100% - 1180px)/2)) 48px}
+  .mf-pick{padding-top:22px}
+  .mf-search{position:relative;max-width:720px}
+  .mf-search input{width:100%;border:1px solid var(--ink);padding:14px;background:transparent;font:15px var(--sans);color:var(--ink)}
+  .mf-results{position:absolute;left:0;right:0;top:100%;z-index:10;background:var(--paper);border:1px solid var(--ink);border-top:0;max-height:340px;overflow:auto;display:none}
+  .mf-results.open{display:block}
+  .mf-results button{display:block;width:100%;text-align:left;background:transparent;border:0;border-top:1px solid var(--line);padding:11px 14px;font:13px var(--sans);color:var(--ink);cursor:pointer}
+  .mf-results button:first-child{border-top:0}
+  .mf-results button:hover,.mf-results button.active{background:var(--lime)}
+  .mf-results small{display:block;color:var(--muted);font:11px var(--mono)}
+  .mf-results p{margin:0;padding:12px 14px;color:var(--muted);font-size:13px}
+  .mf-options{display:flex;flex-wrap:wrap;gap:18px 26px;align-items:flex-end;margin-top:18px}
+  .mf-field label{display:block;font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:8px}
+  .mf-field select{border:1px solid var(--line);padding:10px;background:transparent;font:13px var(--sans);color:var(--ink);min-width:170px}
+  .mf-check{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink);padding-bottom:10px}
+  .mf-btn{border:1px solid var(--ink);background:transparent;color:var(--ink);padding:10px 14px;font:11px var(--mono);text-transform:uppercase;letter-spacing:.05em;cursor:pointer}
+  .mf-btn:hover{background:var(--ink);color:var(--paper)}
+  .mf-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .mf-chip{display:flex;align-items:center;gap:10px;border:1px solid var(--line);padding:8px 8px 8px 12px;font-size:13px;max-width:100%}
+  .mf-chip i{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+  .mf-chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mf-chip small{color:var(--muted);font:11px var(--mono)}
+  .mf-chip button{border:0;background:transparent;color:var(--muted);font-size:18px;line-height:1;cursor:pointer;padding:0 4px}
+  .mf-chip button:hover{color:var(--coral-text)}
+  .mf-status{margin:16px 0 0;color:var(--muted);font-size:13px;min-height:20px}
+  .mf-status.error{color:var(--coral-text)}
+  .mf-empty{padding:26px 0;color:var(--muted);font-size:14px;max-width:680px}
+  .mf-empty button{margin:10px 10px 0 0}
+  .mf-block{margin-top:34px}
+  .mf-block h2{font:600 26px var(--serif);line-height:1.1;margin:0 0 6px}
+  .mf-block>p{color:var(--muted);font-size:14px;margin:0 0 16px;max-width:760px}
+  .mf-chart{position:relative;border-top:1px solid var(--line);padding-top:12px}
+  .mf-chart svg{display:block;width:100%;height:auto;overflow:visible}
+  .mf-chart text{fill:var(--muted);font:11px var(--mono)}
+  .mf-tip{position:absolute;pointer-events:none;background:var(--paper);border:1px solid var(--ink);padding:8px 10px;font-size:12px;display:none;z-index:5;white-space:nowrap}
+  .mf-tip b{display:block;font:500 11px var(--mono);color:var(--muted);margin-bottom:4px}
+  .mf-tip div{display:flex;gap:8px;align-items:center;justify-content:space-between}
+  .mf-tip i{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+  .mf-tablewrap{overflow-x:auto}
+  .mf-table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+  .mf-table th,.mf-table td{padding:11px 10px;border-top:1px solid var(--line);text-align:right;white-space:nowrap}
+  .mf-table th:first-child,.mf-table td:first-child{text-align:left;padding-left:0;white-space:normal;min-width:180px}
+  .mf-table thead th{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-top:0;vertical-align:bottom}
+  .mf-table td:first-child i{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:8px}
+  .mf-table td.best{color:var(--success);font-weight:700}
+  .mf-table td.neg{color:var(--coral-text)}
+  .mf-note{color:var(--muted);font-size:12px;margin:12px 0 0;max-width:820px}
+  .mf-read{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding-top:26px}
+  .mf-read h3{font:600 20px var(--serif);margin:0 0 10px}
+  .mf-read p{color:var(--muted);font-size:14px;margin:0}
+  .disclaimer{padding:28px max(24px,calc((100% - 1180px)/2));color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
+  .disclaimer strong{color:var(--ink);display:block;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+  @media(max-width:900px){.mf-read{grid-template-columns:1fr}}
+  @media(max-width:700px){.mf-hero{padding:32px 8vw 24px}.mf-section{padding:0 8vw 40px}.mf-table{font-size:13px}.mf-table th,.mf-table td{padding:10px 6px}.disclaimer{padding:25px 8vw}}
+</style>
+</head>
+<body>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><a href="calculators.html">Calculators</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Mutual Funds</button><div class="nav-sub"><a href="mf-compare.html">Rolling Returns Compare</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="index.html#about">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="mf-hero">
+      <p class="eyebrow">Mutual fund tool · rolling returns</p>
+      <h1>Compare mutual funds on rolling returns</h1>
+      <p>A fund's "3-year return" depends on the day you measure it. Rolling returns measure it from every day in the fund's history, so you see how the fund did for everyone who held it for three years, not just the lucky start date.</p>
+      <p>Add up to six funds, pick a holding period and compare the range of returns, how often each fund came out ahead and how hard each one fell.</p>
+    </section>
+
+    <section class="mf-section mf-pick"><div class="section-label"><span>Choose funds</span><span>Up to 6</span></div>
+      <div class="mf-search">
+        <input id="mf-query" type="search" placeholder="Search a fund, e.g. Parag Parikh Flexi Cap" autocomplete="off" aria-label="Search mutual funds" aria-controls="mf-results">
+        <div class="mf-results" id="mf-results" role="listbox"></div>
+      </div>
+      <div class="mf-options">
+        <div class="mf-field"><label for="mf-years">Holding period</label><select id="mf-years"><option value="1">1 year</option><option value="2">2 years</option><option value="3" selected>3 years</option><option value="5">5 years</option><option value="7">7 years</option><option value="10">10 years</option></select></div>
+        <div class="mf-field"><label for="mf-period">Dates compared</label><select id="mf-period"><option value="common" selected>Common period only</option><option value="full">Each fund's full history</option></select></div>
+        <label class="mf-check"><input type="checkbox" id="mf-direct" checked> Show Direct Growth plans only</label>
+        <button class="mf-btn" type="button" id="mf-bench">+ Nifty 50 index fund</button>
+      </div>
+      <div class="mf-chips" id="mf-chips"></div>
+      <p class="mf-status" id="mf-status" role="status"></p>
+      <div id="mf-out"></div>
+    </section>
+
+    <section class="mf-section"><div class="section-label"><span>How to read it</span><span>Rolling, not point-to-point</span></div>
+      <div class="mf-read">
+        <div><h3>What a rolling return is</h3><p>For a 3-year rolling return, take every day in the fund's history, look back exactly three years and work out the yearly return (CAGR) over that stretch. Thousands of overlapping 3-year periods give a spread of outcomes instead of one number.</p></div>
+        <div><h3>What to look for</h3><p>A higher average is good, but so is a narrow range: a fund whose worst 5-year return was still positive treated its holders better than one with a higher average and some losing stretches. "How often it came out ahead" compares the funds on the same dates.</p></div>
+        <div><h3>Keep it fair</h3><p>Compare Direct Growth plans with each other, funds of the same type with each other, and use "Common period only" so every fund is measured over the same market. Most Direct plans start in January 2013.</p></div>
+      </div>
+    </section>
+
+    <aside class="disclaimer"><strong>Important disclaimer</strong>This tool is for education only and is not investment advice or a recommendation to buy or sell any fund. Returns are calculated from published NAVs (AMFI data via mfapi.in) and ignore exit loads and taxes; NAV data can contain errors. Past returns do not guarantee future returns. The author of this site is not a SEBI registered financial adviser and is not associated with any agency, company, or brokerage house. Read the scheme documents and consult a qualified financial adviser before investing.</aside>
+  </main>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span>© 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script src="mf-compare.js"></script>
+</body>
+</html>
