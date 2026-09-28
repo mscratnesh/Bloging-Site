@@ -52,7 +52,15 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-The site menu has a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer.
+The site menu has a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer.
+
+### Fund Compare (`mf-compare.html`)
+
+A public mutual fund comparison tool (menu: **Mutual Funds → Rolling Returns Compare**; the homepage also links to it from a card next to the Kindle books). Pick up to six schemes and a holding period (1–10 years) to see rolling returns (CAGR from every NAV date), the range of outcomes (average, median, worst, best, spread, share of losing periods), how the returns fall into bands, how often each fund beat the others on the same dates, growth of ₹10,000 with volatility and worst fall, and trailing 1/3/5/10-year returns. By default only the dates all chosen funds share are compared. The chosen funds and settings are kept in the URL (`?funds=122639,120716&years=5`), so a comparison can be shared as a link.
+
+- **Data:** NAV history from [mfapi.in](https://www.mfapi.in/) (AMFI data), fetched by the server: `/api/mf/search?q=` (scheme search, kept in memory) and `/api/mf/nav/<scheme code>` (full history, cached on disk in `mf_nav_cache/<code>.json`, git-ignored; if mfapi.in can't be reached the last saved copy is served). Both caches last until midnight IST: just after midnight a background thread in the public app clears the searches and re-fetches every cached fund (`refresh_mf_cache_nightly`), so each day starts on the previous evening's NAVs. All return maths runs in the browser (`mf-compare.js`).
+- The "+ Nifty 50 index fund" button and the ready-made comparisons use fixed scheme codes (`BENCHMARK_CODE`, `PRESETS` in `mf-compare.js`); searching for "UTI Nifty 50 Index Fund" lists the Nifty Next 50 fund first.
+- Returns come from published NAVs and ignore exit loads and taxes.
 
 ### Sheets for sale (`sheets.html`)
 

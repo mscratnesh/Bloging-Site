@@ -9,6 +9,7 @@ dist/
 *.exe
 price_history_cache.json
 fundamentals_cache.json
+mf_nav_cache/
 momentum_prices.json
 *.json.tmp
 study/prices_extra.json
