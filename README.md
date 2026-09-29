@@ -207,3 +207,7 @@ Open http://127.0.0.1:8001/admin-login.html. The admin app binds to `127.0.0.1` 
 Customer reviews submitted on the public site remain pending. After signing in, moderate them at http://127.0.0.1:8001/admin_reviews.html and approve them before they appear publicly.
 
 Article comments are submitted from each detailed article page and remain pending until approved at http://127.0.0.1:8001/admin_comments.html.
+
+## Pending
+
+- [ ] **Fund overlap analysis** — a Market tools page that shows how much two or more mutual funds hold in common (shared stocks and overlap by weight), to sit alongside Fund Compare.
