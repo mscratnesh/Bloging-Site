@@ -69,6 +69,8 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `question.html` | ask-a-question form | — | `/api/questions` |
 | `review.html` | submit a review | — | `/api/reviews` |
 | `calculators.html` | finance calculators | client-side only (`calculators.js`) | — |
+| `loan-prepayment.html` | loan EMI and prepayment | client-side only (`loan-prepayment.js`) | — |
+| `mf-compare.html`, `mf-sip.html`, `mf-swp.html` | fund rolling returns, SIP and SWP on real NAVs | `/api/mf/search`, `/api/mf/nav/:code` (`mf-compare.js`) | — |
 | `admin-login.html` | admin auth | — | `/api/admin/login` |
 | `admin.html` | posts CRUD | `/api/admin/posts` | POST/PUT/DELETE `/api/admin/posts` |
 | `admin_reviews.html` | moderate reviews | `/api/admin/reviews` | PATCH status, POST new |

@@ -2,19 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Compare Indian mutual funds on rolling returns: 1, 3, 5, 7 and 10-year rolling CAGR, how often each fund beat the others, return ranges, trailing returns, worst falls and a SIP calculator on real NAVs. NAV data from AMFI.">
-<link rel="canonical" href="https://letmoneyearn.in/mf-compare.html">
+<meta name="description" content="Mutual fund SWP calculator on real NAVs: invest a lump sum, withdraw a fixed amount every month and see how long it would really have lasted in any Indian mutual fund, from every start month. NAV data from AMFI.">
+<link rel="canonical" href="https://letmoneyearn.in/mf-swp.html">
 <meta name="robots" content="index, follow">
-<title>Mutual Fund Rolling Returns | Let Money Earn</title>
+<title>Mutual Fund SWP Calculator on Real NAVs | Let Money Earn</title>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Let Money Earn">
-<meta property="og:title" content="Mutual Fund Rolling Returns | Let Money Earn">
-<meta property="og:description" content="Compare mutual funds on rolling returns, consistency and worst falls, not just last year's number.">
-<meta property="og:url" content="https://letmoneyearn.in/mf-compare.html">
+<meta property="og:title" content="Mutual Fund SWP Calculator on Real NAVs | Let Money Earn">
+<meta property="og:description" content="How long a monthly withdrawal from a mutual fund would really have lasted, worked out on its actual NAVs.">
+<meta property="og:url" content="https://letmoneyearn.in/mf-swp.html">
 <meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Mutual Fund Rolling Returns | Let Money Earn">
-<meta name="twitter:description" content="Compare mutual funds on rolling returns, consistency and worst falls, not just last year's number.">
+<meta name="twitter:title" content="Mutual Fund SWP Calculator on Real NAVs | Let Money Earn">
+<meta name="twitter:description" content="How long a monthly withdrawal from a mutual fund would really have lasted, worked out on its actual NAVs.">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -81,24 +81,22 @@
   @media(max-width:700px){.mf-hero{padding:32px 8vw 24px}.mf-section{padding:0 8vw 40px}.mf-table{font-size:13px}.mf-table th,.mf-table td{padding:10px 6px}.disclaimer{padding:25px 8vw}}
 </style>
 </head>
-<body>
+<body data-mf-page="swp">
   <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Mutual Funds</button><div class="nav-sub"><a href="mf-compare.html">Rolling Returns Compare</a><a href="mf-sip.html">Fund SIP Calculator</a><a href="mf-swp.html">Fund SWP Calculator</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
     <section class="mf-hero">
-      <p class="eyebrow">Mutual fund tool · rolling returns</p>
-      <h1>Compare mutual funds on rolling returns</h1>
-      <p>A fund's "3-year return" depends on the day you measure it. Rolling returns measure it from every day in the fund's history, so you see how the fund did for everyone who held it for three years, not just the lucky start date.</p>
-      <p>Add up to six funds, pick a holding period and compare the range of returns, how often each fund came out ahead and how hard each one fell. The SIP calculator shows what a monthly SIP in each fund would have become.</p>
+      <p class="eyebrow">Mutual fund tool · SWP</p>
+      <h1>How long would the money have lasted?</h1>
+      <p>A systematic withdrawal plan (SWP) sells a few units every month to pay you a fixed amount. Most SWP calculators assume a steady return. This one sells at the fund's actual NAV on every withdrawal date, so falls such as 2008 and 2020 hit the plan the way they really did.</p>
+      <p>Pick a fund, the amount invested, a monthly withdrawal and a start month. Add up to six funds to compare them on the same plan.</p>
     </section>
 
     <section class="mf-section mf-pick"><div class="section-label"><span>Choose funds</span><span>Up to 6</span></div>
       <div class="mf-search">
-        <input id="mf-query" type="search" placeholder="Search a fund, e.g. Parag Parikh Flexi Cap" autocomplete="off" aria-label="Search mutual funds" aria-controls="mf-results">
+        <input id="mf-query" type="search" placeholder="Search a fund, e.g. HDFC Flexi Cap" autocomplete="off" aria-label="Search mutual funds" aria-controls="mf-results">
         <div class="mf-results" id="mf-results" role="listbox"></div>
       </div>
       <div class="mf-options">
-        <div class="mf-field"><label for="mf-years">Holding period</label><select id="mf-years"><option value="1">1 year</option><option value="2">2 years</option><option value="3" selected>3 years</option><option value="5">5 years</option><option value="7">7 years</option><option value="10">10 years</option></select></div>
-        <div class="mf-field"><label for="mf-period">Dates compared</label><select id="mf-period"><option value="common" selected>Common period only</option><option value="full">Each fund's full history</option></select></div>
         <label class="mf-check"><input type="checkbox" id="mf-direct" checked> Show Direct Growth plans only</label>
         <button class="mf-btn" type="button" id="mf-bench">+ Nifty 50 index fund</button>
       </div>
@@ -107,15 +105,15 @@
       <div id="mf-out"></div>
     </section>
 
-    <section class="mf-section"><div class="section-label"><span>How to read it</span><span>Rolling, not point-to-point</span></div>
+    <section class="mf-section"><div class="section-label"><span>How to read it</span><span>Real NAVs, not an assumed return</span></div>
       <div class="mf-read">
-        <div><h3>What a rolling return is</h3><p>For a 3-year rolling return, take every day in the fund's history, look back exactly three years and work out the yearly return (CAGR) over that stretch. Thousands of overlapping 3-year periods give a spread of outcomes instead of one number.</p></div>
-        <div><h3>What to look for</h3><p>A higher average is good, but so is a narrow range: a fund whose worst 5-year return was still positive treated its holders better than one with a higher average and some losing stretches. "How often it came out ahead" compares the funds on the same dates.</p></div>
-        <div><h3>Keep it fair</h3><p>Compare Direct Growth plans with each other, funds of the same type with each other, and use "Common period only" so every fund is measured over the same market. Most Direct plans start in January 2013.</p></div>
+        <div><h3>How the SWP is worked out</h3><p>The amount invested buys units at the first NAV on or after the start date. From the next month, each withdrawal sells just enough units at that day's NAV, or the next NAV if markets were shut. If the units run out, the last withdrawal is whatever was left.</p></div>
+        <div><h3>Why the start date matters</h3><p>Withdrawing while the market is down sells more units at low prices, and those units never recover. The same average return can last decades or run out early depending on the order of good and bad years. The "any start month" table shows how wide that range was.</p></div>
+        <div><h3>Keep it fair</h3><p>Compare Direct Growth plans and use a start month every fund existed in. Tax is ignored: each withdrawal is part capital and part gain, and only the gain is taxed. For planning with an assumed return, use the <a href="calculators.html">SWP calculator on the Calculators page</a>. To build the corpus first, see the <a href="mf-sip.html">fund SIP calculator</a>.</p></div>
       </div>
     </section>
 
-    <aside class="disclaimer"><strong>Important disclaimer</strong>This tool is for education only and is not investment advice or a recommendation to buy or sell any fund. Returns are calculated from published NAVs (AMFI data via mfapi.in) and ignore exit loads and taxes; NAV data can contain errors. Past returns do not guarantee future returns. The author of this site is a mutual fund distributor, associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Read the scheme documents and consult a qualified financial adviser before investing.</aside>
+    <aside class="disclaimer"><strong>Important disclaimer</strong>This tool is for education only and is not investment advice or a recommendation to buy or sell any fund. SWP values are calculated from published NAVs (AMFI data via mfapi.in) and ignore exit loads, stamp duty and taxes; NAV data can contain errors. Past returns do not guarantee future returns. The author of this site is a mutual fund distributor, associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Read the scheme documents and consult a qualified financial adviser before investing.</aside>
   </main>
   <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>© 2026 Let Money Earn</span></footer>
   <script src="nav.js"></script>

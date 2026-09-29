@@ -40,7 +40,7 @@ MF_API_URL = "https://api.mfapi.in/mf"
 MF_CACHE_DIR = ROOT / "mf_nav_cache"
 MF_CODE_RE = re.compile(r"^\d{1,8}$")
 SITE_URL = "https://letmoneyearn.in"
-SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "calculators.html", "mf-compare.html", "review.html", "question.html")
+SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -341,12 +341,14 @@ def get_symbol_fundamentals(symbol):
 
 
 MF_FETCH_ERRORS = HISTORY_FETCH_ERRORS + (TypeError, AttributeError, http.client.HTTPException)
-MF_SEARCH_CACHE = {}
+MF_SCHEMES_PATH = MF_CACHE_DIR / "schemes.json"
+MF_SCHEMES = {"fetchedAt": 0, "rows": []}
+MF_SCHEMES_LOCK = threading.Lock()
 
 
-def fetch_mfapi_json(path):
+def fetch_mfapi_json(path, timeout=12):
     request = urllib.request.Request(f"{MF_API_URL}/{path}", headers={"User-Agent": "Mozilla/5.0"})
-    with urllib.request.urlopen(request, timeout=12) as response:
+    with urllib.request.urlopen(request, timeout=timeout) as response:
         return json.loads(response.read().decode("utf-8"))
 
 
@@ -354,19 +356,71 @@ def last_ist_midnight():
     return datetime.now(IST).replace(hour=0, minute=0, second=0, microsecond=0).timestamp()
 
 
+def mf_search_text(text):
+    return re.sub(r"[^a-z0-9]+", " ", text.lower()).strip()
+
+
+def index_mf_schemes(rows):
+    """(code, name, words, words run together, has an ISIN) for each scheme in mfapi.in's full list."""
+    indexed = []
+    for row in rows:
+        try:
+            code, name = str(row["schemeCode"]), row["schemeName"].strip()
+        except (KeyError, TypeError, AttributeError):
+            continue
+        words = mf_search_text(name)
+        indexed.append((code, name, f" {words}", words.replace(" ", ""), bool(row.get("isinGrowth") or row.get("isinDivReinvestment"))))
+    return indexed
+
+
+def get_mf_schemes():
+    """Every scheme mfapi.in knows (about 40,000), kept in memory and on disk until midnight (IST).
+    If mfapi.in can't be reached the last saved list is used."""
+    with MF_SCHEMES_LOCK:
+        midnight = last_ist_midnight()
+        if MF_SCHEMES["rows"] and MF_SCHEMES["fetchedAt"] >= midnight:
+            return MF_SCHEMES["rows"]
+        saved = load_json_cache(MF_SCHEMES_PATH)
+        if saved.get("fetchedAt", 0) >= midnight and saved.get("rows"):
+            MF_SCHEMES.update(fetchedAt=saved["fetchedAt"], rows=index_mf_schemes(saved["rows"]))
+            return MF_SCHEMES["rows"]
+        try:
+            rows = fetch_mfapi_json("", timeout=60)
+            if not rows:
+                raise ValueError("Empty scheme list.")
+        except MF_FETCH_ERRORS:
+            if MF_SCHEMES["rows"]:
+                return MF_SCHEMES["rows"]
+            if saved.get("rows"):
+                MF_SCHEMES.update(fetchedAt=saved["fetchedAt"], rows=index_mf_schemes(saved["rows"]))
+                return MF_SCHEMES["rows"]
+            raise
+        now = time.time()
+        try:
+            MF_CACHE_DIR.mkdir(exist_ok=True)
+        except OSError:
+            pass
+        save_json_cache(MF_SCHEMES_PATH, {"fetchedAt": now, "rows": rows})
+        MF_SCHEMES.update(fetchedAt=now, rows=index_mf_schemes(rows))
+        return MF_SCHEMES["rows"]
+
+
 def search_mf_schemes(query):
-    """Scheme codes and names matching a query, from mfapi.in. Kept in memory until midnight (IST)."""
-    key = query.lower()
-    now = time.time()
-    entry = MF_SEARCH_CACHE.get(key)
-    if entry and entry[0] >= last_ist_midnight():
-        return entry[1]
-    rows = fetch_mfapi_json(f"search?q={urllib.parse.quote(query)}")
-    results = [{"code": str(row["schemeCode"]), "name": row["schemeName"]} for row in rows[:60]]
-    if len(MF_SEARCH_CACHE) > 500:
-        MF_SEARCH_CACHE.clear()
-    MF_SEARCH_CACHE[key] = (now, results)
-    return results
+    """Schemes whose name contains every word of the query, in any order ("hdfc flexi", "flexicap"
+    and "hdfc flexi cap direct" all find HDFC Flexi Cap Fund). Words that start a word in the name
+    rank first, then those matching more whole words ("nifty 50" before "Nifty 500"), then schemes
+    that still have an ISIN (closed and merged schemes mostly don't)."""
+    terms = mf_search_text(query).split()
+    if not terms:
+        return []
+    matches = []
+    for code, name, words, joined, has_isin in get_mf_schemes():
+        if all(term in words or term in joined for term in terms):
+            at_word_start = all(f" {term}" in words for term in terms)
+            whole_words = sum(f" {term} " in f"{words} " for term in terms)
+            matches.append((not at_word_start, -whole_words, not has_isin, len(name), name, code))
+    matches.sort()
+    return [{"code": code, "name": name} for *_, name, code in matches[:60]]
 
 
 def parse_mf_history(payload):
@@ -414,9 +468,12 @@ def get_mf_history(code):
 
 
 def refresh_mf_cache():
-    """Forget searches and re-fetch every cached fund whose copy is from before midnight (IST).
+    """Re-fetch the scheme list and every cached fund whose copy is from before midnight (IST).
     A fund that fails keeps its old copy."""
-    MF_SEARCH_CACHE.clear()
+    try:
+        get_mf_schemes()
+    except MF_FETCH_ERRORS:
+        pass
     try:
         codes = sorted(path.stem for path in MF_CACHE_DIR.glob("*.json"))
     except OSError:
@@ -429,12 +486,30 @@ def refresh_mf_cache():
 
 def refresh_mf_cache_nightly():
     """Refresh the fund cache just after each midnight (IST), so the day starts on fresh NAVs
-    (AMFI publishes the day's NAVs by about 11 pm)."""
+    (AMFI publishes the day's NAVs by about 11 pm). Loads the scheme list first, so the first
+    search after a start doesn't wait for it."""
+    try:
+        get_mf_schemes()
+    except MF_FETCH_ERRORS:
+        pass
     while True:
         now = datetime.now(IST)
         next_midnight = (now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
         time.sleep((next_midnight - now).total_seconds() + 60)
         refresh_mf_cache()
+
+
+def post_slugs(database):
+    """Each published post's URL slug, from its title: /post/<slug>. A later post whose title gives
+    the same slug as an earlier one gets its id on the end."""
+    slugs, taken = {}, set()
+    for row in database.execute("SELECT id, title FROM posts WHERE status = 'published' AND active = 1 ORDER BY id"):
+        slug = re.sub(r"[^a-z0-9]+", "-", re.sub(r"['’]", "", row["title"].lower())).strip("-") or "post"
+        if slug in taken:
+            slug = f"{slug}-{row['id']}"
+        taken.add(slug)
+        slugs[row["id"]] = slug
+    return slugs
 
 
 def format_sitemap_date(value):
@@ -614,9 +689,10 @@ class BlogHandler(BaseHTTPRequestHandler):
             posts = database.execute(
                 "SELECT id, published_at FROM posts WHERE status = 'published' AND active = 1 ORDER BY id DESC"
             ).fetchall()
+            slugs = post_slugs(database)
         for post in posts:
             entries.append(
-                f"<url><loc>{SITE_URL}/post.html?id={post['id']}</loc>"
+                f"<url><loc>{SITE_URL}/post/{slugs[post['id']]}</loc>"
                 f"<lastmod>{format_sitemap_date(post['published_at'])}</lastmod>"
                 f"<changefreq>monthly</changefreq></url>"
             )
@@ -631,19 +707,30 @@ class BlogHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def serve_post_page(self):
-        post_id = parse_qs(urlparse(self.path).query).get("id", [None])[0]
-        template = (ROOT / "post.html").read_text(encoding="utf-8")
+    def redirect(self, location):
+        self.send_response(301)
+        self.send_header("Location", location)
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
+    def serve_post_page(self, slug=None):
+        """/post/<slug>; the old /post.html?id=N links redirect there."""
+        template = (ROOT / "post.html").read_text(encoding="utf-8").replace("<head>", '<head><base href="/">', 1)
         post = None
-        if post_id and post_id.isdigit():
-            with connection() as database:
-                post = database.execute(
-                    "SELECT * FROM posts WHERE id = ? AND status = 'published' AND active = 1",
-                    (int(post_id),),
-                ).fetchone()
+        with connection() as database:
+            slugs = post_slugs(database)
+            if slug is None:
+                post_id = parse_qs(urlparse(self.path).query).get("id", [""])[0]
+                if post_id.isdigit() and int(post_id) in slugs:
+                    self.redirect(f"/post/{slugs[int(post_id)]}")
+                    return
+            else:
+                post_id = next((i for i, s in slugs.items() if s == slug), None)
+                if post_id is not None:
+                    post = database.execute("SELECT * FROM posts WHERE id = ?", (post_id,)).fetchone()
         if post:
             post = dict(post)
-            page_url = f"{SITE_URL}/post.html?id={post['id']}"
+            page_url = f"{SITE_URL}/post/{slug}"
             image = post["image_url"] or "https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png"
             if image.startswith("/"):
                 image = f"{SITE_URL}{image}"
@@ -681,7 +768,7 @@ class BlogHandler(BaseHTTPRequestHandler):
                 f'<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
                 f'<meta name="description" content="{description}"><title>{title}</title>{head_tags}',
                 1,
-            )
+            ).replace("<body>", f'<body data-post-id="{post["id"]}">', 1)
         body = template.encode("utf-8")
         self.send_response(200 if post else 404)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -699,6 +786,9 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/post.html":
             self.serve_post_page()
+            return
+        if route.startswith("/post/"):
+            self.serve_post_page(urllib.parse.unquote(route[len("/post/"):]).strip("/").lower())
             return
         if PUBLIC_ONLY and (route.startswith("/admin") or route.startswith("/api/admin")):
             self.send_error(404)
@@ -771,6 +861,9 @@ class BlogHandler(BaseHTTPRequestHandler):
         if route == "/api/posts":
             with connection() as database:
                 posts = [dict(row) for row in database.execute("SELECT * FROM posts WHERE status = 'published' AND active = 1 ORDER BY id DESC")]
+                slugs = post_slugs(database)
+            for post in posts:
+                post["slug"] = slugs[post["id"]]
             self.send_json(posts)
             return
         if route == "/api/reviews":

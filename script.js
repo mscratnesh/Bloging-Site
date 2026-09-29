@@ -1,4 +1,4 @@
-const state = { posts: [], filter: 'all', query: '' };
+const state = { posts: [], featured: null, filter: 'all', query: '' };
 const $ = (selector) => document.querySelector(selector);
 
 function renderFeatured(post) {
@@ -8,23 +8,25 @@ function renderFeatured(post) {
   $('#featured-summary').textContent = post.summary;
   $('#featured-author').textContent = `By ${post.author}`;
   $('#featured-initials').textContent = post.initials;
-  $('#featured-link').href = `post.html?id=${post.id}`;
+  $('#featured-link').href = `/post/${post.slug}`;
 }
 
 function renderPosts() {
   const visible = state.posts.filter((post) => {
     const categoryMatch = state.filter === 'all' || post.category === state.filter;
     const searchMatch = post.title.toLowerCase().includes(state.query);
-    return categoryMatch && searchMatch && post.image_class !== 'featured';
+    return categoryMatch && searchMatch && (state.posts.length === 1 || post !== state.featured);
   });
-  $('#post-grid').innerHTML = visible.map((post) => `<article class="post-card"><div class="post-image image-${post.image_class}" style="background-image:url('${post.image_url}')"></div><p class="category">${post.category} · ${post.published_at}</p><h3>${post.title}</h3><p>${post.summary}</p><a href="post.html?id=${post.id}" class="post-link">Read note <span>↗</span></a></article>`).join('');
+  $('#post-grid').innerHTML = visible.map((post) => `<article class="post-card"><div class="post-image image-${post.image_class}" style="background-image:url('${post.image_url}')"></div><p class="category">${post.category} · ${post.published_at}</p><h3>${post.title}</h3><p>${post.summary}</p><a href="/post/${post.slug}" class="post-link">Read note <span>↗</span></a></article>`).join('');
   $('#empty-state').hidden = visible.length > 0;
 }
 
 async function loadPosts() {
   const response = await fetch('/api/posts');
   state.posts = await response.json();
-  renderFeatured(state.posts.find((post) => post.image_class === 'featured'));
+  // Fall back to the newest post when none is marked featured, so a lone post still shows.
+  state.featured = state.posts.find((post) => post.image_class === 'featured') || state.posts[0] || null;
+  if (state.featured) renderFeatured(state.featured);
   renderPosts();
 }
 

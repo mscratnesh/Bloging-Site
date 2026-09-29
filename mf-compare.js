@@ -1,9 +1,13 @@
-// Mutual fund rolling-return comparison. NAVs come from /api/mf/nav/<code> (a cached proxy for mfapi.in);
-// every return is worked out here in the browser.
+// Mutual fund rolling-return comparison (mf-compare.html), fund SIP calculator (mf-sip.html, <body data-mf-page="sip">)
+// and fund SWP calculator (mf-swp.html, <body data-mf-page="swp">).
+// NAVs come from /api/mf/nav/<code> (a cached proxy for mfapi.in); every return is worked out here in the browser.
+
+const SIP_PAGE = document.body.dataset.mfPage === 'sip';
+const SWP_PAGE = document.body.dataset.mfPage === 'swp';
 
 const MAX_FUNDS = 6;
 const COLORS = ['#2f6b46', '#ef795d', '#3b6fb6', '#b8872b', '#8a5cb8', '#17201b'];
-const BENCHMARK_CODE = '120716'; // UTI Nifty 50 Index Fund - Direct Plan - Growth (a search for it lists Nifty Next 50 first)
+const BENCHMARK_CODE = '120716'; // UTI Nifty 50 Index Fund - Direct Plan - Growth
 const PRESETS = [
   ['Flexi cap funds vs Nifty 50', ['122639', '118955', BENCHMARK_CODE]], // Parag Parikh Flexi Cap, HDFC Flexi Cap
   ['Three small cap funds', ['118778', '125354', '125497']], // Nippon India, Axis, SBI Small Cap
@@ -11,7 +15,10 @@ const PRESETS = [
 const DAY_MS = 86400000;
 const BUCKETS = [[-Infinity, 0, 'Below 0%'], [0, 0.05, '0–5%'], [0.05, 0.1, '5–10%'], [0.1, 0.15, '10–15%'], [0.15, 0.2, '15–20%'], [0.2, Infinity, '20% and above']];
 
-const state = { funds: [], years: 3, period: 'common', directOnly: true };
+const SIP_DEFAULT = { amount: 10000, from: null, day: 5, stepup: 0 }; // from: 'YYYY-MM', or null for 5 years back
+// from: 'YYYY-MM', or null for 10 years back; horizon: years each start month is tested over
+const SWP_DEFAULT = { corpus: 1000000, withdraw: 6000, from: null, day: 5, stepup: 0, horizon: 10 };
+const state = { funds: [], years: 3, period: 'common', directOnly: true, sip: { ...SIP_DEFAULT }, swp: { ...SWP_DEFAULT } };
 const $ = (selector) => document.querySelector(selector);
 
 const esc = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -19,6 +26,8 @@ const toDay = (iso) => Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.sli
 const fmtDate = (day) => new Date(day * DAY_MS).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' });
 const pct = (value, digits = 1) => (value == null || !Number.isFinite(value) ? '—' : `${value < 0 ? '−' : ''}${Math.abs(value * 100).toFixed(digits)}%`);
 const rupees = (value) => `₹${Math.round(value).toLocaleString('en-IN')}`;
+const rupeesShort = (value) => (value >= 1e7 ? `₹${+(value / 1e7).toFixed(2)}Cr` : value >= 1e5 ? `₹${+(value / 1e5).toFixed(1)}L` : value >= 1000 ? `₹${Math.round(value / 1000)}k` : `₹${Math.round(value)}`);
+const toMonth = (day) => new Date(day * DAY_MS).toISOString().slice(0, 7);
 
 function yearsBefore(day, years) {
   const date = new Date(day * DAY_MS);
@@ -191,6 +200,270 @@ function headToHead(rolls) {
   return { n, best: best.map((count) => count / (n || 1)), beat: beat.map((row) => row.map((count) => count / (n || 1))) };
 }
 
+// ---------- SIP ----------
+
+// Every fund is valued on the same date: the earliest of their latest NAVs.
+const sipEnd = (funds) => Math.min(...funds.map((fund) => fund.t[fund.t.length - 1]));
+
+// Five years before the end, or the month after the youngest fund's first NAV if that is later.
+function sipFrom(funds) {
+  if (state.sip.from) return state.sip.from;
+  const end = sipEnd(funds);
+  const youngest = Math.max(...funds.map((fund) => fund.t[0]));
+  return toMonth(Math.min(end, Math.max(yearsBefore(end, 5), youngest + 31)));
+}
+
+// A monthly SIP on `day` of each month from `from` to `end`. Each instalment buys units at the first NAV
+// on or after its date; months before the fund's first NAV are skipped. The step-up raises the
+// instalment every 12 months from the start month.
+function simulateSip(fund, { amount, day, stepup }, from, end) {
+  const [year, month] = from.split('-').map(Number);
+  const buys = [];
+  let instalment = amount;
+  for (let k = 0; ; k++) {
+    const date = Date.UTC(year, month - 1 + k, day) / DAY_MS;
+    if (date > end) break;
+    if (k && k % 12 === 0) instalment *= 1 + stepup;
+    if (date < fund.t[0]) continue;
+    const i = lowerBound(fund.t, date);
+    if (i >= fund.t.length || fund.t[i] > end) break;
+    buys.push({ i, day: fund.t[i], amount: instalment, units: instalment / fund.nav[i] });
+  }
+  if (!buys.length) return null;
+  const last = atOrBefore(fund.t, end);
+  const t = [], value = [], invested = [];
+  let units = 0, paid = 0, b = 0;
+  for (let p = buys[0].i; p <= last; p++) {
+    while (b < buys.length && buys[b].i <= p) { units += buys[b].units; paid += buys[b].amount; b++; }
+    t.push(fund.t[p]); value.push(units * fund.nav[p]); invested.push(paid);
+  }
+  const finalValue = value[value.length - 1], totalPaid = invested[invested.length - 1];
+  return {
+    first: buys[0].day, count: buys.length, invested: totalPaid, value: finalValue, gain: finalValue - totalPaid,
+    xirr: xirr([...buys.map((buy) => [buy.day, -buy.amount]), [fund.t[last], finalValue]]),
+    t, v: value, paid: invested,
+  };
+}
+
+// Yearly rate that makes the cash flows ([day, amount], money in negative) add up to zero, by bisection.
+function xirr(flows) {
+  const d0 = flows[0][0];
+  const npv = (rate) => flows.reduce((sum, [day, amount]) => sum + amount / Math.pow(1 + rate, (day - d0) / 365), 0);
+  let lo = -0.99, hi = 10;
+  const sign = Math.sign(npv(lo));
+  if (sign === Math.sign(npv(hi))) return null;
+  for (let k = 0; k < 100; k++) {
+    const mid = (lo + hi) / 2;
+    if (Math.sign(npv(mid)) === sign) lo = mid; else hi = mid;
+  }
+  return (lo + hi) / 2;
+}
+
+function sipBlock(funds) {
+  const end = sipEnd(funds), from = sipFrom(funds), sip = state.sip;
+  const minMonth = toMonth(Math.min(...funds.map((fund) => fund.t[0])));
+  const dayOptions = Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}"${i + 1 === sip.day ? ' selected' : ''}>${i + 1}</option>`).join('');
+  const stepOptions = [0, 5, 10, 15, 20].map((p) => `<option value="${p}"${p / 100 === sip.stepup ? ' selected' : ''}>${p ? `${p}% a year` : 'None'}</option>`).join('');
+  return `<div class="mf-block" id="mf-sip"><h2>What the SIP became</h2><p>What a monthly SIP in each fund would have become, worked out on the fund's actual NAVs. Each instalment buys units at the first NAV on or after the SIP date, and every fund is valued on ${fmtDate(end)}.</p>
+    <div class="mf-options mf-sip-options">
+      <div class="mf-field"><label for="mf-sip-amount">Monthly SIP (₹)</label><input id="mf-sip-amount" type="number" min="100" max="10000000" step="500" value="${sip.amount}" inputmode="numeric"></div>
+      <div class="mf-field"><label for="mf-sip-from">Start month</label><input id="mf-sip-from" type="month" min="${minMonth}" max="${toMonth(end)}" value="${from}"></div>
+      <div class="mf-field"><label for="mf-sip-day">SIP date</label><select id="mf-sip-day">${dayOptions}</select></div>
+      <div class="mf-field"><label for="mf-sip-stepup">Yearly step-up</label><select id="mf-sip-stepup">${stepOptions}</select></div>
+    </div><div id="mf-sip-out"></div></div>`;
+}
+
+function renderSip() {
+  const out = $('#mf-sip-out');
+  if (!out) return;
+  const funds = state.funds, sip = state.sip;
+  const end = sipEnd(funds), from = sipFrom(funds);
+  if (!(sip.amount >= 100 && sip.amount <= 10000000)) { out.innerHTML = '<p class="mf-empty">Enter a monthly SIP between ₹100 and ₹1,00,00,000.</p>'; return; }
+  if (!/^\d{4}-\d{2}$/.test(from) || from > toMonth(end)) { out.innerHTML = `<p class="mf-empty">Pick a start month on or before ${fmtDate(end)}.</p>`; return; }
+  const rows = funds.map((fund) => ({ fund, r: simulateSip(fund, sip, from, end) })).filter((row) => row.r);
+  if (!rows.length) { out.innerHTML = '<p class="mf-empty">No SIP instalments fall between the start month and the latest NAV.</p>'; return; }
+  const late = rows.filter((row) => toMonth(row.r.first) > from);
+  const longest = rows.reduce((a, b) => (b.r.count > a.r.count ? b : a));
+  out.innerHTML = `<div class="mf-chart" id="mf-sip-chart"></div>${fundTable(rows.map((row) => row.fund), [
+    { label: 'First SIP', values: rows.map((row) => row.r.first), markNegative: false, highlight: false, format: fmtDate },
+    { label: 'Instalments', values: rows.map((row) => row.r.count), markNegative: false, highlight: false, format: (v) => v.toLocaleString('en-IN') },
+    { label: 'Invested', values: rows.map((row) => row.r.invested), markNegative: false, highlight: false, format: rupees },
+    { label: 'Value', values: rows.map((row) => row.r.value), format: rupees },
+    { label: 'Gain', values: rows.map((row) => row.r.gain), format: (v) => `${v < 0 ? '−' : ''}${rupees(Math.abs(v))}` },
+    { label: 'XIRR', values: rows.map((row) => row.r.xirr) },
+  ])}<p class="mf-note">XIRR is the yearly return on the SIP, allowing for each instalment being invested for a different length of time. The grey line is the amount invested${rows.length > 1 && late.length ? ` in ${esc(longest.fund.short)}` : ''}. Exit loads, stamp duty and taxes are ignored.${late.length ? ` ${late.map((row) => esc(row.fund.short)).join(', ')} ${late.length > 1 ? 'have' : 'has'} no NAVs for the start month, so ${late.length > 1 ? 'their SIPs start' : 'its SIP starts'} later and ${late.length > 1 ? 'are' : 'is'} not directly comparable.` : ''}</p>`;
+  lineChart($('#mf-sip-chart'), [
+    { name: 'Invested', color: '#9aa39c', t: longest.r.t, v: longest.r.paid },
+    ...rows.map(({ fund, r }) => ({ name: fund.short, color: fund.color, t: r.t, v: r.v })),
+  ], { height: 280, fmtY: (v, exact) => (exact ? rupees(v) : rupeesShort(v)) });
+}
+
+// ---------- SWP ----------
+
+// Ten years before the end, or the month after the youngest fund's first NAV if that is later.
+function swpFrom(funds) {
+  if (state.swp.from) return state.swp.from;
+  const end = sipEnd(funds);
+  const youngest = Math.max(...funds.map((fund) => fund.t[0]));
+  return toMonth(Math.min(end, Math.max(yearsBefore(end, 10), youngest + 31)));
+}
+
+// The corpus buys units at the first NAV on or after `day` of the start month. From the next month a
+// withdrawal on `day` sells units at the first NAV on or after that date, until `end` or until the units
+// run out (the last withdrawal is then whatever was left). The step-up raises the withdrawal every
+// 12 withdrawals. With `full`, also returns the day-by-day value and cumulative withdrawals for a chart.
+function simulateSwp(fund, { corpus, withdraw, day, stepup }, from, end, full = true) {
+  const [year, month] = from.split('-').map(Number);
+  const i0 = lowerBound(fund.t, Date.UTC(year, month - 1, day) / DAY_MS);
+  if (i0 >= fund.t.length || fund.t[i0] > end) return null;
+  let units = corpus / fund.nav[i0], amount = withdraw, ranOut = null;
+  const sells = [];
+  for (let k = 1; ; k++) {
+    const date = Date.UTC(year, month - 1 + k, day) / DAY_MS;
+    if (date > end) break;
+    if (k > 1 && (k - 1) % 12 === 0) amount *= 1 + stepup;
+    const i = lowerBound(fund.t, date);
+    if (i >= fund.t.length || fund.t[i] > end) break;
+    const sold = Math.min(units, amount / fund.nav[i]);
+    units -= sold;
+    sells.push({ i, day: fund.t[i], units: sold, amount: sold * fund.nav[i] });
+    if (units <= 1e-9) { units = 0; ranOut = fund.t[i]; break; }
+  }
+  const last = ranOut != null ? sells[sells.length - 1].i : atOrBefore(fund.t, end);
+  const finalValue = units * fund.nav[last];
+  const withdrawn = sells.reduce((sum, sell) => sum + sell.amount, 0);
+  const result = {
+    start: fund.t[i0], count: sells.length, withdrawn, value: finalValue, ranOut,
+    xirr: xirr([[fund.t[i0], -corpus], ...sells.map((sell) => [sell.day, sell.amount]), [fund.t[last], finalValue]]),
+  };
+  if (!full) return result;
+  const t = [], value = [], out = [];
+  let held = corpus / fund.nav[i0], paid = 0, s = 0, low = corpus;
+  for (let p = i0; p <= last; p++) {
+    while (s < sells.length && sells[s].i <= p) { held -= sells[s].units; paid += sells[s].amount; s++; }
+    const v = Math.max(0, held) * fund.nav[p];
+    low = Math.min(low, v);
+    t.push(fund.t[p]); value.push(v); out.push(paid);
+  }
+  return { ...result, low: ranOut != null ? 0 : low, t, v: value, out };
+}
+
+// The largest monthly withdrawal (with the same step-up) that would not have run out before `end`.
+function maxSafeWithdrawal(fund, swp, from, end) {
+  let lo = 0, hi = swp.corpus;
+  for (let k = 0; k < 40; k++) {
+    const mid = (lo + hi) / 2;
+    const r = simulateSwp(fund, { ...swp, withdraw: mid }, from, end, false);
+    if (r && r.ranOut == null) lo = mid; else hi = mid;
+  }
+  return lo;
+}
+
+// The same SWP started in every month where all chosen funds have `horizon` years of NAVs afterwards.
+function swpEveryStart(funds, swp) {
+  const first = Math.max(...funds.map((fund) => fund.t[0])) + 31, end = sipEnd(funds);
+  const starts = [];
+  for (let month = toMonth(first); ; ) {
+    const [y, m] = month.split('-').map(Number);
+    const stop = Date.UTC(y + swp.horizon, m - 1, swp.day) / DAY_MS;
+    if (stop > end) break;
+    starts.push([month, stop]);
+    month = toMonth(Date.UTC(y, m, 1) / DAY_MS);
+  }
+  return funds.map((fund) => {
+    const runs = starts.map(([month, stop]) => ({ month, r: simulateSwp(fund, swp, month, stop, false) })).filter((run) => run.r);
+    if (!runs.length) return null;
+    const ends = runs.map((run) => run.r.value / swp.corpus).sort((a, b) => a - b);
+    // Lowest value left; among runs that ran out, the one that ran out soonest after starting.
+    const daysLasted = (run) => (run.r.ranOut == null ? Infinity : run.r.ranOut - toDay(`${run.month}-01`));
+    const worst = runs.reduce((a, b) => (b.r.value < a.r.value || (b.r.value === a.r.value && daysLasted(b) < daysLasted(a)) ? b : a));
+    return {
+      n: runs.length,
+      lasted: runs.filter((run) => run.r.ranOut == null).length / runs.length,
+      median: ends[Math.floor((ends.length - 1) / 2)],
+      worst: ends[0],
+      best: ends[ends.length - 1],
+      worstMonth: worst.month,
+      worstRanOut: worst.r.ranOut,
+    };
+  });
+}
+
+function swpBlock(funds) {
+  const end = sipEnd(funds), from = swpFrom(funds), swp = state.swp;
+  const minMonth = toMonth(Math.min(...funds.map((fund) => fund.t[0])));
+  const dayOptions = Array.from({ length: 28 }, (_, i) => `<option value="${i + 1}"${i + 1 === swp.day ? ' selected' : ''}>${i + 1}</option>`).join('');
+  const stepOptions = [0, 3, 5, 6, 8, 10].map((p) => `<option value="${p}"${p / 100 === swp.stepup ? ' selected' : ''}>${p ? `${p}% a year` : 'None'}</option>`).join('');
+  const horizonOptions = [5, 10, 15, 20].map((y) => `<option value="${y}"${y === swp.horizon ? ' selected' : ''}>${y} years</option>`).join('');
+  return `<div class="mf-block" id="mf-swp"><h2>How the withdrawals played out</h2><p>A lump sum invested at the start, then a fixed monthly withdrawal sold at the fund's actual NAV. Every fund runs up to ${fmtDate(end)} unless the money runs out first.</p>
+    <div class="mf-options mf-sip-options">
+      <div class="mf-field"><label for="mf-swp-corpus">Amount invested (₹)</label><input id="mf-swp-corpus" type="number" min="10000" max="1000000000" step="10000" value="${swp.corpus}" inputmode="numeric"></div>
+      <div class="mf-field"><label for="mf-swp-withdraw">Monthly withdrawal (₹)</label><input id="mf-swp-withdraw" type="number" min="100" max="100000000" step="500" value="${swp.withdraw}" inputmode="numeric"></div>
+      <div class="mf-field"><label for="mf-swp-from">Start month</label><input id="mf-swp-from" type="month" min="${minMonth}" max="${toMonth(end)}" value="${from}"></div>
+      <div class="mf-field"><label for="mf-swp-day">Withdrawal date</label><select id="mf-swp-day">${dayOptions}</select></div>
+      <div class="mf-field"><label for="mf-swp-stepup">Yearly increase</label><select id="mf-swp-stepup">${stepOptions}</select></div>
+    </div><div id="mf-swp-out"></div></div>
+    <div class="mf-block"><h2>Would it have lasted from any start month?</h2><p>The same SWP started in every month the chosen funds have data for, each run for a fixed number of years. A bad few years right after you start hurt far more than the same years later on; this shows how much the start date mattered.</p>
+    <div class="mf-options mf-sip-options"><div class="mf-field"><label for="mf-swp-horizon">Run each SWP for</label><select id="mf-swp-horizon">${horizonOptions}</select></div></div>
+    <div id="mf-swp-every"></div></div>`;
+}
+
+function swpInvalid(swp) {
+  if (!(swp.corpus >= 10000 && swp.corpus <= 1e9)) return 'Enter an amount invested between ₹10,000 and ₹1,00,00,00,000.';
+  if (!(swp.withdraw >= 100 && swp.withdraw <= swp.corpus)) return 'Enter a monthly withdrawal of at least ₹100 and no more than the amount invested.';
+  return '';
+}
+
+function renderSwp() {
+  const out = $('#mf-swp-out');
+  if (!out) return;
+  const funds = state.funds, swp = state.swp;
+  const end = sipEnd(funds), from = swpFrom(funds);
+  const invalid = swpInvalid(swp);
+  if (invalid) { out.innerHTML = `<p class="mf-empty">${invalid}</p>`; $('#mf-swp-every').innerHTML = ''; return; }
+  if (!/^\d{4}-\d{2}$/.test(from) || from >= toMonth(end)) { out.innerHTML = `<p class="mf-empty">Pick a start month before ${fmtDate(end)}.</p>`; renderSwpEvery(); return; }
+  const rows = funds.map((fund) => ({ fund, r: simulateSwp(fund, swp, from, end) })).filter((row) => row.r);
+  if (!rows.length) { out.innerHTML = '<p class="mf-empty">None of these funds has NAVs between the start month and the latest date.</p>'; renderSwpEvery(); return; }
+  rows.forEach((row) => { row.safe = maxSafeWithdrawal(row.fund, swp, from, end); });
+  const late = rows.filter((row) => toMonth(row.r.start) > from);
+  const yearlyRate = (swp.withdraw * 12) / swp.corpus;
+  out.innerHTML = `<div class="mf-chart" id="mf-swp-chart"></div>${fundTable(rows.map((row) => row.fund), [
+    { label: 'Invested on', values: rows.map((row) => row.r.start), markNegative: false, highlight: false, format: fmtDate },
+    { label: 'Withdrawals', values: rows.map((row) => row.r.count), markNegative: false, highlight: false, format: (v) => v.toLocaleString('en-IN') },
+    { label: 'Total withdrawn', values: rows.map((row) => row.r.withdrawn), format: rupees },
+    { label: 'Value left', values: rows.map((row) => row.r.value), format: rupees },
+    { label: 'Ran out', values: rows.map((row) => row.r.ranOut), markNegative: false, highlight: false, format: (v) => (v == null ? 'No' : fmtDate(v)) },
+    { label: 'Lowest value', values: rows.map((row) => row.r.low), format: rupees },
+    { label: 'XIRR', values: rows.map((row) => row.r.xirr) },
+    { label: 'Most it could pay', values: rows.map((row) => row.safe), format: (v) => `${rupees(v)}/mo` },
+  ])}<p class="mf-note">You are withdrawing ${pct(yearlyRate, 1)} of the amount invested each year${swp.stepup ? `, rising ${pct(swp.stepup, 0)} a year` : ''}. "Most it could pay" is the largest starting monthly withdrawal${swp.stepup ? ' (with the same yearly increase)' : ''} that would not have run out before ${fmtDate(end)}. XIRR counts the money invested, every withdrawal and the value left. Exit loads, stamp duty and taxes on each redemption are ignored.${late.length ? ` ${late.map((row) => esc(row.fund.short)).join(', ')} ${late.length > 1 ? 'have' : 'has'} no NAVs for the start month, so ${late.length > 1 ? 'they start' : 'it starts'} later and ${late.length > 1 ? 'are' : 'is'} not directly comparable.` : ''}</p>`;
+  const longest = rows.reduce((a, b) => (b.r.t.length > a.r.t.length ? b : a));
+  lineChart($('#mf-swp-chart'), [
+    { name: 'Withdrawn so far', color: '#9aa39c', t: longest.r.t, v: longest.r.out },
+    ...rows.map(({ fund, r }) => ({ name: fund.short, color: fund.color, t: r.t, v: r.v })),
+  ], { height: 280, fmtY: (v, exact) => (exact ? rupees(v) : rupeesShort(v)), zero: true });
+  renderSwpEvery();
+}
+
+function renderSwpEvery() {
+  const el = $('#mf-swp-every');
+  if (!el) return;
+  const funds = state.funds, swp = state.swp;
+  if (swpInvalid(swp)) { el.innerHTML = ''; return; }
+  const stats = swpEveryStart(funds, swp);
+  const rows = funds.map((fund, i) => ({ fund, s: stats[i] })).filter((row) => row.s);
+  if (!rows.length) { el.innerHTML = `<p class="mf-empty">These funds do not have ${swp.horizon} years of NAVs in common. Pick a shorter period.</p>`; return; }
+  const multiple = (v) => `${rupeesShort(v * swp.corpus)} <small>(${v.toFixed(2)}×)</small>`;
+  el.innerHTML = `${fundTable(rows.map((row) => row.fund), [
+    { label: 'Start months', values: rows.map((row) => row.s.n), markNegative: false, highlight: false, format: (v) => v.toLocaleString('en-IN') },
+    { label: 'Lasted', values: rows.map((row) => row.s.lasted), format: (v) => pct(v, 0) },
+    { label: 'Median left', values: rows.map((row) => row.s.median), format: multiple },
+    { label: 'Worst left', values: rows.map((row) => row.s.worst), format: multiple },
+    { label: 'Best left', values: rows.map((row) => row.s.best), format: multiple },
+    { label: 'Worst start', values: rows.map((row) => row.s.worstMonth), markNegative: false, highlight: false, format: (m) => new Date(`${m}-01T00:00:00Z`).toLocaleDateString('en-IN', { month: 'short', year: 'numeric', timeZone: 'UTC' }) },
+  ])}<p class="mf-note">Each start month runs the SWP above (same amount, withdrawal and yearly increase) for ${swp.horizon} years. "Lasted" is the share of start months where the money did not run out. "Left" is the value remaining after ${swp.horizon} years, also shown as a multiple of the amount invested.${rows.some((row) => row.s.worstRanOut != null) ? ' Where the worst start ran out, "Worst left" is zero.' : ''}</p>`;
+}
+
 // ---------- charts ----------
 
 function niceTicks(lo, hi, count) {
@@ -315,6 +588,16 @@ function render() {
   syncUrl();
   const funds = state.funds;
   if (!funds.length) { renderEmpty(); return; }
+  if (SIP_PAGE) {
+    $('#mf-out').innerHTML = sipBlock(funds);
+    renderSip();
+    return;
+  }
+  if (SWP_PAGE) {
+    $('#mf-out').innerHTML = swpBlock(funds);
+    renderSwp();
+    return;
+  }
 
   const years = state.years;
   const range = state.period === 'common' && funds.length > 1 ? commonRange(funds) : null;
@@ -373,6 +656,9 @@ function render() {
     { label: 'Worst fall', values: withPeriod.map((row) => row.p.worst) },
   ])}<p class="mf-note">Volatility is the annualised standard deviation of daily NAV changes. Worst fall is the biggest drop from a previous high NAV to a later low.${range ? '' : ' With full histories the funds cover different years, so these numbers are not directly comparable.'}</p></div>`;
 
+  const codes = funds.map((fund) => fund.code).join(',');
+  html += `<div class="mf-block"><h2>SIP and SWP calculators</h2><p>See what a monthly SIP in these funds would have become, or how long a lump sum would have lasted with a fixed monthly withdrawal, on their actual NAVs.</p><a class="text-link" href="mf-sip.html?funds=${codes}">Open the SIP calculator <b>↗</b></a> &nbsp; <a class="text-link" href="mf-swp.html?funds=${codes}">Open the SWP calculator <b>↗</b></a></div>`;
+
   const trail = funds.map(trailing);
   html += `<div class="mf-block"><h2>Trailing returns</h2><p>Point-to-point returns up to each fund's latest NAV, always over its full history. These are the numbers fund factsheets quote; they depend heavily on today's date.</p>${fundTable(funds, [
     { label: 'Latest NAV', values: funds.map((fund) => fund.t[fund.t.length - 1]), markNegative: false, highlight: false, format: fmtDate },
@@ -401,23 +687,61 @@ function drawCharts(funds, rolls, series) {
 }
 
 let resizeTimer;
-addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => lastCharts && drawCharts(...lastCharts), 150); });
+addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => (SIP_PAGE ? renderSip() : SWP_PAGE ? renderSwp() : lastCharts && drawCharts(...lastCharts)), 150); });
 
 // ---------- URL state (so a comparison can be shared) ----------
 
 function syncUrl() {
   const params = new URLSearchParams();
   if (state.funds.length) params.set('funds', state.funds.map((fund) => fund.code).join(','));
-  params.set('years', state.years);
-  if (state.period !== 'common') params.set('period', state.period);
+  if (SWP_PAGE) {
+    const swp = state.swp;
+    if (swp.corpus !== SWP_DEFAULT.corpus) params.set('amount', swp.corpus);
+    if (swp.withdraw !== SWP_DEFAULT.withdraw) params.set('swp', swp.withdraw);
+    if (swp.from) params.set('swpfrom', swp.from);
+    if (swp.day !== SWP_DEFAULT.day) params.set('swpday', swp.day);
+    if (swp.stepup) params.set('stepup', Math.round(swp.stepup * 100));
+    if (swp.horizon !== SWP_DEFAULT.horizon) params.set('horizon', swp.horizon);
+    history.replaceState(null, '', `${location.pathname}?${params}`);
+    return;
+  }
+  if (!SIP_PAGE) {
+    params.set('years', state.years);
+    if (state.period !== 'common') params.set('period', state.period);
+    history.replaceState(null, '', `${location.pathname}?${params}`);
+    return;
+  }
+  const sip = state.sip;
+  if (sip.amount !== SIP_DEFAULT.amount) params.set('sip', sip.amount);
+  if (sip.from) params.set('sipfrom', sip.from);
+  if (sip.day !== SIP_DEFAULT.day) params.set('sipday', sip.day);
+  if (sip.stepup) params.set('stepup', Math.round(sip.stepup * 100));
   history.replaceState(null, '', `${location.pathname}?${params}`);
 }
 
 async function loadFromUrl() {
   const params = new URLSearchParams(location.search);
   const years = +params.get('years');
-  if ([1, 2, 3, 5, 7, 10].includes(years)) { state.years = years; $('#mf-years').value = String(years); }
-  if (params.get('period') === 'full') { state.period = 'full'; $('#mf-period').value = 'full'; }
+  const COMPARE_PAGE = !SIP_PAGE && !SWP_PAGE;
+  if (COMPARE_PAGE && [1, 2, 3, 5, 7, 10].includes(years)) { state.years = years; $('#mf-years').value = String(years); }
+  if (COMPARE_PAGE && params.get('period') === 'full') { state.period = 'full'; $('#mf-period').value = 'full'; }
+  const stepup = +params.get('stepup');
+  if (SIP_PAGE) {
+    const sipAmount = +params.get('sip'), sipDay = +params.get('sipday');
+    if (sipAmount >= 100 && sipAmount <= 10000000) state.sip.amount = sipAmount;
+    if (/^\d{4}-\d{2}$/.test(params.get('sipfrom') || '')) state.sip.from = params.get('sipfrom');
+    if (Number.isInteger(sipDay) && sipDay >= 1 && sipDay <= 28) state.sip.day = sipDay;
+    if ([5, 10, 15, 20].includes(stepup)) state.sip.stepup = stepup / 100;
+  }
+  if (SWP_PAGE) {
+    const swp = state.swp, corpus = +params.get('amount'), withdraw = +params.get('swp'), day = +params.get('swpday'), horizon = +params.get('horizon');
+    if (corpus >= 10000 && corpus <= 1e9) swp.corpus = corpus;
+    if (withdraw >= 100 && withdraw <= swp.corpus) swp.withdraw = withdraw;
+    if (/^\d{4}-\d{2}$/.test(params.get('swpfrom') || '')) swp.from = params.get('swpfrom');
+    if (Number.isInteger(day) && day >= 1 && day <= 28) swp.day = day;
+    if ([3, 5, 6, 8, 10].includes(stepup)) swp.stepup = stepup / 100;
+    if ([5, 10, 15, 20].includes(horizon)) swp.horizon = horizon;
+  }
   const codes = (params.get('funds') || '').split(',').filter((code) => /^\d{1,8}$/.test(code)).slice(0, MAX_FUNDS);
   if (!codes.length) { render(); return; }
   setStatus('Loading NAV history…');
@@ -479,11 +803,36 @@ document.addEventListener('click', (event) => { if (!event.target.closest('.mf-s
 
 // ---------- controls ----------
 
-$('#mf-years').addEventListener('change', (event) => { state.years = +event.target.value; render(); });
-$('#mf-period').addEventListener('change', (event) => { state.period = event.target.value; render(); });
+$('#mf-years')?.addEventListener('change', (event) => { state.years = +event.target.value; render(); });
+$('#mf-period')?.addEventListener('change', (event) => { state.period = event.target.value; render(); });
 $('#mf-direct').addEventListener('change', (event) => { state.directOnly = event.target.checked; runSearch(); });
 $('#mf-bench').addEventListener('click', () => addFund(BENCHMARK_CODE));
 $('#mf-chips').addEventListener('click', (event) => { const button = event.target.closest('[data-remove]'); if (button) removeFund(button.dataset.remove); });
+// SIP inputs live inside #mf-out; changing one redraws only the SIP results, so the input keeps focus.
+$('#mf-out').addEventListener('input', (event) => {
+  const value = event.target.value;
+  if (SWP_PAGE) {
+    const swp = state.swp;
+    if (event.target.id === 'mf-swp-corpus') swp.corpus = +value;
+    else if (event.target.id === 'mf-swp-withdraw') swp.withdraw = +value;
+    else if (event.target.id === 'mf-swp-from') swp.from = /^\d{4}-\d{2}$/.test(value) ? value : null;
+    else if (event.target.id === 'mf-swp-day') swp.day = +value;
+    else if (event.target.id === 'mf-swp-stepup') swp.stepup = +value / 100;
+    else if (event.target.id === 'mf-swp-horizon') { swp.horizon = +value; renderSwpEvery(); syncUrl(); return; }
+    else return;
+    renderSwp();
+    syncUrl();
+    return;
+  }
+  const sip = state.sip;
+  if (event.target.id === 'mf-sip-amount') sip.amount = +value;
+  else if (event.target.id === 'mf-sip-from') sip.from = /^\d{4}-\d{2}$/.test(value) ? value : null;
+  else if (event.target.id === 'mf-sip-day') sip.day = +value;
+  else if (event.target.id === 'mf-sip-stepup') sip.stepup = +value / 100;
+  else return;
+  renderSip();
+  syncUrl();
+});
 $('#mf-out').addEventListener('click', async (event) => {
   const button = event.target.closest('[data-preset]');
   if (!button) return;
