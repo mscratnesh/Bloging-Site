@@ -66,7 +66,7 @@ fig.text(0.09, 0.915, "LET MONEY EARN  ·  RESEARCH", color=ACCENT, fontsize=10.
 fig.lines.append(plt.Line2D([0.09, 0.20], [0.897, 0.897], color=ACCENT, lw=2, transform=fig.transFigure))
 fig.text(0.087, 0.80, "Riding", color=CREAM, fontsize=66, fontweight="bold", **serif)
 fig.text(0.087, 0.725, "the Winners", color=CREAM, fontsize=66, fontweight="bold", **serif)
-fig.text(0.09, 0.672, "A plain-English study of momentum investing in India", color=CREAM, fontsize=15, alpha=0.85, **serif)
+fig.text(0.09, 0.672, "A study of momentum investing in India", color=CREAM, fontsize=15, alpha=0.85, **serif)
 fig.text(0.09, 0.648, "The Nifty 500, every NSE stock, and ETFs", color=MUTED, fontsize=12.5, style="italic", **serif)
 
 fig.lines.append(plt.Line2D([0.09, 0.91], [0.095, 0.095], color=RULE, lw=1, transform=fig.transFigure))

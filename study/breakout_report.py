@@ -358,7 +358,19 @@ const DATA = {json.dumps(data, separators=(",", ":")).replace("</", "<\\/")};
 
 # ---- public copy: the site's header and footer instead of the back link. The menu is taken from
 # sheets.html so it stays in sync; colours come from the report's theme variables (light and dark).
-SITE_HEAD = """<link rel="preconnect" href="https://fonts.googleapis.com">
+SITE_HEAD = """<link rel="canonical" href="https://letmoneyearn.in/breakout-study.html">
+<meta name="robots" content="index, follow">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Let Money Earn">
+<meta property="og:title" content="Multi-Year Breakout Study | Let Money Earn">
+<meta property="og:description" content="Backtests of buying Nifty 500 stocks that break above a multi-year high, with stop-loss exits and idle money in gold: charts, every trade and the weekly log.">
+<meta property="og:url" content="https://letmoneyearn.in/breakout-study.html">
+<meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Multi-Year Breakout Study | Let Money Earn">
+<meta name="twitter:description" content="Backtests of buying Nifty 500 stocks that break above a multi-year high, with stop-loss exits and idle money in gold: charts, every trade and the weekly log.">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>

@@ -24,8 +24,8 @@ Second benchmark: the Nifty500 Momentum 50 index (price), the fund version of th
 (study/nf500mom50_etf.json); both from the author's own export.
 
 Input:  study/nse_prices.npz (study/nse_data.py), study/nf500mom50_index.json, study/nf500mom50_etf.json
-Output: momentum_nse_study.json
-Run:    py study/momentum_nse_study.py
+Output: momentum_nse_study.json, and momentum_nse_teaser.json for the public page (curve and headline numbers)
+Run:    py study/momentum_nse_study.py     (--teaser: rewrite only the teaser from momentum_nse_study.json)
 """
 import json
 import sys
@@ -230,6 +230,7 @@ def main():
     (ROOT / "momentum_nse_study.json").write_text(json.dumps(out, default=ms._json_default, separators=(",", ":")),
                                                    encoding="utf-8")
     print("best overall:", best["key"], "wrote", ROOT / "momentum_nse_study.json")
+    write_teaser(out)
 
 
 def _events_summary():
@@ -245,5 +246,20 @@ def _locked_share(data):
     return {"eq": float(data.locked[data.series == 1].mean()), "beBz": float(data.locked[data.series > 1].mean())}
 
 
+def write_teaser(out):
+    """The public teaser page gets only the best combination's curve and headline numbers, no rules or settings."""
+    best = next(r for r in out["rows"] if r["key"] == out["best"])
+    head = lambda x: {"cagr": x["cagr"], "maxDD": x["maxDD"], "multiple": x["multiple"]}
+    teaser = {"asOf": out["asOf"], "from": out["from"], "to": out["curve"][-1]["d"], "stocks": out["stocks"],
+              "strategy": head(best), "nifty500": head(out["bench"]), "mom50": head(out["mom50"]),
+              "cagrRange": [min(r["cagr"] for r in out["rows"]), max(r["cagr"] for r in out["rows"])],
+              "curve": [{"date": p["d"], "strategy": p[best["key"]], "nifty500": p["nifty500"], "mom50": p["mom50"]}
+                        for p in out["curve"]]}
+    (ROOT / "momentum_nse_teaser.json").write_text(json.dumps(teaser, separators=(",", ":")), encoding="utf-8")
+
+
 if __name__ == "__main__":
-    main()
+    if "--teaser" in sys.argv:
+        write_teaser(json.loads((ROOT / "momentum_nse_study.json").read_text(encoding="utf-8")))
+    else:
+        main()

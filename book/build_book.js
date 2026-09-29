@@ -146,7 +146,7 @@ const coverPage = [new Paragraph({ children: [new ImageRun({
 const titlePage = [
   new Paragraph({ spacing: { before: 2600 }, children: [new TextRun({ text: "LET MONEY EARN  ·  RESEARCH", color: ACCENT, bold: true, size: 20, characterSpacing: 40 })] }),
   new Paragraph({ spacing: { before: 300, after: 200 }, children: [new TextRun({ text: "Riding the Winners", font: SERIF, size: 76, bold: true, color: INK })] }),
-  new Paragraph({ spacing: { after: 600 }, children: [new TextRun({ text: "A plain-English study of momentum investing in India: the Nifty 500, every NSE stock, and ETFs", font: SERIF, size: 32, color: MUTED })] }),
+  new Paragraph({ spacing: { after: 600 }, children: [new TextRun({ text: "A study of momentum investing in India: the Nifty 500, every NSE stock, and ETFs", font: SERIF, size: 32, color: MUTED })] }),
   new Paragraph({ border: { top: { style: BorderStyle.SINGLE, size: 8, color: ACCENT, space: 12 } }, spacing: { after: 120 },
     children: [new TextRun({ text: `What it is · where it came from · why it works · what the data shows · ${pct(B.cagr, 1)} a year on the Nifty 500, tested the honest way`, size: 22, color: INK })] }),
   new Paragraph({ spacing: { before: 2400 }, children: [new TextRun({ text: `Data to ${fdate(S.asOf)}`, size: 20, color: MUTED })] }),
@@ -707,7 +707,7 @@ bullets([
 // ------------------------------------------------------------------ assemble
 const doc = new Document({
   creator: "Let Money Earn",
-  title: "Riding the Winners: A plain-English guide to momentum investing in India",
+  title: "Riding the Winners: A guide to momentum investing in India",
   description: "Momentum investing explained, with an honest six-year backtest on the Nifty 500.",
   features: { updateFields: true },
   styles: {
