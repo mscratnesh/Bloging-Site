@@ -27,3 +27,6 @@ study/GoldVsNifty.xlsx
 study/GoldVsNiftyVsMomentum.pdf
 study/Gold_vs_Strategy_Handbook_with_TOC.docx
 drafts/preview/
+
+# NSE F&O bhavcopy download (study/fetch_fno_bhavcopy.py); several GB
+study/fno_bhavcopy/
