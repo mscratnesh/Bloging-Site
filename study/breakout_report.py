@@ -399,6 +399,10 @@ SITE_HEAD = """<link rel="canonical" href="https://letmoneyearn.in/breakout-stud
 .site-footer { max-width: 1080px; margin: 0 auto; padding: 27px 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 11px "DM Mono", monospace; border-top: 1px solid var(--border); }
 .site-footer .brand img { height: 32px; }
 .site-footer span:last-child { color: var(--text); }
+.top-strip{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:8px max(24px,calc((100% - 1180px)/2));background:#17201b;color:#c9d1c8;font:12px 'DM Mono',monospace;letter-spacing:.03em}.top-strip a{display:inline-flex;align-items:center;gap:7px;color:#f5f4ee;text-decoration:none;border:1px solid #3d4940;border-radius:999px;padding:5px 13px;line-height:1}.top-strip a:hover{background:#d9f06b;border-color:#d9f06b;color:#17201b}.top-strip svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}.top-strip .ts-wa svg{fill:#25d366}.top-strip .ts-tg svg{fill:#2aabee}.top-strip .ts-short{display:none}@media(max-width:700px){.top-strip{padding:7px 8vw;gap:10px}.top-strip .ts-long{display:none}.top-strip .ts-short{display:inline}}
+.site-footer .footer-links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.site-footer .footer-links a { color: var(--muted); text-decoration: none; }
+.site-footer .footer-links a:hover { color: var(--text); }
 @media (min-width: 701px) and (max-width: 960px) { .site-header nav { gap: 18px; } }
 @media (max-width: 700px) {
   .site-header { height: 68px; }
@@ -431,7 +435,7 @@ hero = f"""<section class="study-hero"><div>
   <p class="stamp">Tested {day(first)} to {day(data["asOf"])} · ₹{data["capital"] / 1e5:g} lakh to start · fixed snapshot</p>
 </div></section>"""
 site = (ROOT / "sheets.html").read_text(encoding="utf-8")
-header = re.search(r'<header class="site-header">.*?</header>', site, re.S).group(0)
+header = re.search(r'(?:<div class="top-strip">.*?</div>\s*)?<header class="site-header">.*?</header>', site, re.S).group(0)
 footer = re.search(r"<footer>.*?</footer>", site, re.S).group(0).replace("<footer>", '<footer class="site-footer">', 1)
 back = '<div class="wrap site-top"><a class="site-back" href="breakout-desk.html">&larr; Breakout Desk</a></div>'
 for part in ("<title>Multi-Year Breakout Report</title>", "</head>", back, "</body>"):
