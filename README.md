@@ -153,6 +153,20 @@ py study\breakout_study.py
 py study\breakout_report.py
 ```
 
+### MCX crude calendar spread study (`study/crude_spread_*`, `study/mcx_crude_*`)
+
+A local study only (no site page). Each month, on trading day 1 or 2 after a crude contract expires, trade the current month against the next month and hold both legs to the current month's expiry. The side depends on the entry spread (current minus next): below 50 points buy current / sell next; at 50 or more reverse it (sell current / buy next), because a large premium on the current month has usually faded by expiry. Settings are `ENTRY_DAYS` and `THRESHOLD` at the top of the script. Costs: 1 point slippage per order, 0.01% CTT on sells, ₹20 brokerage per order.
+
+Result on CRUDEOIL (100 bbl/lot, Sep 2021 to Sep 2026, 60 trades): about ₹1.24 lakh net per lot entering on day 1 (₹1.28 lakh on day 2), 58–62% winners, worst drawdown about ₹17–19k, every year positive. Taking the normal trade every month instead would have lost about ₹35k. Most of the gain from the reversed trades comes from a few months with very large spreads (2022, 2026), so a single bad cycle can cost ₹15k+ per lot. On CRUDEOILM (10 bbl/lot) brokerage takes nearly all of the gain.
+
+- `study/mcx_crude_download.py` — downloads CRUDEOIL and CRUDEOILM rows from the MCX daily bhav copy into `study/mcx_crude_bhav.csv` (needs `curl_cffi`); resumable, and weekdays with no crude rows go to `study/mcx_crude_holidays.txt`.
+- `study/crude_spread_study.py` — runs the rule for both entry days and both contracts, prints totals and a year-by-year table, and writes every trade to `study/crude_spread_trades.csv`.
+
+```powershell
+py study\mcx_crude_download.py   # only to add newer days
+py study\crude_spread_study.py
+```
+
 ### Momentum book (`book/`)
 
 "Riding the Winners", a book (Word, A4) on momentum investing built from the study: what momentum is, its history, why it works, the exact rules, the honest backtest and every stress test. All numbers and charts come from `momentum_study.json`, so rebuild it after rerunning the study. Not part of the site build.
@@ -223,3 +237,7 @@ Open http://127.0.0.1:8001/admin-login.html. The admin app binds to `127.0.0.1` 
 Customer reviews submitted on the public site remain pending. After signing in, moderate them at http://127.0.0.1:8001/admin_reviews.html and approve them before they appear publicly.
 
 Article comments are submitted from each detailed article page and remain pending until approved at http://127.0.0.1:8001/admin_comments.html.
+
+## Pending
+
+- [ ] **Fund overlap analysis** — a Market tools page that shows how much two or more mutual funds hold in common (shared stocks and overlap by weight), to sit alongside Fund Compare.

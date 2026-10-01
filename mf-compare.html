@@ -2,19 +2,32 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Compare Indian mutual funds on rolling returns: 1, 3, 5, 7 and 10-year rolling CAGR, how often each fund beat the others, return ranges, trailing returns, worst falls and a SIP calculator on real NAVs. NAV data from AMFI.">
+<meta name="description" content="Free mutual fund rolling returns calculator. Compare up to 6 Indian funds on 1 to 10-year rolling CAGR, consistency, worst falls and trailing returns.">
 <link rel="canonical" href="https://letmoneyearn.in/mf-compare.html">
-<meta name="robots" content="index, follow">
-<title>Mutual Fund Rolling Returns | Let Money Earn</title>
+<meta name="robots" content="index, follow, max-image-preview:large">
+<title>Mutual Fund Rolling Returns Calculator | Let Money Earn</title>
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Let Money Earn">
-<meta property="og:title" content="Mutual Fund Rolling Returns | Let Money Earn">
-<meta property="og:description" content="Compare mutual funds on rolling returns, consistency and worst falls, not just last year's number.">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Mutual Fund Rolling Returns Calculator &amp; Comparison">
+<meta property="og:description" content="Compare Indian mutual funds on rolling returns, consistency and worst falls, not just last year's number. Free, with daily AMFI NAVs.">
 <meta property="og:url" content="https://letmoneyearn.in/mf-compare.html">
 <meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<meta property="og:image:alt" content="Let Money Earn">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Mutual Fund Rolling Returns | Let Money Earn">
-<meta name="twitter:description" content="Compare mutual funds on rolling returns, consistency and worst falls, not just last year's number.">
+<meta name="twitter:title" content="Mutual Fund Rolling Returns Calculator &amp; Comparison">
+<meta name="twitter:description" content="Compare Indian mutual funds on rolling returns, consistency and worst falls, not just last year's number. Free, with daily AMFI NAVs.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"Mutual Fund Rolling Returns Calculator","url":"https://letmoneyearn.in/mf-compare.html","description":"Compare up to six Indian mutual funds on 1 to 10-year rolling returns, range of outcomes, head-to-head wins, growth of ₹10,000, volatility, worst fall and trailing returns, using daily AMFI NAVs.","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"inLanguage":"en-IN","publisher":{"@type":"Organization","name":"Let Money Earn","url":"https://letmoneyearn.in/"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://letmoneyearn.in/"},{"@type":"ListItem","position":2,"name":"Mutual Funds"},{"@type":"ListItem","position":3,"name":"Rolling Returns Compare","item":"https://letmoneyearn.in/mf-compare.html"}]},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What are rolling returns in mutual funds?","acceptedAnswer":{"@type":"Answer","text":"Rolling returns are a fund's yearly returns (CAGR) over a fixed holding period, such as 3 years, measured from every day in its history instead of one start date. They show the full range of results investors actually got: the average, the best, the worst and how often the fund lost money."}},
+{"@type":"Question","name":"How are rolling returns calculated?","acceptedAnswer":{"@type":"Answer","text":"For each NAV date, take the NAV on that date and the NAV exactly N years earlier, then work out the yearly return: (NAV today ÷ NAV N years ago) to the power 1/N, minus 1. Repeating this for every date gives thousands of overlapping N-year returns."}},
+{"@type":"Question","name":"What is the difference between rolling returns and trailing returns?","acceptedAnswer":{"@type":"Answer","text":"A trailing (point-to-point) return measures one period ending today, so it changes a lot depending on where the market is right now. Rolling returns measure every period of the same length across the fund's history, so they show consistency and are a fairer way to compare funds."}},
+{"@type":"Question","name":"Which rolling return period should I use?","acceptedAnswer":{"@type":"Answer","text":"Match it to how long you plan to hold. For equity funds, 3, 5 or 7-year rolling returns are the most useful; 1-year rolling returns are very noisy. Longer periods need more history, so they are only available for older funds."}},
+{"@type":"Question","name":"Where does the NAV data come from and how current is it?","acceptedAnswer":{"@type":"Answer","text":"The daily NAVs are published by AMFI (Association of Mutual Funds in India) and fetched through mfapi.in. The tool refreshes them every night after midnight IST, so results include the previous trading day's NAV."}}
+]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
@@ -77,6 +90,14 @@
   .mf-read p{color:var(--muted);font-size:14px;margin:0}
   .disclaimer{padding:28px max(24px,calc((100% - 1180px)/2));color:var(--muted);font-size:11px;border-top:1px solid var(--line)}
   .disclaimer strong{color:var(--ink);display:block;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+  .mf-faq{padding-top:10px;max-width:820px}
+  .mf-faq details{border-bottom:1px solid var(--line)}
+  .mf-faq summary{cursor:pointer;padding:16px 0;font:600 19px var(--serif);list-style:none;display:flex;justify-content:space-between;gap:16px}
+  .mf-faq summary::-webkit-details-marker{display:none}
+  .mf-faq summary::after{content:"+";font:400 22px var(--mono);color:var(--coral)}
+  .mf-faq details[open] summary::after{content:"−"}
+  .mf-faq p{color:var(--muted);font-size:14px;margin:0 0 18px}
+  .mf-note a{color:var(--coral-text)}
   @media(max-width:900px){.mf-read{grid-template-columns:1fr}}
   @media(max-width:700px){.mf-hero{padding:32px 8vw 24px}.mf-section{padding:0 8vw 40px}.mf-table{font-size:13px}.mf-table th,.mf-table td{padding:10px 6px}.disclaimer{padding:25px 8vw}}
 </style>
@@ -86,8 +107,8 @@
   <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Mutual Funds</button><div class="nav-sub"><a href="mf-compare.html">Rolling Returns Compare</a><a href="mf-sip.html">Fund SIP Calculator</a><a href="mf-swp.html">Fund SWP Calculator</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
     <section class="mf-hero">
-      <p class="eyebrow">Mutual fund tool · rolling returns</p>
-      <h1>Compare mutual funds on rolling returns</h1>
+      <p class="eyebrow">Free tool · mutual fund rolling returns calculator</p>
+      <h1>Compare mutual fund rolling returns</h1>
       <p>A fund's "3-year return" depends on the day you measure it. Rolling returns measure it from every day in the fund's history, so you see how the fund did for everyone who held it for three years, not just the lucky start date.</p>
       <p>Add up to six funds, pick a holding period and compare the range of returns, how often each fund came out ahead and how hard each one fell. The SIP calculator shows what a monthly SIP in each fund would have become.</p>
     </section>
@@ -105,6 +126,7 @@
       </div>
       <div class="mf-chips" id="mf-chips"></div>
       <p class="mf-status" id="mf-status" role="status"></p>
+      <noscript><p class="mf-empty">This calculator needs JavaScript to fetch NAVs and draw the charts. Please turn it on to compare funds.</p></noscript>
       <div id="mf-out"></div>
     </section>
 
@@ -114,6 +136,17 @@
         <div><h3>What to look for</h3><p>A higher average is good, but so is a narrow range: a fund whose worst 5-year return was still positive treated its holders better than one with a higher average and some losing stretches. "How often it came out ahead" compares the funds on the same dates.</p></div>
         <div><h3>Keep it fair</h3><p>Compare Direct Growth plans with each other, funds of the same type with each other, and use "Common period only" so every fund is measured over the same market. Most Direct plans start in January 2013.</p></div>
       </div>
+    </section>
+
+    <section class="mf-section"><div class="section-label"><span>Questions</span><span>Rolling returns explained</span></div>
+      <div class="mf-faq">
+        <details open><summary>What are rolling returns in mutual funds?</summary><p>Rolling returns are a fund's yearly returns (CAGR) over a fixed holding period, such as 3 years, measured from every day in its history instead of one start date. They show the full range of results investors actually got: the average, the best, the worst and how often the fund lost money.</p></details>
+        <details><summary>How are rolling returns calculated?</summary><p>For each NAV date, take the NAV on that date and the NAV exactly N years earlier, then work out the yearly return: (NAV today ÷ NAV N years ago) to the power 1/N, minus 1. Repeating this for every date gives thousands of overlapping N-year returns.</p></details>
+        <details><summary>What is the difference between rolling returns and trailing returns?</summary><p>A trailing (point-to-point) return measures one period ending today, so it changes a lot depending on where the market is right now. Rolling returns measure every period of the same length across the fund's history, so they show consistency and are a fairer way to compare funds.</p></details>
+        <details><summary>Which rolling return period should I use?</summary><p>Match it to how long you plan to hold. For equity funds, 3, 5 or 7-year rolling returns are the most useful; 1-year rolling returns are very noisy. Longer periods need more history, so they are only available for older funds.</p></details>
+        <details><summary>Where does the NAV data come from and how current is it?</summary><p>The daily NAVs are published by AMFI (Association of Mutual Funds in India) and fetched through mfapi.in. The tool refreshes them every night after midnight IST, so results include the previous trading day's NAV.</p></details>
+      </div>
+      <p class="mf-note">Planning an SIP or a lump sum? Try the <a href="calculators.html">SIP and lump sum calculators</a>, or read <a href="index.html#latest">the latest insights</a>.</p>
     </section>
 
     <aside class="disclaimer"><strong>Important disclaimer</strong>This tool is for education only and is not investment advice or a recommendation to buy or sell any fund. Returns are calculated from published NAVs (AMFI data via mfapi.in) and ignore exit loads and taxes; NAV data can contain errors. Past returns do not guarantee future returns. The author of this site is a mutual fund distributor, associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Read the scheme documents and consult a qualified financial adviser before investing.</aside>
