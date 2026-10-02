@@ -30,3 +30,6 @@ drafts/preview/
 
 # NSE F&O bhavcopy download (study/fetch_fno_bhavcopy.py); several GB
 study/fno_bhavcopy/
+
+# NIFTY iron fly handbook (sold for Rs 500): sources, charts and the Word file stay out of this public repo
+study/iron_fly_handbook/

@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="A rule-based NIFTY monthly iron fly with defined risk: 57 trades, 96% winners and ₹1.52 lakh per sold lot in a ten-year backtest on NSE option prices, after costs.">
+  <link rel="canonical" href="https://letmoneyearn.in/nifty-iron-fly.html">
+  <meta name="robots" content="index, follow">
+  <title>NIFTY Monthly Iron Fly | Let Money Earn</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Let Money Earn">
+  <meta property="og:title" content="NIFTY Monthly Iron Fly | Let Money Earn">
+  <meta property="og:description" content="A rule-based NIFTY monthly iron fly with defined risk: 57 trades, 96% winners and ₹1.52 lakh per sold lot in a ten-year backtest on NSE option prices, after costs.">
+  <meta property="og:url" content="https://letmoneyearn.in/nifty-iron-fly.html">
+  <meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="NIFTY Monthly Iron Fly | Let Money Earn">
+  <meta name="twitter:description" content="A rule-based NIFTY monthly iron fly with defined risk: 57 trades, 96% winners and ₹1.52 lakh per sold lot in a ten-year backtest on NSE option prices, after costs.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    .gn-hero{padding:40px max(24px,calc((100% - 1180px)/2)) 28px;border-bottom:1px solid var(--line)}
+    .gn-hero h1{max-width:820px;font:600 clamp(36px,4.8vw,56px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+    .gn-hero p{max-width:680px;color:var(--muted);font-size:16px;margin:24px 0 0}.gn-stamp{margin-top:20px;font:12px var(--mono);color:var(--muted)}
+    .gn-section{padding:0 max(24px,calc((100% - 1180px)/2)) 56px}
+    .gn-cols{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;padding-top:26px}.gn-cols h2{font:600 26px var(--serif);line-height:1.05;margin:0 0 12px}.gn-cols p{color:var(--muted);font-size:14px;margin:0 0 10px}.gn-cols strong{color:var(--ink)}
+    .gn-lead{font:600 36px var(--serif);line-height:1.05;letter-spacing:-.02em;margin:26px 0 10px;max-width:760px}.gn-sub{color:var(--muted);font-size:14px;margin:0 0 26px;max-width:760px}
+    .gn-table{width:100%;border-collapse:collapse;font-size:15px}.gn-table th,.gn-table td{padding:13px 12px;border-top:1px solid var(--line);text-align:right}.gn-table th:first-child,.gn-table td:first-child{text-align:left;padding-left:0}
+    .gn-table thead th{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-top:0;vertical-align:bottom}.gn-table td:first-child{color:var(--muted);font-size:14px}.gn-table tbody tr:first-child td{font:600 24px var(--serif)}.gn-table tbody tr:first-child td:first-child{font:14px var(--sans)}
+    .gn-note{color:var(--muted);font-size:12px;margin:16px 0 0;max-width:820px}
+    .gn-list{list-style:none;padding:0;margin:26px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:0 28px}.gn-list li{padding:12px 0 12px 22px;border-top:1px solid var(--line);font-size:14px;position:relative;color:var(--muted)}.gn-list li:before{content:"↗";position:absolute;left:0;color:var(--coral);font-size:13px}.gn-list strong{color:var(--ink)}
+    .book-band{background:var(--ink);color:var(--paper);padding:48px max(24px,calc((100% - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:50px}.book-band .eyebrow{color:var(--coral)}.book-band h2{font:600 48px var(--serif);line-height:1;margin:0}.book-band h2 em{color:var(--lime);font-weight:500}.book-band p{color:#b9c2b8;max-width:460px;font-size:14px}
+    .book-band ul{list-style:none;padding:0;margin:0;width:min(100%,420px)}.book-band li{padding:10px 0;border-top:1px solid #3d4940;font-size:14px;color:#dfe5dc}
+    .book-link{display:inline-block;margin-top:22px;color:var(--ink);background:var(--lime);padding:14px 20px;text-decoration:none;font:600 12px var(--mono)}.book-link:hover{background:#c3e35a}
+    .disclaimer{padding:28px max(24px,calc((100% - 1180px)/2));color:var(--muted);font-size:11px;border-bottom:1px solid var(--line)}.disclaimer strong{color:var(--ink);display:block;font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+    @media(max-width:900px){.gn-cols{grid-template-columns:1fr}.gn-list{grid-template-columns:1fr}}
+    @media(max-width:700px){.gn-section{padding:0 8vw 44px}.gn-lead{font-size:30px}.gn-table{font-size:13px}.gn-table th,.gn-table td{padding:11px 6px}.gn-table tbody tr:first-child td{font-size:19px}.book-band{display:block;padding:40px 8vw}.book-band h2{font-size:40px}.book-band ul{margin-top:28px}.disclaimer{padding:25px 8vw}}
+  </style>
+  <style>.gn-table td:last-child{white-space:nowrap}.gn-list strong{color:var(--ink)}.gn-years tbody tr:first-child td{font:inherit;font-size:15px}</style>
+</head>
+<body>
+  <div class="top-strip"><span class="ts-long">Questions about investing or mutual funds? Talk to us on</span><span class="ts-short">Talk to us</span><a class="ts-wa" href="https://wa.me/919967355038?text=Hi%2C%20I%20found%20you%20on%20Let%20Money%20Earn." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><a class="ts-tg" href="https://t.me/+nxbISOilZJoxOTFl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2l-11 6.9-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Telegram</a></div>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Mutual Funds</button><div class="nav-sub"><a href="mf-compare.html">Rolling Returns Compare</a><a href="mf-sip.html">Fund SIP Calculator</a><a href="mf-swp.html">Fund SWP Calculator</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="gn-hero">
+      <p class="eyebrow">Research · NIFTY options · monthly iron fly</p>
+      <h1>NIFTY Monthly Iron Fly</h1>
+      <p>A rule-based options strategy on NIFTY's monthly expiry: at most one iron fly a month, with the loss capped by bought options on both sides, taken only when market conditions suit it and closed by fixed exits.</p>
+      <p>This page shows what the rules did over ten years of real NSE option prices, after all trading costs. The exact rules are in the handbook.</p>
+      <p class="gn-stamp">Tested 28 Oct 2016 to 28 Sep 2026 · NSE monthly option prices · per sold lot of 65</p>
+    </section>
+
+    <section class="gn-section"><div class="section-label"><span>The idea</span><span>Rules, not forecasts</span></div>
+      <div class="gn-cols">
+        <div><h2>Sell premium, cap the risk</h2><p>An iron fly sells at-the-money options and buys protection further out. It earns as option premium melts, and the bought options put a <strong>known limit on the loss</strong>.</p></div>
+        <div><h2>Selective, not every month</h2><p>The rules trade only when conditions have favoured this kind of trade, and sit out the rest. In the test that was <strong>57 of 119 months</strong>.</p></div>
+        <div><h2>Fixed exits</h2><p>Every trade has a set profit target, one adjustment if NIFTY moves, and a stop. All decisions are made at the day's close, so the rules can be followed <strong>without watching the screen</strong>.</p></div>
+      </div>
+    </section>
+
+    <section class="gn-section"><div class="section-label"><span>Backtest</span><span>28 Oct 2016 – 28 Sep 2026</span></div>
+      <p class="gn-lead">57 trades, 96% winners and ₹1.52 lakh per sold lot, with every year positive.</p>
+      <p class="gn-sub">The selection is what makes it work: the same trade taken every month, with no selection, made −₹15,528 over the same period.</p>
+      <table class="gn-table">
+        <thead><tr><th></th><th>With the rules</th><th>Every month, no selection</th></tr></thead>
+        <tbody>
+          <tr><td>Total profit per sold lot</td><td>+₹1,52,089</td><td>−₹15,528</td></tr>
+          <tr><td>Trades</td><td>57</td><td>117</td></tr>
+          <tr><td>Winning trades</td><td>96%</td><td>80%</td></tr>
+          <tr><td>Average trade</td><td>+₹2,668</td><td>−₹133</td></tr>
+          <tr><td>Average losing trade</td><td>−₹16,365</td><td>−₹15,087</td></tr>
+          <tr><td>Worst trade</td><td>−₹24,986</td><td>−₹38,407</td></tr>
+          <tr><td>Average holding period</td><td>10.6 days</td><td>10.3 days</td></tr>
+          <tr><td>Years with a profit</td><td>10 of 10</td><td>4 of 11</td></tr>
+        </tbody>
+      </table>
+      <p class="gn-note">Holding period in trading days, entry to exit (with the rules, about 16 calendar days). Per sold lot of 65 units in every year, after all costs: slippage, STT, brokerage, NSE and SEBI charges, stamp duty and GST. Decisions use daily closing prices. A backtest shows what the rules would have done, not what they will do.</p>
+    </section>
+
+    <section class="gn-section"><div class="section-label"><span>Return on margin</span><span>₹70,000 margin per set</span></div>
+      <p class="gn-lead">About 28%–31% a year on margin, after all costs.</p>
+      <p class="gn-sub">Zerodha margin for 5 sets (5 lots of 65 on each leg) in October 2026: ₹3,50,000, so ₹70,000 per set. Margin moves roughly with NIFTY, so the scaled column sizes each trade's margin by NIFTY at its entry. Simple returns, not compounded, before tax.</p>
+      <table class="gn-table">
+        <thead><tr><th></th><th>Margin scaled to NIFTY</th><th>Flat ₹70,000</th></tr></thead>
+        <tbody>
+          <tr><td>Return a year on margin</td><td>30.6%</td><td>21.9%</td></tr>
+          <tr><td>Average trade, share of margin</td><td>5.3%</td><td>3.8%</td></tr>
+          <tr><td>Worst trade, share of margin</td><td>−33.3%</td><td>−35.7%</td></tr>
+          <tr><td>Margin in use</td><td>25% of the time</td><td>25% of the time</td></tr>
+        </tbody>
+      </table>
+      <table class="gn-table gn-years" style="margin-top:22px">
+        <thead><tr><th>Costs per sold lot, ten years</th><th>Total</th><th>Per trade</th></tr></thead>
+        <tbody>
+          <tr><td>Profit before costs</td><td>+₹1,93,140</td><td>+₹3,388</td></tr>
+          <tr><td>Slippage</td><td>−₹31,070</td><td>−₹545</td></tr><tr><td>STT</td><td>−₹3,536</td><td>−₹62</td></tr><tr><td>Brokerage</td><td>−₹2,960</td><td>−₹52</td></tr><tr><td>NSE and SEBI charges</td><td>−₹2,417</td><td>−₹42</td></tr><tr><td>GST</td><td>−₹968</td><td>−₹17</td></tr><tr><td>Stamp duty</td><td>−₹100</td><td>−₹2</td></tr>
+          <tr><td>All costs</td><td>−₹41,051</td><td>−₹720</td></tr>
+          <tr><td>Profit after costs</td><td>+₹1,52,089</td><td>+₹2,668</td></tr>
+        </tbody>
+      </table>
+      <p class="gn-note">Margin changes with NIFTY's level, volatility and the broker's rules; check yours before trading and keep a buffer for adjustment days. F&amp;O profits are taxed as business income.</p>
+    </section>
+
+    <section class="gn-section"><div class="section-label"><span>Year by year</span><span>Profit per sold lot</span></div>
+      <table class="gn-table gn-years"><thead><tr><th>Year</th><th>Trades</th><th>Profit</th></tr></thead><tbody><tr><td>2016 (part)</td><td>2</td><td>+₹5,263</td></tr><tr><td>2017</td><td>6</td><td>+₹8,499</td></tr><tr><td>2018</td><td>9</td><td>+₹22,485</td></tr><tr><td>2019</td><td>9</td><td>+₹8,958</td></tr><tr><td>2021</td><td>4</td><td>+₹11,405</td></tr><tr><td>2022</td><td>4</td><td>+₹13,832</td></tr><tr><td>2023</td><td>4</td><td>+₹15,829</td></tr><tr><td>2024</td><td>9</td><td>+₹7,383</td></tr><tr><td>2025</td><td>5</td><td>+₹35,416</td></tr><tr><td>2026 (part)</td><td>5</td><td>+₹23,019</td></tr></tbody></table>
+      <p class="gn-note">By the year a trade was opened. The first and last years are part years.</p>
+    </section>
+
+    <section class="gn-section"><div class="section-label"><span>Know before you use it</span><span>Honest limits</span></div>
+      <ul class="gn-list">
+        <li><strong>Losses are rare but large.</strong> The average loss (−₹16,365) is about 5 times the average win, so one bad month takes back several good ones.</li>
+        <li><strong>Fitted to the past.</strong> The rules were chosen after testing many versions on this same data. Expect live results to be weaker.</li>
+        <li><strong>Closing prices only.</strong> Every decision uses the day's close. Real fills differ, and a gap open can push a loss past the stop.</li>
+        <li><strong>Margin and liquidity.</strong> Selling options needs margin even with protection bought. Size so a −₹24,986 month is affordable.</li>
+        <li><strong>Not every month.</strong> About half the months are skipped, so profits come in bursts with flat stretches between.</li>
+        <li><strong>Small sample.</strong> 57 trades over ten years. A few unusual months could change the picture.</li>
+      </ul>
+    </section>
+
+    <section class="book-band"><div><p class="eyebrow">The handbook · ₹500</p><h2>NIFTY Iron Fly:<br><em>the complete rules.</em></h2><p>Everything behind this page, in a Word handbook: the exact entry, exit and adjustment rules with worked examples, all 57 trades, and a checklist to run it at your broker.</p><a class="book-link" href="contact.html">Ask for the handbook</a></div>
+      <ul>
+        <li>The exact rules, step by step, with the numbers</li>
+        <li>Worked examples, including a trade that needed the adjustment</li>
+        <li>Every trade with strikes, adjustments and results</li>
+        <li>Why the selection filter matters, band by band</li>
+        <li>Costs, margin, a daily routine and the risks</li>
+      </ul>
+    </section>
+
+    <aside class="disclaimer"><strong>Important disclaimer</strong>This page is for education only and is not investment advice or a recommendation to buy or sell any security. The results are from a backtest: rules applied to past prices. Real trading has costs, delays and emotions a backtest can't fully capture, and past results do not guarantee future returns. Options can lose more than expected. The author of this site is a mutual fund distributor, associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Do your own research and consult a qualified financial adviser before investing.</aside>
+  </main>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>© 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+</body>
+</html>

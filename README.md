@@ -52,7 +52,7 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
+The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
 
 ### Draft articles (`drafts/`)
 
@@ -151,6 +151,23 @@ Unlike the momentum and ETF studies, the **full report is public**: `breakout-st
 py study\fetch_dividends.py      # only to refresh dividends
 py study\breakout_study.py
 py study\breakout_report.py
+```
+
+### NIFTY monthly iron fly study (`nifty-iron-fly.html`, `iron-fly-study.html`, `study/nifty_iron_fly_study.py`)
+
+One iron fly a month on NIFTY's monthly options, entered at the close of the first trading day after a monthly expiry only when India VIX closes between 12 and 17: sell the ATM call and put, buy a call and put 2% away, roll the short strikes once to the new ATM if the future closes 2% from them, close everything on the next 2% trigger, take profit at 12% of the net credit received (about ₹2,900 per sold lot on today's credit; a share of the premium so it grows with NIFTY's level), otherwise close a trading day before expiry. Costs: 1 point slippage per lot per order on the sold strikes and 0.5 on the wings, 0.1% STT on sold premium, ₹20 brokerage per order, NSE transaction charges and SEBI fee on premium traded, stamp duty on premium bought, and 18% GST on brokerage and fees; lot size 65 in every year.
+
+Result (Oct 2016 to Sep 2026, per sold lot): 57 trades in 119 months, 96% winners, about ₹2,670 a trade and ₹1.52 lakh in total after all costs (₹41k of slippage, STT, brokerage, NSE and SEBI charges, stamp duty and GST), worst trade −₹24,986, all 10 years positive. On Zerodha's ₹70,000 margin per set (Oct 2026), about 28–31% a year on margin, simple and before tax (`MARGIN_PER_SET` in the study). Taking every month instead (no VIX filter) loses about ₹15k. Targets of 10–13% of the credit behave almost the same; above that, stops and drawdowns grow. The settings were chosen after testing many variants on the same data, which the page says.
+
+Two public pages, both shipped in `dist`: `nifty-iron-fly.html`, a one-page summary in the site's own style (layout of `gold-vs-nifty.html`) that the Studies menu links to, with the idea, the headline backtest, year-by-year results and the limits (no rules or trade details); and `iron-fly-study.html`, the full report (rules, every trade, payoff diagrams, the current trade), which is **unlisted**: nothing on the site links to it and it is marked noindex, so it is reached only by its address. The summary page shows results only and offers the ₹500 handbook (`study/iron_fly_handbook/`, git-ignored). It shows the trade still running at the end of the data (or that the month was skipped), with its legs, target, roll levels and payoff, then the rules, results, the VIX-band table, equity curve, yearly figures, exits, every trade with its payoff diagram, and the month-by-month log.
+
+- `study/nifty_iron_fly_study.py` — runs the backtest on the F&O bhavcopy in `study/fno_bhavcopy/` (from `study/fetch_fno_bhavcopy.py`) and India VIX in `study/india_vix_daily.csv` (downloaded from Yahoo Finance if missing; needs `yfinance`), prints the summary, and writes `study/nifty_iron_fly_trades.csv` and `iron_fly_study.json`.
+- `study/iron_fly_report.py` — writes `study/iron_fly_report.html`, the public copy `iron-fly-study.html` and the summary `nifty-iron-fly.html` at the site root (reuses `study/backtest_report_template.html`'s look; header and footer from `sheets.html`, header styles from `study/breakout_report.py`), so rerun it after changing the menu.
+
+```powershell
+py study\fetch_fno_bhavcopy.py     # only to add newer days
+py study\nifty_iron_fly_study.py
+py study\iron_fly_report.py
 ```
 
 ### Momentum book (`book/`)

@@ -92,7 +92,7 @@ C books whole positions and so re-enters on different days. Cumulative profit in
 <h2 id="method">Method</h2>
 <div class="card"><ul class="rules" id="rules"></ul></div>
 <p class="disclaimer"><b>Important disclaimer.</b> This study is for educational purposes only. It is a backtest on past data, not a forecast, and not a recommendation to buy or sell anything. The author is a mutual fund distributor associated with Nirmal Bang and an investor; the author does not give investment advice and is not registered with SEBI as an investment adviser. This content is not issued, reviewed or endorsed by Nirmal Bang. Options can lose the whole amount paid and the sold legs need margin. Do your own due diligence and consult a qualified adviser before acting.</p>
-<div class="sitefoot"><span>Ratnesh Kumar Singh · Let Money Earn</span><span><a href="https://letmoneyearn.in/">letmoneyearn.in</a> · <a href="https://t.me/LetMoneyEarn">Telegram</a></span><span>© 2026 Let Money Earn</span></div>
+<div class="sitefoot"><span>Ratnesh Kumar Singh · Let Money Earn</span><span><a href="https://letmoneyearn.in/">letmoneyearn.in</a> · <a href="https://t.me/+nxbISOilZJoxOTFl">Telegram</a></span><span>© 2026 Let Money Earn</span></div>
 </div>
 """
 

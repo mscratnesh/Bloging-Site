@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NIFTY Monthly Iron Fly Study | Let Money Earn</title>
+<meta name="description" content="Backtest of a NIFTY monthly iron fly entered only when India VIX is 12-17, with one roll, a stop and a profit target of 12% of the credit received, on ten years of NSE option prices: rules, results, every trade.">
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f6f5f1; --surface: #fcfcfb; --surface-2: #f0efec; --border: #e2e0da;
+  --text: #0b0b0b; --text-2: #52514e; --muted: #7a7873;
+  --s1: #2a78d6; --s2: #eb6834; --s3: #1baf7a; --s4: #c98500;
+  --pos: #2a78d6; --neg: #d03b3b; --mid: #f0efec;
+  --good: #0a7d0a; --bad: #b3261e;
+  --grid: #e7e5df;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #33332f;
+    --text: #ffffff; --text-2: #c3c2b7; --muted: #8f8d85;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #eda100;
+    --pos: #3987e5; --neg: #e66767; --mid: #383835;
+    --good: #4cc74c; --bad: #ff8a80;
+    --grid: #2c2c29;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #121211; --surface: #1a1a19; --surface-2: #232321; --border: #33332f;
+  --text: #ffffff; --text-2: #c3c2b7; --muted: #8f8d85;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #eda100;
+  --pos: #3987e5; --neg: #e66767; --mid: #383835;
+  --good: #4cc74c; --bad: #ff8a80;
+  --grid: #2c2c29;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+.wrap { max-width: 1080px; margin: 0 auto; padding: 24px 16px 80px; }
+h1 { font-size: 28px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.01em; }
+h2 { font-size: 21px; margin: 44px 0 6px; padding-top: 8px; }
+h3 { font-size: 16px; margin: 22px 0 8px; }
+p { margin: 6px 0 12px; }
+.sub { color: var(--text-2); margin: 0 0 16px; max-width: 760px; }
+.num, td.n, th.n { font-variant-numeric: tabular-nums; }
+a { color: var(--s1); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; margin: 12px 0; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 16px 0; }
+.tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; }
+.tile .k { font-size: 12px; color: var(--text-2); text-transform: uppercase; letter-spacing: .04em; }
+.tile .v { font-size: 26px; font-weight: 650; font-variant-numeric: tabular-nums; margin-top: 2px; }
+.tile .c { font-size: 12.5px; color: var(--muted); }
+.tbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; color: var(--text-2); font-weight: 600; white-space: nowrap; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+tr.hl td { background: var(--surface-2); font-weight: 600; }
+.pos { color: var(--good); } .neg { color: var(--bad); }
+.muted { color: var(--muted); }
+.nav { position: sticky; top: 0; z-index: 5; background: var(--bg); border-bottom: 1px solid var(--border); margin: 0 -16px; padding: 8px 16px; display: flex; gap: 6px; overflow-x: auto; }
+.nav a { white-space: nowrap; font-size: 13px; text-decoration: none; color: var(--text-2); padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface); }
+.nav a:hover { color: var(--text); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 13px; color: var(--text-2); margin: 0 0 8px; }
+.legend i { display: inline-block; width: 16px; height: 2px; vertical-align: middle; margin-right: 6px; border-radius: 2px; }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+.tip { position: absolute; pointer-events: none; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; min-width: 170px; z-index: 3; }
+.tip .row { display: flex; justify-content: space-between; gap: 12px; }
+.tip b { font-weight: 600; }
+.tip .sw { display: inline-block; width: 10px; height: 2px; margin-right: 6px; vertical-align: middle; }
+.heat td.n { text-align: center; min-width: 52px; font-size: 12.5px; }
+.rules li { margin: 4px 0; }
+.note { border-left: 3px solid var(--s2); padding: 8px 12px; background: var(--surface); border-radius: 0 8px 8px 0; color: var(--text-2); font-size: 14px; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 10px 0 4px; font-size: 13px; }
+.filters select, .filters input { font: inherit; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text); }
+.month { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin: 14px 0; break-inside: avoid; page-break-inside: avoid; }
+.mhead { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline; }
+.mhead h3 { margin: 0; font-size: 18px; }
+.badge { display: inline-block; font-size: 11.5px; font-weight: 650; letter-spacing: .05em; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); vertical-align: 3px; margin-left: 8px; }
+.badge.EXIT { color: var(--bad); border-color: currentColor; background: transparent; }
+.badge.ENTER { color: var(--good); border-color: currentColor; background: transparent; }
+.mmeta { font-size: 13px; color: var(--text-2); margin: 6px 0 4px; }
+.mret { font-size: 14px; }
+.mret b { font-size: 17px; }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.chip { font-size: 12px; padding: 2px 7px; border-radius: 6px; background: var(--surface-2); color: var(--text-2); font-variant-numeric: tabular-nums; }
+.chip.on { outline: 1.5px solid var(--s1); color: var(--text); }
+.tag { font-size: 11px; color: var(--s1); font-weight: 650; margin-left: 4px; }
+.why { color: var(--text-2); }
+.co { color: var(--muted); font-size: 12px; display: block; }
+.cols2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 20px; }
+@media (max-width: 760px) { .cols2 { grid-template-columns: 1fr; } h1 { font-size: 23px; } .tile .v { font-size: 22px; } }
+th.sort { cursor: pointer; }
+th.sort:hover { color: var(--text); }
+.theme-btn { float: right; font: inherit; font-size: 13px; padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface); color: var(--text-2); cursor: pointer; }
+@media print {
+  body { background: #fff; font-size: 12px; }
+  .nav, .filters, .theme-btn { display: none !important; }
+  .wrap { max-width: none; padding: 0; }
+  h2 { break-before: page; page-break-before: always; margin-top: 0; }
+  h2.first { break-before: auto; page-break-before: auto; }
+  .month { break-before: page; page-break-before: always; border: none; padding: 0; }
+  .card, .tile { border-color: #ccc; }
+  .tip { display: none !important; }
+}
+</style>
+<style>
+.wrap.site-top { padding-bottom: 0; } .wrap.site-top + .wrap { padding-top: 4px; padding-bottom: 0; } .wrap.site-bottom { padding-top: 0; }
+.site-back { display: inline-block; margin: 0; font-size: 13px; color: var(--text-2); text-decoration: none; }
+.site-disclaimer { font-size: 12px; color: var(--muted); border-top: 1px solid var(--border); padding: 16px 0 28px; margin-top: 30px; }
+.bars text { fill: var(--muted); font-size: 11px; }
+.chart-note { font-size: 12.5px; color: var(--muted); margin: 6px 0 0; }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.steps td:first-child { white-space: nowrap; font-weight: 650; }
+tr.hl td { background: var(--surface-2); font-weight: 600; }
+.mgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 6px; }
+.mcell { border: 1px solid var(--border); border-radius: 8px; padding: 6px 8px; font-size: 12px; background: var(--surface); }
+.mcell b { display: block; font-size: 13px; }
+.mcell.skip { opacity: .55; background: transparent; }
+.why-stop { color: var(--bad); } .why-target { color: var(--good); }
+.pbtn { font: inherit; font-size: 12px; padding: 2px 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text-2); cursor: pointer; }
+.pbtn:hover, .pbtn.on { border-color: var(--s1); color: var(--text); }
+.payoff svg text { fill: var(--muted); font-size: 11px; }
+.payoff .facts { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 13px; color: var(--text-2); margin: 8px 0 0; }
+@media (max-width: 760px) { .two { grid-template-columns: 1fr; } }
+</style>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+.site-header { position: relative; height: 86px; padding: 0 max(16px, calc((100% - 1080px) / 2)); display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); background: var(--bg); font-family: "Manrope", system-ui, sans-serif; }
+.site-header .brand, .site-footer .brand { display: flex; align-items: center; }
+.site-header .brand img { display: block; height: 64px; width: auto; }
+.site-header nav { display: flex; align-items: center; gap: 32px; }
+.site-header nav a { color: var(--text); text-decoration: none; font-size: 13px; white-space: nowrap; }
+.site-header nav a:hover, .nav-toggle:hover, .nav-group:focus-within .nav-toggle { color: #ef795d; }
+.site-header .menu { display: none; background: transparent; border: 0; cursor: pointer; }
+.site-header .menu i { display: block; width: 22px; height: 1px; background: var(--text); margin: 5px; transition: transform .2s ease; }
+.nav-group { position: relative; display: flex; align-items: center; padding: 14px 0; margin: -14px 0; }
+.nav-toggle { background: none; border: 0; padding: 0; cursor: pointer; color: var(--text); font: 13px "Manrope", system-ui, sans-serif; white-space: nowrap; }
+.nav-toggle:after { content: ""; display: inline-block; width: 5px; height: 5px; border-right: 1px solid currentColor; border-bottom: 1px solid currentColor; transform: translateY(-3px) rotate(45deg); margin-left: 8px; }
+.nav-sub { display: none; position: absolute; top: 100%; left: -18px; min-width: 210px; background: var(--surface); border: 1px solid var(--border); border-top: 2px solid var(--text); padding: 6px 0; z-index: 30; }
+.site-header .nav-sub a { display: block; padding: 10px 18px; }
+.nav-group:hover .nav-sub, .nav-group:focus-within .nav-sub, .nav-group.is-open .nav-sub { display: block; }
+.study-hero { border-bottom: 1px solid var(--border); }
+.study-hero > div { max-width: 1080px; margin: 0 auto; padding: 40px 16px 28px; }
+.study-hero p { max-width: 680px; margin: 24px 0 0; color: var(--muted); font: 16px/24px "Manrope", system-ui, sans-serif; }
+.study-hero .eyebrow { font: 500 16px "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
+.study-hero h1 { max-width: 820px; margin: 18px 0 0; color: var(--text); font: 600 clamp(36px, 4.8vw, 56px)/.99 "Fraunces", Georgia, serif; letter-spacing: -.03em; }
+.study-hero .stamp { font: 16px "DM Mono", monospace; }
+#app > h1, #app > h1 + .sub { display: none; }
+#app > .theme-btn { float: none; display: block; margin: 0 0 10px auto; }
+.site-footer { max-width: 1080px; margin: 0 auto; padding: 27px 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 11px "DM Mono", monospace; border-top: 1px solid var(--border); }
+.site-footer .brand img { height: 32px; }
+.site-footer span:last-child { color: var(--text); }
+.top-strip{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:8px 14px;padding:8px max(24px,calc((100% - 1180px)/2));background:#17201b;color:#c9d1c8;font:12px 'DM Mono',monospace;letter-spacing:.03em}.top-strip a{display:inline-flex;align-items:center;gap:7px;color:#f5f4ee;text-decoration:none;border:1px solid #3d4940;border-radius:999px;padding:5px 13px;line-height:1}.top-strip a:hover{background:#d9f06b;border-color:#d9f06b;color:#17201b}.top-strip svg{width:15px;height:15px;fill:currentColor;flex-shrink:0}.top-strip .ts-wa svg{fill:#25d366}.top-strip .ts-tg svg{fill:#2aabee}.top-strip .ts-short{display:none}@media(max-width:700px){.top-strip{padding:7px 8vw;gap:10px}.top-strip .ts-long{display:none}.top-strip .ts-short{display:inline}}
+.site-footer .footer-links { display: flex; flex-wrap: wrap; gap: 8px 22px; }
+.site-footer .footer-links a { color: var(--muted); text-decoration: none; }
+.site-footer .footer-links a:hover { color: var(--text); }
+@media (min-width: 701px) and (max-width: 960px) { .site-header nav { gap: 18px; } }
+@media (max-width: 700px) {
+  .site-header { height: 68px; }
+  .site-header .brand img { height: 52px; }
+  .site-header nav { display: none; }
+  .site-header .menu { display: block; position: relative; z-index: 21; }
+  .site-header .menu.is-open i:first-child { transform: translateY(3px) rotate(45deg); }
+  .site-header .menu.is-open i:last-child { transform: translateY(-3px) rotate(-45deg); }
+  .site-header.nav-open nav { display: flex; flex-direction: column; align-items: stretch; gap: 2px; position: absolute; top: 100%; left: 0; right: 0; background: var(--bg); border-bottom: 1px solid var(--border); padding: 8px 6vw 20px; z-index: 20; }
+  .site-header.nav-open nav a { padding: 12px 0; border-bottom: 1px solid var(--border); }
+  .nav-group { display: block; padding: 0; margin: 0; }
+  .nav-toggle { display: block; width: 100%; text-align: left; padding: 12px 0; border-bottom: 1px solid var(--border); cursor: default; color: var(--muted); font: 11px "DM Mono", monospace; text-transform: uppercase; letter-spacing: .08em; }
+  .nav-toggle:after { display: none; }
+  .nav-sub { display: block; position: static; min-width: 0; border: 0; background: none; padding: 0; }
+  .site-header.nav-open .nav-sub a { padding-left: 16px; }
+  .site-footer { display: grid; gap: 16px; }
+  .site-footer span { display: none; }
+  .site-footer span:last-child { display: block; }
+}
+</style>
+</head>
+<body>
+<div class="top-strip"><span class="ts-long">Questions about investing or mutual funds? Talk to us on</span><span class="ts-short">Talk to us</span><a class="ts-wa" href="https://wa.me/919967355038?text=Hi%2C%20I%20found%20you%20on%20Let%20Money%20Earn." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><a class="ts-tg" href="https://t.me/+nxbISOilZJoxOTFl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2l-11 6.9-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Telegram</a></div>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Mutual Funds</button><div class="nav-sub"><a href="mf-compare.html">Rolling Returns Compare</a><a href="mf-sip.html">Fund SIP Calculator</a><a href="mf-swp.html">Fund SWP Calculator</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+<section class="study-hero"><div>
+  <p class="eyebrow">Research · NIFTY options · monthly iron fly</p>
+  <h1>NIFTY Monthly Iron Fly Study</h1>
+  <p>One iron fly a month on NIFTY's monthly options: sell the ATM call and put, buy wings 2% away, roll the short strikes once if NIFTY moves 2%, and take profit at 12% of the credit received. The trade is taken only when India VIX is between 12 and 17.</p>
+  <p>Tested on every NIFTY monthly option price NSE published, with every trading cost charged on every order: slippage, STT, brokerage, NSE and SEBI charges, stamp duty and GST.</p>
+  <p class="stamp">Tested 28 Oct 2016 to 28 Sep 2026 · per sold lot · fixed snapshot</p>
+</div></section>
+<div class="wrap" id="app"></div>
+<div class="wrap site-bottom"><p class="site-disclaimer"><b>Important disclaimer.</b> This is a backtest for educational purposes only, not investment advice or a recommendation to trade any security or derivative. Options trading can lose more than expected, past results do not predict future returns, and settings fitted to past data usually do worse live. The author is not a SEBI registered financial adviser. Do your own due diligence and consult a qualified financial adviser before acting.</p></div>
+<script>
+const DATA = {"asOf":"2026-10-01","start":"2016-10-28","end":"2026-09-28","months":119,"current":{"month":"2026-10","expiry":"2026-10-27","entry":"2026-09-30","asOf":"2026-10-01","vix":13.49,"future":22707.3,"status":"open","k":22700,"kc":23200,"kp":22300,"legs":{"22700 CE":316.25,"22700 PE":299.15,"23200 CE":114.15,"22300 PE":161.7},"credit":339.55,"targetPts":40.7,"rollDown":22255,"rollUp":23163,"steps":[{"d":"2026-09-30","k":22700,"cash":339.55}],"pnl":-146,"markFuture":22530.3,"exit":null,"reason":null,"shorts":"22700"},"rules":{"lot":65,"lots":4,"vixBand":[12,17],"wing":0.02,"rollPct":0.02,"maxRolls":1,"targetFrac":0.12,"vixBrake":1.2,"exitBefore":1,"slipShort":1.0,"slipWing":0.5,"stt":0.001,"brokerage":20.0,"exch":0.0003503,"sebi":1e-06,"stamp":3e-05,"gst":0.18},"hold":{"trades":57,"win":0.9649122807017544,"avg":2668.2280701754385,"perMonth":1278.0588235294117,"avgWin":3360.3454545454547,"avgLoss":-16365.0,"worst":-24986,"best":9900,"maxDD":-24986.0,"total":152089,"yearsUp":10,"years":10,"avgHeld":10.578947368421053,"avgHeldCal":16.17543859649123,"cost":41051,"costs":{"slip":31070.0,"stt":3536.28,"brk":2960.0,"exch":2416.7599999999998,"stamp":100.29,"gst":967.77},"avgCost":720.1929824561404,"gross":193140},"brake":{"trades":57,"win":0.9122807017543859,"avg":2300.1052631578946,"perMonth":1101.7310924369747,"avgWin":3206.9615384615386,"avgLoss":-7131.2,"worst":-24986,"best":9900,"maxDD":-24986.0,"total":131106,"yearsUp":10,"years":10,"avgHeld":10.298245614035087,"avgHeldCal":15.771929824561404,"cost":39939,"costs":{"slip":30290.0,"stt":3390.32,"brk":2900.0,"exch":2321.96,"stamp":96.57000000000001,"gst":939.91},"avgCost":700.6842105263158,"gross":171045},"unfiltered":{"trades":117,"win":0.8034188034188035,"avg":-132.71794871794873,"perMonth":-130.48739495798318,"avgWin":3526.2340425531916,"avgLoss":-15086.695652173914,"worst":-38407,"best":11087,"maxDD":-76381.0,"total":-15528,"yearsUp":4,"years":11,"avgHeld":10.316239316239317,"avgHeldCal":15.76923076923077,"cost":91693,"costs":{"slip":67990.0,"stt":8706.15,"brk":6400.0,"exch":6090.16,"stamp":258.89,"gst":2248.17},"avgCost":783.7008547008547,"gross":76165},"bands":[{"lo":0,"hi":12,"trades":23,"win":0.6956521739130435,"avg":-1391.9565217391305,"perMonth":-269.03361344537814,"avgWin":4318.125,"avgLoss":-14443.57142857143,"worst":-27510,"best":11087,"maxDD":-52491.0,"total":-32015,"yearsUp":2,"years":6,"avgHeld":13.565217391304348,"avgHeldCal":20.26086956521739,"cost":17339,"costs":{"slip":13390.0,"stt":1320.69,"brk":1260.0,"exch":933.0600000000001,"stamp":40.05,"gst":394.74},"avgCost":753.8695652173913,"gross":-14676},{"lo":12,"hi":17,"trades":57,"win":0.9649122807017544,"avg":2668.2280701754385,"perMonth":1278.0588235294117,"avgWin":3360.3454545454547,"avgLoss":-16365.0,"worst":-24986,"best":9900,"maxDD":-24986.0,"total":152089,"yearsUp":10,"years":10,"avgHeld":10.578947368421053,"avgHeldCal":16.17543859649123,"cost":41051,"costs":{"slip":31070.0,"stt":3536.28,"brk":2960.0,"exch":2416.7599999999998,"stamp":100.29,"gst":967.77},"avgCost":720.1929824561404,"gross":193140},{"lo":17,"hi":20,"trades":18,"win":0.5555555555555556,"avg":-4841.333333333333,"perMonth":-732.3025210084033,"avgWin":3527.3,"avgLoss":-15302.125,"worst":-37854,"best":8907,"maxDD":-94761.0,"total":-87144,"yearsUp":2,"years":8,"avgHeld":9.5,"avgHeldCal":14.5,"cost":15050,"costs":{"slip":11180.0,"stt":1405.04,"brk":1040.0,"exch":1012.5,"stamp":44.32,"gst":369.46999999999997},"avgCost":836.1111111111111,"gross":-72094},{"lo":20,"hi":99,"trades":20,"win":0.7,"avg":-2041.2,"perMonth":-343.05882352941177,"avgWin":3565.5714285714284,"avgLoss":-15123.666666666666,"worst":-38407,"best":9771,"maxDD":-58046.0,"total":-40824,"yearsUp":3,"years":6,"avgHeld":6.25,"avgHeldCal":10.15,"cost":19114,"costs":{"slip":13000.0,"stt":2521.75,"brk":1200.0,"exch":1779.38,"stamp":76.3,"gst":536.27},"avgCost":955.7,"gross":-21710}],"reasons":{"target":{"n":51,"pnl":177360},"exit day":{"n":3,"pnl":6237},"stop":{"n":3,"pnl":-31508}},"yearly":{"2016":{"hold":5263,"brake":5263,"n":2},"2017":{"hold":8499,"brake":6721,"n":6},"2018":{"hold":22485,"brake":20658,"n":9},"2019":{"hold":8958,"brake":5190,"n":9},"2021":{"hold":11405,"brake":11405,"n":4},"2022":{"hold":13832,"brake":13832,"n":4},"2023":{"hold":15829,"brake":15829,"n":4},"2024":{"hold":7383,"brake":1283,"n":9},"2025":{"hold":35416,"brake":35416,"n":5},"2026":{"hold":23019,"brake":15509,"n":5}},"curve":[{"d":"2016-11-11","hold":2594,"brake":2594},{"d":"2016-12-28","hold":2594,"brake":2594},{"d":"2017-01-24","hold":5263,"brake":5263},{"d":"2017-02-06","hold":6251,"brake":6251},{"d":"2017-03-28","hold":7565,"brake":7565},{"d":"2017-04-13","hold":8855,"brake":8855},{"d":"2017-05-24","hold":8855,"brake":8855},{"d":"2017-06-28","hold":8855,"brake":8855},{"d":"2017-07-26","hold":8855,"brake":8855},{"d":"2017-08-30","hold":8855,"brake":8855},{"d":"2017-09-27","hold":8855,"brake":8855},{"d":"2017-10-13","hold":10102,"brake":10102},{"d":"2017-11-29","hold":10102,"brake":10102},{"d":"2017-12-26","hold":11556,"brake":11556},{"d":"2018-01-23","hold":13762,"brake":11984},{"d":"2018-02-21","hold":13762,"brake":11984},{"d":"2018-03-07","hold":16711,"brake":14933},{"d":"2018-04-25","hold":17323,"brake":15545},{"d":"2018-05-18","hold":18627,"brake":15022},{"d":"2018-06-21","hold":20425,"brake":16820},{"d":"2018-07-24","hold":21936,"brake":18331},{"d":"2018-08-27","hold":25749,"brake":22144},{"d":"2018-09-06","hold":27241,"brake":23636},{"d":"2018-10-05","hold":34875,"brake":31270},{"d":"2018-11-28","hold":34875,"brake":31270},{"d":"2018-12-26","hold":34875,"brake":31270},{"d":"2019-01-23","hold":36247,"brake":32642},{"d":"2019-02-19","hold":37979,"brake":34374},{"d":"2019-03-12","hold":39997,"brake":36392},{"d":"2019-04-24","hold":39997,"brake":36392},{"d":"2019-05-29","hold":39997,"brake":36392},{"d":"2019-06-12","hold":41611,"brake":38006},{"d":"2019-07-08","hold":43795,"brake":40190},{"d":"2019-08-05","hold":48647,"brake":41274},{"d":"2019-09-09","hold":40903,"brake":33530},{"d":"2019-10-07","hold":42125,"brake":34752},{"d":"2019-11-14","hold":43669,"brake":36296},{"d":"2019-12-16","hold":45205,"brake":37832},{"d":"2020-01-29","hold":45205,"brake":37832},{"d":"2020-02-26","hold":45205,"brake":37832},{"d":"2020-03-25","hold":45205,"brake":37832},{"d":"2020-04-29","hold":45205,"brake":37832},{"d":"2020-05-27","hold":45205,"brake":37832},{"d":"2020-06-24","hold":45205,"brake":37832},{"d":"2020-07-29","hold":45205,"brake":37832},{"d":"2020-08-26","hold":45205,"brake":37832},{"d":"2020-09-23","hold":45205,"brake":37832},{"d":"2020-10-28","hold":45205,"brake":37832},{"d":"2020-11-25","hold":45205,"brake":37832},{"d":"2020-12-30","hold":45205,"brake":37832},{"d":"2021-01-27","hold":45205,"brake":37832},{"d":"2021-02-24","hold":45205,"brake":37832},{"d":"2021-03-24","hold":45205,"brake":37832},{"d":"2021-04-28","hold":45205,"brake":37832},{"d":"2021-05-26","hold":45205,"brake":37832},{"d":"2021-06-23","hold":45205,"brake":37832},{"d":"2021-07-13","hold":47110,"brake":39737},{"d":"2021-08-12","hold":49690,"brake":42317},{"d":"2021-09-14","hold":52596,"brake":45223},{"d":"2021-10-27","hold":52596,"brake":45223},{"d":"2021-11-24","hold":52596,"brake":45223},{"d":"2021-12-29","hold":52596,"brake":45223},{"d":"2022-01-12","hold":56610,"brake":49237},{"d":"2022-02-23","hold":56610,"brake":49237},{"d":"2022-03-30","hold":56610,"brake":49237},{"d":"2022-04-27","hold":56610,"brake":49237},{"d":"2022-05-25","hold":56610,"brake":49237},{"d":"2022-06-29","hold":56610,"brake":49237},{"d":"2022-07-27","hold":56610,"brake":49237},{"d":"2022-08-11","hold":59327,"brake":51954},{"d":"2022-09-28","hold":59327,"brake":51954},{"d":"2022-10-25","hold":59327,"brake":51954},{"d":"2022-11-11","hold":63898,"brake":56525},{"d":"2022-12-15","hold":67389,"brake":60016},{"d":"2023-01-13","hold":70442,"brake":63069},{"d":"2023-02-22","hold":70442,"brake":63069},{"d":"2023-03-15","hold":73589,"brake":66216},{"d":"2023-04-26","hold":76545,"brake":69172},{"d":"2023-05-24","hold":76545,"brake":69172},{"d":"2023-06-27","hold":76545,"brake":69172},{"d":"2023-07-26","hold":76545,"brake":69172},{"d":"2023-08-30","hold":76545,"brake":69172},{"d":"2023-09-27","hold":76545,"brake":69172},{"d":"2023-10-25","hold":76545,"brake":69172},{"d":"2023-11-29","hold":76545,"brake":69172},{"d":"2023-12-14","hold":82665,"brake":75292},{"d":"2024-01-16","hold":86271,"brake":78898},{"d":"2024-02-21","hold":89643,"brake":82270},{"d":"2024-03-13","hold":92455,"brake":85082},{"d":"2024-04-15","hold":95648,"brake":88275},{"d":"2024-05-29","hold":95648,"brake":88275},{"d":"2024-06-26","hold":95648,"brake":88275},{"d":"2024-07-18","hold":98678,"brake":91305},{"d":"2024-08-13","hold":103253,"brake":89780},{"d":"2024-09-13","hold":106418,"brake":92945},{"d":"2024-10-30","hold":106418,"brake":92945},{"d":"2024-11-11","hold":110198,"brake":96725},{"d":"2024-12-18","hold":85212,"brake":71739},{"d":"2025-01-13","hold":93654,"brake":80181},{"d":"2025-02-14","hold":99849,"brake":86376},{"d":"2025-03-20","hold":109749,"brake":96276},{"d":"2025-04-07","hold":119517,"brake":106044},{"d":"2025-05-28","hold":119517,"brake":106044},{"d":"2025-06-16","hold":122817,"brake":109344},{"d":"2025-07-18","hold":129070,"brake":115597},{"d":"2025-08-26","hold":129070,"brake":115597},{"d":"2025-09-29","hold":129070,"brake":115597},{"d":"2025-10-27","hold":129070,"brake":115597},{"d":"2025-11-24","hold":129070,"brake":115597},{"d":"2025-12-29","hold":129070,"brake":115597},{"d":"2026-01-23","hold":129070,"brake":115597},{"d":"2026-02-06","hold":132260,"brake":118787},{"d":"2026-03-04","hold":138892,"brake":117909},{"d":"2026-04-27","hold":138892,"brake":117909},{"d":"2026-05-25","hold":138892,"brake":117909},{"d":"2026-06-08","hold":145110,"brake":124127},{"d":"2026-07-16","hold":148652,"brake":127669},{"d":"2026-08-13","hold":152089,"brake":131106},{"d":"2026-09-28","hold":152089,"brake":131106}],"monthsList":[{"month":"2016-11","entry":"2016-10-28","exitDay":"2016-11-23","vix":14.65,"traded":true,"future":8667.4},{"month":"2016-12","entry":"2016-11-25","exitDay":"2016-12-28","vix":17.61,"traded":false,"future":8126.35},{"month":"2017-01","entry":"2016-12-30","exitDay":"2017-01-24","vix":15.47,"traded":true,"future":8187.4},{"month":"2017-02","entry":"2017-01-27","exitDay":"2017-02-22","vix":16.01,"traded":true,"future":8671.1},{"month":"2017-03","entry":"2017-02-27","exitDay":"2017-03-29","vix":13.68,"traded":true,"future":8915.75},{"month":"2017-04","entry":"2017-03-31","exitDay":"2017-04-26","vix":12.42,"traded":true,"future":9197.75},{"month":"2017-05","entry":"2017-04-28","exitDay":"2017-05-24","vix":10.86,"traded":false,"future":9333.7},{"month":"2017-06","entry":"2017-05-26","exitDay":"2017-06-28","vix":10.86,"traded":false,"future":9575.8},{"month":"2017-07","entry":"2017-06-30","exitDay":"2017-07-26","vix":11.73,"traded":false,"future":9517.4},{"month":"2017-08","entry":"2017-07-28","exitDay":"2017-08-30","vix":11.14,"traded":false,"future":10042.25},{"month":"2017-09","entry":"2017-09-01","exitDay":"2017-09-27","vix":11.68,"traded":false,"future":10007.3},{"month":"2017-10","entry":"2017-09-29","exitDay":"2017-10-25","vix":12.49,"traded":true,"future":9800.55},{"month":"2017-11","entry":"2017-10-27","exitDay":"2017-11-29","vix":11.48,"traded":false,"future":10356.85},{"month":"2017-12","entry":"2017-12-01","exitDay":"2017-12-27","vix":14.8,"traded":true,"future":10154.25},{"month":"2018-01","entry":"2017-12-29","exitDay":"2018-01-24","vix":12.67,"traded":true,"future":10556.9},{"month":"2018-02","entry":"2018-01-29","exitDay":"2018-02-21","vix":17.89,"traded":false,"future":11137.65},{"month":"2018-03","entry":"2018-02-23","exitDay":"2018-03-27","vix":14.2,"traded":true,"future":10504.55},{"month":"2018-04","entry":"2018-04-02","exitDay":"2018-04-25","vix":15.35,"traded":true,"future":10264.0},{"month":"2018-05","entry":"2018-04-27","exitDay":"2018-05-30","vix":12.02,"traded":true,"future":10723.8},{"month":"2018-06","entry":"2018-06-01","exitDay":"2018-06-27","vix":13.57,"traded":true,"future":10683.9},{"month":"2018-07","entry":"2018-06-29","exitDay":"2018-07-25","vix":12.94,"traded":true,"future":10694.8},{"month":"2018-08","entry":"2018-07-27","exitDay":"2018-08-29","vix":12.31,"traded":true,"future":11306.7},{"month":"2018-09","entry":"2018-08-31","exitDay":"2018-09-26","vix":12.6,"traded":true,"future":11735.3},{"month":"2018-10","entry":"2018-09-28","exitDay":"2018-10-24","vix":17.0,"traded":true,"future":10954.3},{"month":"2018-11","entry":"2018-10-26","exitDay":"2018-11-28","vix":19.23,"traded":false,"future":10054.1},{"month":"2018-12","entry":"2018-11-30","exitDay":"2018-12-26","vix":19.16,"traded":false,"future":10900.65},{"month":"2019-01","entry":"2018-12-28","exitDay":"2019-01-30","vix":15.27,"traded":true,"future":10907.75},{"month":"2019-02","entry":"2019-02-01","exitDay":"2019-02-27","vix":15.72,"traded":true,"future":10914.05},{"month":"2019-03","entry":"2019-03-01","exitDay":"2019-03-27","vix":16.27,"traded":true,"future":10917.05},{"month":"2019-04","entry":"2019-03-29","exitDay":"2019-04-24","vix":null,"traded":false,"future":11679.9},{"month":"2019-05","entry":"2019-04-26","exitDay":"2019-05-29","vix":21.72,"traded":false,"future":11813.5},{"month":"2019-06","entry":"2019-05-31","exitDay":"2019-06-26","vix":16.07,"traded":true,"future":11916.5},{"month":"2019-07","entry":"2019-06-28","exitDay":"2019-07-24","vix":14.95,"traded":true,"future":11841.5},{"month":"2019-08","entry":"2019-07-26","exitDay":"2019-08-28","vix":12.13,"traded":true,"future":11327.0},{"month":"2019-09","entry":"2019-08-30","exitDay":"2019-09-25","vix":16.28,"traded":true,"future":11058.9},{"month":"2019-10","entry":"2019-09-27","exitDay":"2019-10-30","vix":16.11,"traded":true,"future":11579.5},{"month":"2019-11","entry":"2019-11-01","exitDay":"2019-11-27","vix":15.73,"traded":true,"future":11928.25},{"month":"2019-12","entry":"2019-11-29","exitDay":"2019-12-24","vix":13.9,"traded":true,"future":12099.85},{"month":"2020-01","entry":"2019-12-27","exitDay":"2020-01-29","vix":10.53,"traded":false,"future":12319.25},{"month":"2020-02","entry":"2020-01-31","exitDay":"2020-02-26","vix":17.37,"traded":false,"future":11994.3},{"month":"2020-03","entry":"2020-02-28","exitDay":"2020-03-25","vix":23.24,"traded":false,"future":11149.15},{"month":"2020-04","entry":"2020-03-27","exitDay":"2020-04-29","vix":70.39,"traded":false,"future":8651.4},{"month":"2020-05","entry":"2020-05-04","exitDay":"2020-05-27","vix":43.67,"traded":false,"future":9285.9},{"month":"2020-06","entry":"2020-05-29","exitDay":"2020-06-24","vix":30.22,"traded":false,"future":9494.1},{"month":"2020-07","entry":"2020-06-26","exitDay":"2020-07-29","vix":28.74,"traded":false,"future":10318.0},{"month":"2020-08","entry":"2020-07-31","exitDay":"2020-08-26","vix":24.19,"traded":false,"future":11095.85},{"month":"2020-09","entry":"2020-08-28","exitDay":"2020-09-23","vix":18.35,"traded":false,"future":11675.25},{"month":"2020-10","entry":"2020-09-25","exitDay":"2020-10-28","vix":20.68,"traded":false,"future":11042.2},{"month":"2020-11","entry":"2020-10-30","exitDay":"2020-11-25","vix":24.75,"traded":false,"future":11638.4},{"month":"2020-12","entry":"2020-11-27","exitDay":"2020-12-30","vix":19.82,"traded":false,"future":13017.4},{"month":"2021-01","entry":"2021-01-01","exitDay":"2021-01-27","vix":null,"traded":false,"future":14053.85},{"month":"2021-02","entry":"2021-01-29","exitDay":"2021-02-24","vix":25.34,"traded":false,"future":13709.1},{"month":"2021-03","entry":"2021-02-26","exitDay":"2021-03-24","vix":28.14,"traded":false,"future":14578.45},{"month":"2021-04","entry":"2021-03-26","exitDay":"2021-04-28","vix":20.65,"traded":false,"future":14608.5},{"month":"2021-05","entry":"2021-04-30","exitDay":"2021-05-26","vix":23.03,"traded":false,"future":14690.8},{"month":"2021-06","entry":"2021-05-28","exitDay":"2021-06-23","vix":17.4,"traded":false,"future":15463.85},{"month":"2021-07","entry":"2021-06-25","exitDay":"2021-07-28","vix":13.37,"traded":true,"future":15888.0},{"month":"2021-08","entry":"2021-07-30","exitDay":"2021-08-25","vix":12.8,"traded":true,"future":15777.25},{"month":"2021-09","entry":"2021-08-27","exitDay":"2021-09-29","vix":13.41,"traded":true,"future":16718.15},{"month":"2021-10","entry":"2021-10-01","exitDay":"2021-10-27","vix":17.21,"traded":false,"future":17530.2},{"month":"2021-11","entry":"2021-10-29","exitDay":"2021-11-24","vix":17.43,"traded":false,"future":17715.3},{"month":"2021-12","entry":"2021-11-26","exitDay":"2021-12-29","vix":20.8,"traded":false,"future":17052.15},{"month":"2022-01","entry":"2021-12-31","exitDay":"2022-01-25","vix":16.22,"traded":true,"future":17409.95},{"month":"2022-02","entry":"2022-01-28","exitDay":"2022-02-23","vix":20.7,"traded":false,"future":17125.65},{"month":"2022-03","entry":"2022-02-25","exitDay":"2022-03-30","vix":26.74,"traded":false,"future":16656.05},{"month":"2022-04","entry":"2022-04-01","exitDay":"2022-04-27","vix":18.43,"traded":false,"future":17713.0},{"month":"2022-05","entry":"2022-04-29","exitDay":"2022-05-25","vix":19.42,"traded":false,"future":17135.25},{"month":"2022-06","entry":"2022-05-27","exitDay":"2022-06-29","vix":21.48,"traded":false,"future":16326.9},{"month":"2022-07","entry":"2022-07-01","exitDay":"2022-07-27","vix":21.25,"traded":false,"future":15754.25},{"month":"2022-08","entry":"2022-07-29","exitDay":"2022-08-24","vix":16.55,"traded":true,"future":17201.85},{"month":"2022-09","entry":"2022-08-26","exitDay":"2022-09-28","vix":18.22,"traded":false,"future":17653.75},{"month":"2022-10","entry":"2022-09-30","exitDay":"2022-10-25","vix":19.97,"traded":false,"future":17103.2},{"month":"2022-11","entry":"2022-10-28","exitDay":"2022-11-23","vix":15.92,"traded":true,"future":17830.2},{"month":"2022-12","entry":"2022-11-25","exitDay":"2022-12-28","vix":13.33,"traded":true,"future":18646.1},{"month":"2023-01","entry":"2022-12-30","exitDay":"2023-01-24","vix":14.87,"traded":true,"future":18206.85},{"month":"2023-02","entry":"2023-01-27","exitDay":"2023-02-22","vix":17.32,"traded":false,"future":17687.15},{"month":"2023-03","entry":"2023-02-24","exitDay":"2023-03-28","vix":14.19,"traded":true,"future":17559.25},{"month":"2023-04","entry":"2023-03-31","exitDay":"2023-04-26","vix":12.94,"traded":true,"future":17442.65},{"month":"2023-05","entry":"2023-04-28","exitDay":"2023-05-24","vix":10.95,"traded":false,"future":18111.15},{"month":"2023-06","entry":"2023-05-26","exitDay":"2023-06-27","vix":11.9,"traded":false,"future":18573.3},{"month":"2023-07","entry":"2023-06-30","exitDay":"2023-07-26","vix":10.8,"traded":false,"future":19261.25},{"month":"2023-08","entry":"2023-07-28","exitDay":"2023-08-30","vix":10.14,"traded":false,"future":19751.8},{"month":"2023-09","entry":"2023-09-01","exitDay":"2023-09-27","vix":11.37,"traded":false,"future":19512.1},{"month":"2023-10","entry":"2023-09-29","exitDay":"2023-10-25","vix":11.45,"traded":false,"future":19709.0},{"month":"2023-11","entry":"2023-10-27","exitDay":"2023-11-29","vix":10.91,"traded":false,"future":19131.35},{"month":"2023-12","entry":"2023-12-01","exitDay":"2023-12-27","vix":12.38,"traded":true,"future":20375.15},{"month":"2024-01","entry":"2023-12-29","exitDay":"2024-01-24","vix":14.5,"traded":true,"future":21885.95},{"month":"2024-02","entry":"2024-01-29","exitDay":"2024-02-28","vix":15.68,"traded":true,"future":21855.25},{"month":"2024-03","entry":"2024-03-01","exitDay":"2024-03-27","vix":15.24,"traded":true,"future":22443.2},{"month":"2024-04","entry":"2024-04-01","exitDay":"2024-04-24","vix":12.08,"traded":true,"future":22602.6},{"month":"2024-05","entry":"2024-04-26","exitDay":"2024-05-29","vix":10.93,"traded":false,"future":22556.0},{"month":"2024-06","entry":"2024-05-31","exitDay":"2024-06-26","vix":24.6,"traded":false,"future":22700.7},{"month":"2024-07","entry":"2024-06-28","exitDay":"2024-07-24","vix":13.8,"traded":true,"future":24132.25},{"month":"2024-08","entry":"2024-07-26","exitDay":"2024-08-28","vix":12.25,"traded":true,"future":24915.45},{"month":"2024-09","entry":"2024-08-30","exitDay":"2024-09-25","vix":13.39,"traded":true,"future":25376.9},{"month":"2024-10","entry":"2024-09-27","exitDay":"2024-10-30","vix":11.96,"traded":false,"future":26345.15},{"month":"2024-11","entry":"2024-11-01","exitDay":"2024-11-27","vix":15.9,"traded":true,"future":24383.65},{"month":"2024-12","entry":"2024-11-29","exitDay":"2024-12-24","vix":14.43,"traded":true,"future":24304.15},{"month":"2025-01","entry":"2024-12-27","exitDay":"2025-01-29","vix":13.24,"traded":true,"future":23992.65},{"month":"2025-02","entry":"2025-01-31","exitDay":"2025-02-25","vix":16.25,"traded":true,"future":23620.2},{"month":"2025-03","entry":"2025-02-28","exitDay":"2025-03-26","vix":13.91,"traded":true,"future":22280.05},{"month":"2025-04","entry":"2025-03-28","exitDay":"2025-04-29","vix":12.72,"traded":true,"future":23637.65},{"month":"2025-05","entry":"2025-05-02","exitDay":"2025-05-28","vix":18.26,"traded":false,"future":24400.7},{"month":"2025-06","entry":"2025-05-30","exitDay":"2025-06-25","vix":16.08,"traded":true,"future":24871.2},{"month":"2025-07","entry":"2025-06-27","exitDay":"2025-07-30","vix":12.39,"traded":true,"future":25750.2},{"month":"2025-08","entry":"2025-08-01","exitDay":"2025-08-26","vix":11.98,"traded":false,"future":24627.2},{"month":"2025-09","entry":"2025-08-29","exitDay":"2025-09-29","vix":11.75,"traded":false,"future":24568.5},{"month":"2025-10","entry":"2025-10-01","exitDay":"2025-10-27","vix":10.29,"traded":false,"future":24967.2},{"month":"2025-11","entry":"2025-10-29","exitDay":"2025-11-24","vix":11.97,"traded":false,"future":26238.7},{"month":"2025-12","entry":"2025-11-26","exitDay":"2025-12-29","vix":11.97,"traded":false,"future":26381.2},{"month":"2026-01","entry":"2025-12-31","exitDay":"2026-01-23","vix":9.48,"traded":false,"future":26296.3},{"month":"2026-02","entry":"2026-01-28","exitDay":"2026-02-23","vix":13.53,"traded":true,"future":25450.4},{"month":"2026-03","entry":"2026-02-25","exitDay":"2026-03-27","vix":13.49,"traded":true,"future":25628.8},{"month":"2026-04","entry":"2026-04-01","exitDay":"2026-04-27","vix":25.01,"traded":false,"future":22800.1},{"month":"2026-05","entry":"2026-04-29","exitDay":"2026-05-25","vix":17.44,"traded":false,"future":24252.0},{"month":"2026-06","entry":"2026-05-27","exitDay":"2026-06-29","vix":14.98,"traded":true,"future":23996.7},{"month":"2026-07","entry":"2026-07-01","exitDay":"2026-07-27","vix":13.24,"traded":true,"future":24092.6},{"month":"2026-08","entry":"2026-07-29","exitDay":"2026-08-24","vix":12.01,"traded":true,"future":24311.5},{"month":"2026-09","entry":"2026-08-26","exitDay":"2026-09-28","vix":10.57,"traded":false,"future":24429.1}],"trades":[{"m":"2016-11","vix":14.65,"entry":"2016-10-28","exit":"2016-11-11","why":"target","fin":8667.4,"fout":8327.95,"shorts":"8700 > 8500","wings":"8500PE/8800CE","rolls":1,"credit":114.55,"pnl":2594,"kc":8800,"kp":8500,"steps":[{"d":"2016-10-28","k":8700,"cash":114.55},{"d":"2016-11-03","k":8500,"cash":88.25}],"held":9,"heldCal":14,"cost":806,"brake":2594,"brakeWhy":"target"},{"m":"2017-01","vix":15.47,"entry":"2016-12-30","exit":"2017-01-24","why":"exit day","fin":8187.4,"fout":8480.5,"shorts":"8200 > 8400","wings":"8000PE/8400CE","rolls":1,"credit":137.85,"pnl":2669,"kc":8400,"kp":8000,"steps":[{"d":"2016-12-30","k":8200,"cash":137.85},{"d":"2017-01-11","k":8400,"cash":57.5}],"held":17,"heldCal":25,"cost":776,"brake":2669,"brakeWhy":"exit day"},{"m":"2017-02","vix":16.01,"entry":"2017-01-27","exit":"2017-02-06","why":"target","fin":8671.1,"fout":8816.6,"shorts":"8700","wings":"8500PE/8800CE","rolls":0,"credit":118.35,"pnl":988,"kc":8800,"kp":8500,"steps":[{"d":"2017-01-27","k":8700,"cash":118.35}],"held":6,"heldCal":10,"cost":484,"brake":988,"brakeWhy":"target"},{"m":"2017-03","vix":13.68,"entry":"2017-02-27","exit":"2017-03-28","why":"target","fin":8915.75,"fout":9109.6,"shorts":"8900 > 9100","wings":"8700PE/9100CE","rolls":1,"credit":147.0,"pnl":1314,"kc":9100,"kp":8700,"steps":[{"d":"2017-02-27","k":8900,"cash":147.0},{"d":"2017-03-14","k":9100,"cash":61.65}],"held":20,"heldCal":29,"cost":776,"brake":1314,"brakeWhy":"target"},{"m":"2017-04","vix":12.42,"entry":"2017-03-31","exit":"2017-04-13","why":"target","fin":9197.75,"fout":9182.25,"shorts":"9200","wings":"9000PE/9400CE","rolls":0,"credit":142.25,"pnl":1290,"kc":9400,"kp":9000,"steps":[{"d":"2017-03-31","k":9200,"cash":142.25}],"held":8,"heldCal":13,"cost":468,"brake":1290,"brakeWhy":"target"},{"m":"2017-10","vix":12.49,"entry":"2017-09-29","exit":"2017-10-13","why":"target","fin":9800.55,"fout":10192.4,"shorts":"9800 > 10000","wings":"9600PE/10000CE","rolls":1,"credit":142.35,"pnl":1247,"kc":10000,"kp":9600,"steps":[{"d":"2017-09-29","k":9800,"cash":142.35},{"d":"2017-10-06","k":10000,"cash":52.8}],"held":9,"heldCal":14,"cost":797,"brake":1247,"brakeWhy":"target"},{"m":"2017-12","vix":14.8,"entry":"2017-12-01","exit":"2017-12-26","why":"target","fin":10154.25,"fout":10525.95,"shorts":"10200 > 10500","wings":"10000PE/10400CE","rolls":1,"credit":144.6,"pnl":1454,"kc":10400,"kp":10000,"steps":[{"d":"2017-12-01","k":10200,"cash":144.6},{"d":"2017-12-19","k":10500,"cash":-22.5}],"held":16,"heldCal":25,"cost":786,"brake":1454,"brakeWhy":"target"},{"m":"2018-01","vix":12.67,"entry":"2017-12-29","exit":"2018-01-23","why":"target","fin":10556.9,"fout":11085.45,"shorts":"10600 > 10900","wings":"10300PE/10800CE","rolls":1,"credit":165.05,"pnl":2206,"kc":10800,"kp":10300,"steps":[{"d":"2017-12-29","k":10600,"cash":165.05},{"d":"2018-01-19","k":10900,"cash":-43.7}],"held":17,"heldCal":25,"cost":797,"brake":428,"brakeWhy":"vix brake"},{"m":"2018-03","vix":14.2,"entry":"2018-02-23","exit":"2018-03-07","why":"target","fin":10504.55,"fout":10171.55,"shorts":"10500 > 10200","wings":"10300PE/10700CE","rolls":1,"credit":159.3,"pnl":2949,"kc":10700,"kp":10300,"steps":[{"d":"2018-02-23","k":10500,"cash":159.3},{"d":"2018-03-06","k":10200,"cash":114.6}],"held":7,"heldCal":12,"cost":821,"brake":2949,"brakeWhy":"target"},{"m":"2018-04","vix":15.35,"entry":"2018-04-02","exit":"2018-04-25","why":"exit day","fin":10264.0,"fout":10569.05,"shorts":"10300 > 10500","wings":"10100PE/10500CE","rolls":1,"credit":150.5,"pnl":612,"kc":10500,"kp":10100,"steps":[{"d":"2018-04-02","k":10300,"cash":150.5},{"d":"2018-04-16","k":10500,"cash":30.5}],"held":17,"heldCal":23,"cost":785,"brake":612,"brakeWhy":"exit day"},{"m":"2018-05","vix":12.02,"entry":"2018-04-27","exit":"2018-05-18","why":"target","fin":10723.8,"fout":10597.05,"shorts":"10700","wings":"10500PE/10900CE","rolls":0,"credit":154.45,"pnl":1304,"kc":10900,"kp":10500,"steps":[{"d":"2018-04-27","k":10700,"cash":154.45}],"held":14,"heldCal":21,"cost":480,"brake":-523,"brakeWhy":"vix brake"},{"m":"2018-06","vix":13.57,"entry":"2018-06-01","exit":"2018-06-21","why":"target","fin":10683.9,"fout":10737.15,"shorts":"10700","wings":"10500PE/10900CE","rolls":0,"credit":148.95,"pnl":1798,"kc":10900,"kp":10500,"steps":[{"d":"2018-06-01","k":10700,"cash":148.95}],"held":14,"heldCal":20,"cost":473,"brake":1798,"brakeWhy":"target"},{"m":"2018-07","vix":12.94,"entry":"2018-06-29","exit":"2018-07-24","why":"target","fin":10694.8,"fout":11142.0,"shorts":"10700 > 10900","wings":"10500PE/10900CE","rolls":1,"credit":148.6,"pnl":1511,"kc":10900,"kp":10500,"steps":[{"d":"2018-06-29","k":10700,"cash":148.6},{"d":"2018-07-10","k":10900,"cash":39.15}],"held":17,"heldCal":25,"cost":807,"brake":1511,"brakeWhy":"target"},{"m":"2018-08","vix":12.31,"entry":"2018-07-27","exit":"2018-08-27","why":"target","fin":11306.7,"fout":11705.35,"shorts":"11300 > 11600","wings":"11100PE/11500CE","rolls":1,"credit":153.45,"pnl":3813,"kc":11500,"kp":11100,"steps":[{"d":"2018-07-27","k":11300,"cash":153.45},{"d":"2018-08-20","k":11600,"cash":-5.8}],"held":19,"heldCal":31,"cost":799,"brake":3813,"brakeWhy":"target"},{"m":"2018-09","vix":12.6,"entry":"2018-08-31","exit":"2018-09-06","why":"target","fin":11735.3,"fout":11567.15,"shorts":"11700","wings":"11500PE/12000CE","rolls":0,"credit":180.0,"pnl":1492,"kc":12000,"kp":11500,"steps":[{"d":"2018-08-31","k":11700,"cash":180.0}],"held":4,"heldCal":6,"cost":484,"brake":1492,"brakeWhy":"target"},{"m":"2018-10","vix":17.0,"entry":"2018-09-28","exit":"2018-10-05","why":"target","fin":10954.3,"fout":10347.15,"shorts":"11000 > 10600","wings":"10700PE/11200CE","rolls":1,"credit":185.9,"pnl":7634,"kc":11200,"kp":10700,"steps":[{"d":"2018-09-28","k":11000,"cash":185.9},{"d":"2018-10-04","k":10600,"cash":134.55}],"held":4,"heldCal":7,"cost":861,"brake":7634,"brakeWhy":"target"},{"m":"2019-01","vix":15.27,"entry":"2018-12-28","exit":"2019-01-23","why":"target","fin":10907.75,"fout":10854.9,"shorts":"10900","wings":"10700PE/11100CE","rolls":0,"credit":161.45,"pnl":1372,"kc":11100,"kp":10700,"steps":[{"d":"2018-12-28","k":10900,"cash":161.45}],"held":18,"heldCal":26,"cost":490,"brake":1372,"brakeWhy":"target"},{"m":"2019-02","vix":15.72,"entry":"2019-02-01","exit":"2019-02-19","why":"target","fin":10914.05,"fout":10617.15,"shorts":"10900 > 10700","wings":"10700PE/11100CE","rolls":1,"credit":160.15,"pnl":1732,"kc":11100,"kp":10700,"steps":[{"d":"2019-02-01","k":10900,"cash":160.15},{"d":"2019-02-18","k":10700,"cash":105.55}],"held":12,"heldCal":18,"cost":809,"brake":1732,"brakeWhy":"target"},{"m":"2019-03","vix":16.27,"entry":"2019-03-01","exit":"2019-03-12","why":"target","fin":10917.05,"fout":11336.85,"shorts":"10900 > 11200","wings":"10700PE/11100CE","rolls":1,"credit":160.15,"pnl":2018,"kc":11100,"kp":10700,"steps":[{"d":"2019-03-01","k":10900,"cash":160.15},{"d":"2019-03-11","k":11200,"cash":24.65}],"held":6,"heldCal":11,"cost":826,"brake":2018,"brakeWhy":"target"},{"m":"2019-06","vix":16.07,"entry":"2019-05-31","exit":"2019-06-12","why":"target","fin":11916.5,"fout":11916.7,"shorts":"11900","wings":"11700PE/12200CE","rolls":0,"credit":196.05,"pnl":1614,"kc":12200,"kp":11700,"steps":[{"d":"2019-05-31","k":11900,"cash":196.05}],"held":7,"heldCal":12,"cost":488,"brake":1614,"brakeWhy":"target"},{"m":"2019-07","vix":14.95,"entry":"2019-06-28","exit":"2019-07-08","why":"target","fin":11841.5,"fout":11566.3,"shorts":"11800","wings":"11600PE/12100CE","rolls":0,"credit":200.2,"pnl":2184,"kc":12100,"kp":11600,"steps":[{"d":"2019-06-28","k":11800,"cash":200.2}],"held":6,"heldCal":10,"cost":500,"brake":2184,"brakeWhy":"target"},{"m":"2019-08","vix":12.13,"entry":"2019-07-26","exit":"2019-08-05","why":"target","fin":11327.0,"fout":10896.8,"shorts":"11300 > 11000","wings":"11100PE/11600CE","rolls":1,"credit":194.9,"pnl":4852,"kc":11600,"kp":11100,"steps":[{"d":"2019-07-26","k":11300,"cash":194.9},{"d":"2019-08-01","k":11000,"cash":140.25}],"held":6,"heldCal":10,"cost":832,"brake":1084,"brakeWhy":"vix brake"},{"m":"2019-09","vix":16.28,"entry":"2019-08-30","exit":"2019-09-09","why":"stop","fin":11058.9,"fout":11025.25,"shorts":"11100 > 10800","wings":"10800PE/11300CE","rolls":1,"credit":183.2,"pnl":-7744,"kc":11300,"kp":10800,"steps":[{"d":"2019-08-30","k":11100,"cash":183.2},{"d":"2019-09-03","k":10800,"cash":149.45}],"held":5,"heldCal":10,"cost":825,"brake":-7744,"brakeWhy":"stop"},{"m":"2019-10","vix":16.11,"entry":"2019-09-27","exit":"2019-10-07","why":"stop","fin":11579.5,"fout":11162.0,"shorts":"11600 > 11400","wings":"11300PE/11800CE","rolls":1,"credit":200.85,"pnl":1222,"kc":11800,"kp":11300,"steps":[{"d":"2019-09-27","k":11600,"cash":200.85},{"d":"2019-10-03","k":11400,"cash":171.05}],"held":5,"heldCal":10,"cost":858,"brake":1222,"brakeWhy":"stop"},{"m":"2019-11","vix":15.73,"entry":"2019-11-01","exit":"2019-11-14","why":"target","fin":11928.25,"fout":11899.65,"shorts":"11900","wings":"11700PE/12200CE","rolls":0,"credit":194.8,"pnl":1544,"kc":12200,"kp":11700,"steps":[{"d":"2019-11-01","k":11900,"cash":194.8}],"held":8,"heldCal":13,"cost":490,"brake":1544,"brakeWhy":"target"},{"m":"2019-12","vix":13.9,"entry":"2019-11-29","exit":"2019-12-16","why":"target","fin":12099.85,"fout":12082.55,"shorts":"12100","wings":"11900PE/12300CE","rolls":0,"credit":157.8,"pnl":1536,"kc":12300,"kp":11900,"steps":[{"d":"2019-11-29","k":12100,"cash":157.8}],"held":11,"heldCal":17,"cost":482,"brake":1536,"brakeWhy":"target"},{"m":"2021-07","vix":13.37,"entry":"2021-06-25","exit":"2021-07-13","why":"target","fin":15888.0,"fout":15833.8,"shorts":"15900","wings":"15600PE/16200CE","rolls":0,"credit":237.1,"pnl":1905,"kc":16200,"kp":15600,"steps":[{"d":"2021-06-25","k":15900,"cash":237.1}],"held":12,"heldCal":18,"cost":506,"brake":1905,"brakeWhy":"target"},{"m":"2021-08","vix":12.8,"entry":"2021-07-30","exit":"2021-08-12","why":"target","fin":15777.25,"fout":16358.6,"shorts":"15800 > 16100","wings":"15500PE/16100CE","rolls":1,"credit":220.45,"pnl":2580,"kc":16100,"kp":15500,"steps":[{"d":"2021-07-30","k":15800,"cash":220.45},{"d":"2021-08-03","k":16100,"cash":97.7}],"held":9,"heldCal":13,"cost":852,"brake":2580,"brakeWhy":"target"},{"m":"2021-09","vix":13.41,"entry":"2021-08-27","exit":"2021-09-14","why":"target","fin":16718.15,"fout":17384.95,"shorts":"16700 > 17100","wings":"16400PE/17100CE","rolls":1,"credit":258.25,"pnl":2906,"kc":17100,"kp":16400,"steps":[{"d":"2021-08-27","k":16700,"cash":258.25},{"d":"2021-08-31","k":17100,"cash":109.75}],"held":11,"heldCal":18,"cost":873,"brake":2906,"brakeWhy":"target"},{"m":"2022-01","vix":16.22,"entry":"2021-12-31","exit":"2022-01-12","why":"target","fin":17409.95,"fout":18241.2,"shorts":"17400 > 17800","wings":"17100PE/17800CE","rolls":1,"credit":285.25,"pnl":4014,"kc":17800,"kp":17100,"steps":[{"d":"2021-12-31","k":17400,"cash":285.25},{"d":"2022-01-04","k":17800,"cash":136.55}],"held":8,"heldCal":12,"cost":916,"brake":4014,"brakeWhy":"target"},{"m":"2022-08","vix":16.55,"entry":"2022-07-29","exit":"2022-08-11","why":"target","fin":17201.85,"fout":17684.95,"shorts":"17200 > 17600","wings":"16900PE/17500CE","rolls":1,"credit":247.7,"pnl":2717,"kc":17500,"kp":16900,"steps":[{"d":"2022-07-29","k":17200,"cash":247.7},{"d":"2022-08-08","k":17600,"cash":131.7}],"held":8,"heldCal":13,"cost":890,"brake":2717,"brakeWhy":"target"},{"m":"2022-11","vix":15.92,"entry":"2022-10-28","exit":"2022-11-11","why":"target","fin":17830.2,"fout":18424.0,"shorts":"17800 > 18200","wings":"17500PE/18200CE","rolls":1,"credit":289.95,"pnl":4571,"kc":18200,"kp":17500,"steps":[{"d":"2022-10-28","k":17800,"cash":289.95},{"d":"2022-11-01","k":18200,"cash":161.35}],"held":9,"heldCal":14,"cost":892,"brake":4571,"brakeWhy":"target"},{"m":"2022-12","vix":13.33,"entry":"2022-11-25","exit":"2022-12-15","why":"target","fin":18646.1,"fout":18467.0,"shorts":"18600","wings":"18300PE/19000CE","rolls":0,"credit":278.9,"pnl":3491,"kc":19000,"kp":18300,"steps":[{"d":"2022-11-25","k":18600,"cash":278.9}],"held":14,"heldCal":20,"cost":513,"brake":3491,"brakeWhy":"target"},{"m":"2023-01","vix":14.87,"entry":"2022-12-30","exit":"2023-01-13","why":"target","fin":18206.85,"fout":18025.25,"shorts":"18200","wings":"17800PE/18600CE","rolls":0,"credit":308.3,"pnl":3053,"kc":18600,"kp":17800,"steps":[{"d":"2022-12-30","k":18200,"cash":308.3}],"held":10,"heldCal":14,"cost":512,"brake":3053,"brakeWhy":"target"},{"m":"2023-03","vix":14.19,"entry":"2023-02-24","exit":"2023-03-15","why":"target","fin":17559.25,"fout":17037.35,"shorts":"17600 > 17200","wings":"17200PE/17900CE","rolls":1,"credit":268.6,"pnl":3147,"kc":17900,"kp":17200,"steps":[{"d":"2023-02-24","k":17600,"cash":268.6},{"d":"2023-03-13","k":17200,"cash":178.05}],"held":12,"heldCal":19,"cost":870,"brake":3147,"brakeWhy":"target"},{"m":"2023-04","vix":12.94,"entry":"2023-03-31","exit":"2023-04-26","why":"exit day","fin":17442.65,"fout":17814.9,"shorts":"17400 > 17800","wings":"17100PE/17800CE","rolls":1,"credit":263.55,"pnl":2956,"kc":17800,"kp":17100,"steps":[{"d":"2023-03-31","k":17400,"cash":263.55},{"d":"2023-04-11","k":17800,"cash":86.65}],"held":15,"heldCal":26,"cost":814,"brake":2956,"brakeWhy":"exit day"},{"m":"2023-12","vix":12.38,"entry":"2023-12-01","exit":"2023-12-14","why":"target","fin":20375.15,"fout":21327.65,"shorts":"20400 > 20900","wings":"20000PE/20800CE","rolls":1,"credit":280.9,"pnl":6120,"kc":20800,"kp":20000,"steps":[{"d":"2023-12-01","k":20400,"cash":280.9},{"d":"2023-12-05","k":20900,"cash":61.8}],"held":9,"heldCal":13,"cost":896,"brake":6120,"brakeWhy":"target"},{"m":"2024-01","vix":14.5,"entry":"2023-12-29","exit":"2024-01-16","why":"target","fin":21885.95,"fout":22029.5,"shorts":"21900","wings":"21400PE/22300CE","rolls":0,"credit":340.35,"pnl":3606,"kc":22300,"kp":21400,"steps":[{"d":"2023-12-29","k":21900,"cash":340.35}],"held":12,"heldCal":18,"cost":525,"brake":3606,"brakeWhy":"target"},{"m":"2024-02","vix":15.68,"entry":"2024-01-29","exit":"2024-02-21","why":"target","fin":21855.25,"fout":22070.15,"shorts":"21900","wings":"21400PE/22300CE","rolls":0,"credit":353.05,"pnl":3372,"kc":22300,"kp":21400,"steps":[{"d":"2024-01-29","k":21900,"cash":353.05}],"held":17,"heldCal":23,"cost":541,"brake":3372,"brakeWhy":"target"},{"m":"2024-03","vix":15.24,"entry":"2024-03-01","exit":"2024-03-13","why":"target","fin":22443.2,"fout":22103.25,"shorts":"22400","wings":"22000PE/22900CE","rolls":0,"credit":359.95,"pnl":2812,"kc":22900,"kp":22000,"steps":[{"d":"2024-03-01","k":22400,"cash":359.95}],"held":7,"heldCal":12,"cost":545,"brake":2812,"brakeWhy":"target"},{"m":"2024-04","vix":12.08,"entry":"2024-04-01","exit":"2024-04-15","why":"target","fin":22602.6,"fout":22357.3,"shorts":"22600","wings":"22200PE/23100CE","rolls":0,"credit":328.2,"pnl":3193,"kc":23100,"kp":22200,"steps":[{"d":"2024-04-01","k":22600,"cash":328.2}],"held":9,"heldCal":14,"cost":515,"brake":3193,"brakeWhy":"target"},{"m":"2024-07","vix":13.8,"entry":"2024-06-28","exit":"2024-07-18","why":"target","fin":24132.25,"fout":24809.05,"shorts":"24100 > 24600","wings":"23600PE/24600CE","rolls":1,"credit":377.5,"pnl":3030,"kc":24600,"kp":23600,"steps":[{"d":"2024-06-28","k":24100,"cash":377.5},{"d":"2024-07-15","k":24600,"cash":188.8}],"held":13,"heldCal":20,"cost":903,"brake":3030,"brakeWhy":"target"},{"m":"2024-08","vix":12.25,"entry":"2024-07-26","exit":"2024-08-13","why":"target","fin":24915.45,"fout":24161.0,"shorts":"24900 > 24100","wings":"24400PE/25400CE","rolls":1,"credit":388.7,"pnl":4575,"kc":25400,"kp":24400,"steps":[{"d":"2024-07-26","k":24900,"cash":388.7},{"d":"2024-08-05","k":24100,"cash":253.75}],"held":12,"heldCal":18,"cost":966,"brake":-1525,"brakeWhy":"vix brake"},{"m":"2024-09","vix":13.39,"entry":"2024-08-30","exit":"2024-09-13","why":"target","fin":25376.9,"fout":25372.6,"shorts":"25400","wings":"24900PE/25900CE","rolls":0,"credit":367.7,"pnl":3165,"kc":25900,"kp":24900,"steps":[{"d":"2024-08-30","k":25400,"cash":367.7}],"held":10,"heldCal":14,"cost":524,"brake":3165,"brakeWhy":"target"},{"m":"2024-11","vix":15.9,"entry":"2024-11-01","exit":"2024-11-11","why":"target","fin":24383.65,"fout":24226.3,"shorts":"24400","wings":"23900PE/24900CE","rolls":0,"credit":398.7,"pnl":3780,"kc":24900,"kp":23900,"steps":[{"d":"2024-11-01","k":24400,"cash":398.7}],"held":6,"heldCal":10,"cost":553,"brake":3780,"brakeWhy":"target"},{"m":"2024-12","vix":14.43,"entry":"2024-11-29","exit":"2024-12-18","why":"stop","fin":24304.15,"fout":24257.35,"shorts":"24300 > 24800","wings":"23800PE/24800CE","rolls":1,"credit":376.5,"pnl":-24986,"kc":24800,"kp":23800,"steps":[{"d":"2024-11-29","k":24300,"cash":376.5},{"d":"2024-12-13","k":24800,"cash":169.55}],"held":13,"heldCal":19,"cost":881,"brake":-24986,"brakeWhy":"stop"},{"m":"2025-01","vix":13.24,"entry":"2024-12-27","exit":"2025-01-13","why":"target","fin":23992.65,"fout":23162.1,"shorts":"24000 > 23500","wings":"23500PE/24500CE","rolls":1,"credit":391.55,"pnl":8442,"kc":24500,"kp":23500,"steps":[{"d":"2024-12-27","k":24000,"cash":391.55},{"d":"2025-01-10","k":23500,"cash":284.7}],"held":11,"heldCal":17,"cost":944,"brake":8442,"brakeWhy":"target"},{"m":"2025-02","vix":16.25,"entry":"2025-01-31","exit":"2025-02-14","why":"target","fin":23620.2,"fout":22995.65,"shorts":"23600 > 23100","wings":"23100PE/24100CE","rolls":1,"credit":397.2,"pnl":6195,"kc":24100,"kp":23100,"steps":[{"d":"2025-01-31","k":23600,"cash":397.2},{"d":"2025-02-12","k":23100,"cash":285.85}],"held":10,"heldCal":14,"cost":913,"brake":6195,"brakeWhy":"target"},{"m":"2025-03","vix":13.91,"entry":"2025-02-28","exit":"2025-03-20","why":"target","fin":22280.05,"fout":23200.25,"shorts":"22300 > 22900","wings":"21800PE/22700CE","rolls":1,"credit":346.1,"pnl":9900,"kc":22700,"kp":21800,"steps":[{"d":"2025-02-28","k":22300,"cash":346.1},{"d":"2025-03-18","k":22900,"cash":27.8}],"held":13,"heldCal":20,"cost":897,"brake":9900,"brakeWhy":"target"},{"m":"2025-04","vix":12.72,"entry":"2025-03-28","exit":"2025-04-07","why":"target","fin":23637.65,"fout":22263.8,"shorts":"23600 > 23000","wings":"23200PE/24100CE","rolls":1,"credit":345.9,"pnl":9768,"kc":24100,"kp":23200,"steps":[{"d":"2025-03-28","k":23600,"cash":345.9},{"d":"2025-04-04","k":23000,"cash":188.0}],"held":5,"heldCal":10,"cost":999,"brake":9768,"brakeWhy":"target"},{"m":"2025-06","vix":16.08,"entry":"2025-05-30","exit":"2025-06-16","why":"target","fin":24871.2,"fout":24996.2,"shorts":"24900","wings":"24400PE/25400CE","rolls":0,"credit":398.8,"pnl":3300,"kc":25400,"kp":24400,"steps":[{"d":"2025-05-30","k":24900,"cash":398.8}],"held":11,"heldCal":17,"cost":551,"brake":3300,"brakeWhy":"target"},{"m":"2025-07","vix":12.39,"entry":"2025-06-27","exit":"2025-07-18","why":"target","fin":25750.2,"fout":25032.3,"shorts":"25800 > 25200","wings":"25200PE/26300CE","rolls":1,"credit":411.9,"pnl":6253,"kc":26300,"kp":25200,"steps":[{"d":"2025-06-27","k":25800,"cash":411.9},{"d":"2025-07-11","k":25200,"cash":223.9}],"held":15,"heldCal":21,"cost":900,"brake":6253,"brakeWhy":"target"},{"m":"2026-02","vix":13.53,"entry":"2026-01-28","exit":"2026-02-06","why":"target","fin":25450.4,"fout":25735.1,"shorts":"25500","wings":"24900PE/26000CE","rolls":0,"credit":407.0,"pnl":3190,"kc":26000,"kp":24900,"steps":[{"d":"2026-01-28","k":25500,"cash":407.0}],"held":7,"heldCal":9,"cost":541,"brake":3190,"brakeWhy":"target"},{"m":"2026-03","vix":13.49,"entry":"2026-02-25","exit":"2026-03-04","why":"target","fin":25628.8,"fout":24584.7,"shorts":"25600 > 25000","wings":"25100PE/26100CE","rolls":1,"credit":382.75,"pnl":6632,"kc":26100,"kp":25100,"steps":[{"d":"2026-02-25","k":25600,"cash":382.75},{"d":"2026-03-02","k":25000,"cash":299.95}],"held":4,"heldCal":7,"cost":999,"brake":-878,"brakeWhy":"vix brake"},{"m":"2026-06","vix":14.98,"entry":"2026-05-27","exit":"2026-06-08","why":"target","fin":23996.7,"fout":23174.6,"shorts":"24000 > 23500","wings":"23500PE/24500CE","rolls":1,"credit":393.7,"pnl":6218,"kc":24500,"kp":23500,"steps":[{"d":"2026-05-27","k":24000,"cash":393.7},{"d":"2026-06-01","k":23500,"cash":306.5}],"held":7,"heldCal":12,"cost":978,"brake":6218,"brakeWhy":"target"},{"m":"2026-07","vix":13.24,"entry":"2026-07-01","exit":"2026-07-16","why":"target","fin":24092.6,"fout":24096.4,"shorts":"24100","wings":"23600PE/24600CE","rolls":0,"credit":380.4,"pnl":3542,"kc":24600,"kp":23600,"steps":[{"d":"2026-07-01","k":24100,"cash":380.4}],"held":11,"heldCal":15,"cost":527,"brake":3542,"brakeWhy":"target"},{"m":"2026-08","vix":12.01,"entry":"2026-07-29","exit":"2026-08-13","why":"target","fin":24311.5,"fout":24468.0,"shorts":"24300","wings":"23800PE/24800CE","rolls":0,"credit":369.15,"pnl":3437,"kc":24800,"kp":23800,"steps":[{"d":"2026-07-29","k":24300,"cash":369.15}],"held":11,"heldCal":15,"cost":515,"brake":3437,"brakeWhy":"target"}],"roi":{"margin":70000,"note":"Zerodha margin for 5 sets (5 lots of 65 on each leg) in October 2026: \u20b93,50,000, so \u20b970,000 per set","niftyNow":22707,"years":9.92,"flatTrade":0.03811754385964912,"flatYear":0.2190995789618995,"flatWorst":-0.3569428571428571,"scaledTrade":0.05320952729624557,"scaledYear":0.30584827475493115,"scaledFullYears":0.280878067122334,"scaledWorst":-0.33349072236634486,"scaledBest":0.22606586089480843,"scaledDD":-0.3334907223663448,"deployed":0.2545554942020983,"byYear":[{"year":"2016","roi":0.20283168654331474,"trades":2},{"year":"2017","roi":0.28577621482624727,"trades":6},{"year":"2018","roi":0.66778378532344,"trades":9},{"year":"2019","roi":0.24440961934944702,"trades":9},{"year":"2020","roi":0.0,"trades":0},{"year":"2021","roi":0.22311845340956987,"trades":4},{"year":"2022","roi":0.24952701847692485,"trades":4},{"year":"2023","roi":0.2639952531111964,"trades":4},{"year":"2024","roi":0.10820759045246386,"trades":9},{"year":"2025","roi":0.48508466915171633,"trades":5},{"year":"2026","roi":0.30220876524167706,"trades":5}]}};
+function sortableTable(sel, rows, key, dir, rowFn) {
+  const tbl = $(sel);
+  const paint = () => {
+    const sorted = [...rows].sort((a, b) => (a[key] > b[key] ? 1 : a[key] < b[key] ? -1 : 0) * dir);
+    tbl.tBodies[0].innerHTML = sorted.map(rowFn).join("");
+  };
+  tbl.querySelectorAll("th.sort").forEach(th => th.addEventListener("click", () => {
+    const k = th.dataset.k;
+    dir = k === key ? -dir : (typeof rows[0][k] === "number" ? -1 : 1);
+    key = k;
+    paint();
+  }));
+  paint();
+}
+
+
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+
+function lineChart(el, { series, log, fmtY, ticksY, height, area }) {
+  const W = Math.max(320, el.clientWidth), H = height, m = { l: 48, r: 14, t: 10, b: 26 };
+  const pts = DATA.curve, n = pts.length;
+  const vals = series.flatMap(s => pts.map(p => p[s.k]));
+  let lo = Math.min(...vals), hi = Math.max(...vals);
+  const f = log ? Math.log : v => v;
+  if (!log) { lo = Math.min(lo, 0); hi = Math.max(hi, 0); }
+  const x = i => m.l + (i / (n - 1)) * (W - m.l - m.r);
+  const y = v => m.t + (1 - (f(v) - f(lo)) / (f(hi) - f(lo))) * (H - m.t - m.b);
+  const ticks = ticksY(lo, hi);
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${series.map(s => s.name).join(", ")}">`;
+  ticks.forEach(t => { svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}" stroke="${css("--grid")}" stroke-width="1"/><text x="${m.l - 8}" y="${y(t) + 4}" text-anchor="end">${fmtY(t)}</text>`; });
+  let lastYear = "";
+  pts.forEach((p, i) => { const yr = p.d.slice(0, 4); if (yr !== lastYear) { if (lastYear) svg += `<line x1="${x(i)}" x2="${x(i)}" y1="${H - m.b}" y2="${H - m.b + 4}" stroke="${css("--muted")}"/><text x="${x(i)}" y="${H - 6}" text-anchor="middle">${yr}</text>`; lastYear = yr; } });
+  [...series].reverse().forEach(s => {
+    const d = pts.map((p, i) => `${i ? "L" : "M"}${x(i).toFixed(1)},${y(p[s.k]).toFixed(1)}`).join("");
+    if (area && s.fill) svg += `<path d="${d}L${x(n - 1)},${y(0)}L${x(0)},${y(0)}Z" fill="${css(s.c)}" opacity="0.14"/>`;
+    svg += `<path d="${d}" fill="none" stroke="${css(s.c)}" stroke-width="${s.w || 1.5}" stroke-linejoin="round"/>`;
+  });
+  svg += `<line id="xh" x1="0" x2="0" y1="${m.t}" y2="${H - m.b}" stroke="${css("--muted")}" stroke-dasharray="3 3" visibility="hidden"/>`;
+  series.forEach((s, k) => svg += `<circle class="dot" data-k="${k}" r="4" fill="${css(s.c)}" stroke="${css("--surface")}" stroke-width="2" visibility="hidden"/>`);
+  svg += `<rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H}" fill="transparent"/></svg><div class="tip"></div>`;
+  el.innerHTML = svg;
+  const sv = el.querySelector("svg"), tip = el.querySelector(".tip"), xh = sv.querySelector("#xh"), dots = sv.querySelectorAll(".dot");
+  const move = ev => {
+    const r = sv.getBoundingClientRect(), px = (ev.clientX - r.left) * (W / r.width);
+    const i = Math.max(0, Math.min(n - 1, Math.round((px - m.l) / (W - m.l - m.r) * (n - 1)))), p = pts[i];
+    xh.setAttribute("x1", x(i)); xh.setAttribute("x2", x(i)); xh.setAttribute("visibility", "visible");
+    dots.forEach((dt, k) => { dt.setAttribute("cx", x(i)); dt.setAttribute("cy", y(p[series[k].k])); dt.setAttribute("visibility", "visible"); });
+    tip.innerHTML = `<b>${fdate(p.d)}</b>` + series.map(s => `<div class="row"><span><span class="sw" style="background:${css(s.c)}"></span>${s.name}</span><b>${s.fmt(p[s.k])}</b></div>`).join("");
+    tip.style.display = "block";
+    const left = x(i) / W * r.width;
+    tip.style.left = (left > r.width / 2 ? left - tip.offsetWidth - 12 : left + 12) + "px";
+    tip.style.top = "8px";
+  };
+  sv.addEventListener("pointermove", move);
+  sv.addEventListener("pointerleave", () => { tip.style.display = "none"; xh.setAttribute("visibility", "hidden"); dots.forEach(d => d.setAttribute("visibility", "hidden")); });
+}
+
+
+
+const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const pct = (v, dp = 0) => (v * 100).toFixed(dp) + "%";
+const cls = v => v > 0 ? "pos" : v < 0 ? "neg" : "";
+const fdate = d => d ? `${+d.slice(8, 10)} ${MON[+d.slice(5, 7) - 1]} ${d.slice(0, 4)}` : "–";
+const fmonth = m => `${MON[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}`;
+const rs = v => (v < 0 ? "−" : "") + "₹" + Math.round(Math.abs(v)).toLocaleString("en-IN");
+const srs = v => v == null ? "<span class='muted'>–</span>" : `<span class="${cls(v)}">${v > 0 ? "+" : ""}${rs(v)}</span>`;
+const WHY = { target: "Target", stop: "Stop (2nd trigger)", "exit day": "Time exit", "vix brake": "VIX brake", open: "Still open" };
+
+function render() {
+  const D = DATA, R = D.rules, H = D.hold, B = D.brake, U = D.unfiltered;
+  const lo = R.vixBand[0], hi = R.vixBand[1];
+  const skipped = D.monthsList.filter(m => !m.traded).length;
+  const h = [];
+  h.push(`<button class="theme-btn" id="theme" type="button">Theme</button>
+  <h1>NIFTY monthly iron fly: backtest report</h1>
+  <p class="sub">One iron fly a month on NIFTY's monthly options, entered only when India VIX is ${lo}–${hi}. ${fdate(D.start)} to ${fdate(D.end)}.</p>
+  <nav class="nav"><a href="#results">Results</a><a href="#rules">Rules</a><a href="#margin">Margin &amp; costs</a><a href="#vix">Why VIX ${lo}–${hi}</a><a href="#curve">Equity</a><a href="#years">Yearly</a><a href="#exits">Exits</a><a href="#trades">Trades</a><a href="#months">Months</a><a href="#method">Method</a></nav>
+
+  <h2 id="results" class="first">1. Results</h2>
+  <p class="sub">Rupees per sold lot (${R.lot} units) after costs. A set is 1 sold call + 1 sold put + 1 bought call + 1 bought put; the backtest ran ${R.lots} sets and divides by ${R.lots}.</p>
+  <div class="tiles">
+    <div class="tile"><div class="k">Trades</div><div class="v">${H.trades}</div><div class="c">of ${D.months} months; ${skipped} skipped on VIX</div></div>
+    <div class="tile"><div class="k">Winners</div><div class="v">${pct(H.win)}</div><div class="c">average win ${rs(H.avgWin)}</div></div>
+    <div class="tile"><div class="k">Average trade</div><div class="v ${cls(H.avg)}">${rs(H.avg)}</div><div class="c">average loss ${rs(H.avgLoss)}</div></div>
+    <div class="tile"><div class="k">Total</div><div class="v ${cls(H.total)}">${rs(H.total)}</div><div class="c">≈ ${rs(H.perMonth)} a month over all ${D.months} months</div></div>
+    <div class="tile"><div class="k">Worst trade</div><div class="v neg">${rs(H.worst)}</div><div class="c">worst run of losses ${rs(H.maxDD)}</div></div>
+    <div class="tile"><div class="k">Average holding</div><div class="v">${H.avgHeld.toFixed(1)} days</div><div class="c">trading days, about ${Math.round(H.avgHeldCal)} calendar days</div></div>
+    <div class="tile"><div class="k">Years up</div><div class="v">${H.yearsUp} / ${H.years}</div><div class="c">with the VIX brake: ${B.yearsUp} / ${B.years}</div></div>
+  </div>
+  ${currentBox()}
+  <div class="note"><b>What the backtest says:</b><ul style="margin:6px 0 0;padding-left:20px">
+    <li>Most months end at the target (${pct(R.targetFrac)} of the credit received) within about two weeks. ${D.reasons.target.n} of ${H.trades} trades did.</li>
+    <li>Losses are rare but large: the average loss (${rs(H.avgLoss)}) is about ${Math.round(-H.avgLoss / H.avgWin)} times the average win, so one stop-out takes back several winning months.</li>
+    <li>The VIX filter is what makes it work. Taking every month instead gives ${U.trades} trades, ${pct(U.win)} winners and ${srs(U.total)} in total, with a worst trade of ${rs(U.worst)}.</li>
+    <li>The settings (VIX band, one roll, the target) were chosen after testing several versions on this same data, so expect live results to be weaker than these.</li></ul></div>
+
+  <h2 id="rules">2. The rules</h2>
+  <div class="card tbl-wrap"><table class="steps"><thead><tr><th>Step</th><th>Rule</th></tr></thead><tbody>
+    <tr><td>1. Entry day</td><td>Close of the first trading day after the monthly expiry (about 30 days to the next expiry). One trade per month.</td></tr>
+    <tr><td>2. VIX filter</td><td>Enter only if India VIX closes between ${lo} and ${hi} that day. Otherwise skip the month.</td></tr>
+    <tr><td>3. Position (per set)</td><td>Sell 1 lot ATM call + 1 lot ATM put (strike nearest the monthly future, rounded to 100). Buy 1 lot call and 1 lot put ${pct(R.wing)} away (rounded to 100).</td></tr>
+    <tr><td>4. Target</td><td>Close everything at the first close where profit after costs reaches ${pct(R.targetFrac)} of the net credit received at entry (about ${Math.round(R.targetFrac * 370)} points, or ${rs(R.targetFrac * 370 * R.lot)} per sold lot, on a 370-point credit). Being a share of the premium, it grows with NIFTY's level.</td></tr>
+    <tr><td>5. Roll</td><td>If the future closes ${pct(R.rollPct)} or more from the short strike, roll the short call and put to the new ATM strike. The bought wings stay. Only ${R.maxRolls === 1 ? "once" : R.maxRolls + " times"}.</td></tr>
+    <tr><td>6. Stop</td><td>If the ${pct(R.rollPct)} trigger hits again after the roll, close everything.</td></tr>
+    <tr><td>7. Time exit</td><td>Otherwise close at the close ${R.exitBefore} trading day before expiry.</td></tr>
+    <tr><td>8. After entry</td><td>Ignore VIX. Optional emergency brake: close if VIX rises ${pct(R.vixBrake - 1)} or more above its entry level.</td></tr>
+  </tbody></table></div>
+  ${example()}
+
+  ${marginSection()}
+
+  <h2 id="vix">3. Why VIX ${lo}–${hi}</h2>
+  <p class="sub">The same trade taken every month, grouped by India VIX at entry. Below ${lo} the premium is too thin to pay for costs and rolls; above ${hi} NIFTY moves enough to trigger rolls and stops.</p>
+  <div class="card tbl-wrap"><table><thead><tr><th>VIX at entry</th><th class="n">Trades</th><th class="n">Winners</th><th class="n">Average trade</th><th class="n">Worst trade</th><th class="n">Total</th></tr></thead><tbody>
+    ${D.bands.map(b => `<tr class="${b.lo === lo ? "hl" : ""}"><td>${b.lo === 0 ? "below " + b.hi : b.hi >= 99 ? b.lo + " and above" : b.lo + "–" + b.hi}</td><td class="n">${b.trades}</td><td class="n">${pct(b.win)}</td><td class="n">${srs(b.avg)}</td><td class="n">${srs(b.worst)}</td><td class="n">${srs(b.total)}</td></tr>`).join("")}
+    <tr class="muted"><td>Every month (no filter)</td><td class="n">${U.trades}</td><td class="n">${pct(U.win)}</td><td class="n">${srs(U.avg)}</td><td class="n">${srs(U.worst)}</td><td class="n">${srs(U.total)}</td></tr>
+  </tbody></table></div>
+
+  <h2 id="curve">4. Equity curve</h2>
+  <div class="card"><div class="legend"><span><i style="background:var(--s1)"></i>Rules as above</span><span><i style="background:var(--s2)"></i>With the VIX brake</span></div><div class="chart" id="eqChart"></div>
+  <p class="chart-note">Cumulative profit per sold lot, one point per month (flat in skipped months). The brake made ${rs(B.total)} against ${rs(H.total)} without it: it cuts a few losing trades short, but also closes some that would have recovered to the target. Treat it as an emergency option, not a profit rule.</p></div>
+
+  <h2 id="years">5. Year by year</h2><p class="sub">By entry year. ${Object.keys(D.yearly)[0]} and ${Object.keys(D.yearly).slice(-1)[0]} are part years.</p>
+  <div class="two"><div class="card"><div class="chart" id="yrChart"></div></div>
+  <div class="card tbl-wrap"><table><thead><tr><th>Year</th><th class="n">Trades</th><th class="n">Rules</th><th class="n">With brake</th></tr></thead><tbody>
+    ${Object.entries(D.yearly).map(([y, v]) => `<tr><td>${y}</td><td class="n">${v.n}</td><td class="n">${srs(v.hold)}</td><td class="n">${srs(v.brake)}</td></tr>`).join("")}</tbody></table></div></div>
+
+  <h2 id="exits">6. How the trades ended</h2>
+  <div class="card tbl-wrap"><table><thead><tr><th>Exit</th><th class="n">Trades</th><th class="n">Total</th><th class="n">Average</th><th class="n">Average days held</th></tr></thead><tbody>
+    ${Object.entries(D.reasons).sort((a, b) => b[1].n - a[1].n).map(([k, v]) => { const ts = D.trades.filter(x => x.why === k); return `<tr><td>${WHY[k] || k}</td><td class="n">${v.n}</td><td class="n">${srs(v.pnl)}</td><td class="n">${srs(v.pnl / v.n)}</td><td class="n">${(ts.reduce((a, x) => a + x.held, 0) / ts.length).toFixed(1)}</td></tr>`; }).join("")}</tbody></table></div>
+
+  <h2 id="trades">7. Every trade</h2>
+  <p class="sub">Short strikes show each roll (for example 24400 &gt; 23900). Click a column to sort, or <b>Payoff</b> to draw that trade's payoff below the table.</p>
+  <div class="card tbl-wrap"><table id="tradeTbl"><thead><tr><th class="sort" data-k="m">Month</th><th class="sort n" data-k="vix">VIX</th><th class="sort" data-k="entry">Entry</th><th class="sort" data-k="exit">Exit</th><th class="sort n" data-k="held">Days</th><th class="sort" data-k="why">How</th><th class="sort n" data-k="fin">Future in</th><th>Short strikes</th><th>Wings</th><th class="sort n" data-k="credit">Credit (pts)</th><th class="sort n" data-k="pnl">Rs / sold lot</th><th class="sort n" data-k="brake">With brake</th><th></th></tr></thead><tbody></tbody></table></div>
+  <div class="card payoff" id="payoffCard"></div>
+
+  <h2 id="months">8. Month by month</h2>
+  <p class="sub">Every monthly contract in the test with India VIX at entry. Faded months were skipped.</p>
+  <div class="mgrid">${D.monthsList.map(m => { const t = D.trades.find(x => x.m === m.month);
+    return `<div class="mcell ${m.traded ? "" : "skip"}"><b>${fmonth(m.month)}</b>VIX ${m.vix == null ? "–" : m.vix.toFixed(1)}<br>${t ? srs(t.pnl) : "skipped"}</div>`; }).join("")}</div>
+
+  <h2 id="method">9. Data and method</h2><div class="note"><ul style="margin:0;padding-left:20px">
+    <li><b>Prices:</b> NSE's daily F&amp;O bhavcopy for every NIFTY monthly option and future, ${fdate(D.start)} to ${fdate(D.asOf)}. An option's close when it traded that day, otherwise NSE's settle price. India VIX daily closes from Yahoo Finance (^INDIAVIX).</li>
+    <li><b>Closes only:</b> every decision (entry, roll, stop, target, exit) uses the day's closing prices. A real trade would fill during the last minutes of the day at slightly different prices; on gap days the stop can come out worse.</li>
+    <li><b>Costs:</b> ${R.slipShort} point slippage per lot per order on the sold strikes and ${R.slipWing} on the wings, STT of ${(R.stt * 100).toFixed(1)}% on the premium sold, ₹${R.brokerage} brokerage per order, NSE transaction charges (${(R.exch * 100).toFixed(5)}%) and the SEBI fee on premium traded, stamp duty (${(R.stamp * 100).toFixed(3)}%) on premium bought, and GST (${pct(R.gst)}) on brokerage and fees. Every result on this page is after all of them. Brokerage is per order whatever the lots, so a single set pays a little more per lot than the ${R.lots}-set backtest.</li>
+    <li><b>Lot size:</b> ${R.lot} units in every year so the years compare. NSE's NIFTY lot has been 25 to 75 over this period.</li>
+    <li><b>Expiry dates:</b> a contract's real expiry is its last trading day (holiday moves and the 2025 switch to Tuesday expiries are followed).</li>
+    <li><b>Margin:</b> not modelled. The bought wings cap the loss of each set, but check the margin your broker asks for before trading.</li>
+    <li><b>Hindsight:</b> about a dozen variants were tested on this data before settling on these rules (other structures, strangles, rolling rules, filters). The ${lo}–${hi} band held up when moved a point either way and in both halves of the period, but it is still fitted to the past.</li></ul></div>`);
+  $("#app").innerHTML = h.join("");
+  const rows = D.trades.map(t => ({ ...t, brake: t.brake ?? -1e9 }));
+  sortableTable("#tradeTbl", rows, "m", -1, t => `<tr><td>${fmonth(t.m)}</td><td class="n">${t.vix.toFixed(1)}</td><td>${fdate(t.entry)}</td><td>${fdate(t.exit)}</td><td class="n">${t.held}</td><td class="why-${t.why === "stop" ? "stop" : t.why === "target" ? "target" : ""}">${WHY[t.why] || t.why}</td><td class="n">${Math.round(t.fin).toLocaleString("en-IN")}</td><td>${esc(t.shorts)}</td><td>${esc(t.wings)}</td><td class="n">${t.credit.toFixed(1)}</td><td class="n">${srs(t.pnl)}</td><td class="n">${t.brake === -1e9 ? srs(null) : srs(t.brake)}</td><td><button class="pbtn" type="button" data-m="${t.m}">Payoff</button></td></tr>`);
+  $("#tradeTbl").addEventListener("click", e => { const b = e.target.closest(".pbtn"); if (b) { payoff(b.dataset.m); $("#payoffCard").scrollIntoView({ behavior: "smooth", block: "nearest" }); } });
+  const cur = currentTrade();
+  if ($("#curPayoff")) $("#curPayoff").addEventListener("click", () => { payoff("current"); $("#payoffCard").scrollIntoView({ behavior: "smooth", block: "nearest" }); });
+  payoff(cur ? "current" : D.trades[D.trades.length - 1].m);
+  drawCharts();
+  $("#theme").addEventListener("click", () => {
+    const dark = getComputedStyle(document.documentElement).colorScheme.includes("dark");
+    document.documentElement.dataset.theme = dark ? "light" : "dark";
+    drawCharts();
+  });
+}
+
+function currentTrade() {
+  const c = DATA.current;
+  if (!c || c.status === "skipped") return null;
+  return { m: c.month, vix: c.vix, entry: c.entry, exit: c.exit || c.asOf, why: c.reason || "open", fin: c.future,
+    fout: c.markFuture, shorts: c.shorts || String(c.k), wings: `${c.kp}PE/${c.kc}CE`, credit: c.credit, pnl: c.pnl,
+    kc: c.kc, kp: c.kp, steps: c.steps, open: c.status === "open" };
+}
+
+function currentBox() {
+  const c = DATA.current;
+  if (!c) return "";
+  if (c.status === "skipped") return `<div class="card"><h3 style="margin-top:0">This month (${fmonth(c.month)})</h3><p style="margin:0">Skipped: India VIX closed at ${c.vix == null ? "–" : c.vix.toFixed(2)} on ${fdate(c.entry)}, outside ${DATA.rules.vixBand.join("–")}. Next chance: the day after the ${fdate(c.expiry)} expiry.</p></div>`;
+  const legs = Object.entries(c.legs), R = DATA.rules;
+  const state = c.status === "open"
+    ? `Still open at the ${fdate(c.asOf)} close: NIFTY future ${Math.round(c.markFuture).toLocaleString("en-IN")}, ${srs(c.pnl)} per sold lot if closed then.`
+    : `Closed on ${fdate(c.exit)} (${(WHY[c.reason] || c.reason).toLowerCase()}) at ${srs(c.pnl)} per sold lot.`;
+  return `<div class="card"><h3 style="margin-top:0">Current trade: ${fmonth(c.month)} (expiry ${fdate(c.expiry)})</h3>
+    <p style="margin:0 0 8px">Entered at the ${fdate(c.entry)} close with India VIX at ${c.vix.toFixed(2)} and the ${fmonth(c.month)} future at ${Math.round(c.future).toLocaleString("en-IN")}. ${state}</p>
+    <div class="tbl-wrap"><table><thead><tr><th>Leg</th><th class="n">Entry price</th></tr></thead><tbody>
+      ${legs.map(([n, px], i) => `<tr><td>${i < 2 ? "Sell" : "Buy"} ${esc(n)}</td><td class="n">${px.toFixed(2)}</td></tr>`).join("")}
+      <tr class="hl"><td>Net credit</td><td class="n">${c.credit.toFixed(2)} pts (${rs(c.credit * R.lot)} per set)</td></tr></tbody></table></div>
+    <p class="chart-note">Target: profit after costs of ${pct(R.targetFrac)} of the credit, about ${c.targetPts} points (${rs(c.targetPts * R.lot)} per sold lot). Roll the short strikes once if the future closes at or below ${c.rollDown.toLocaleString("en-IN")} or at or above ${c.rollUp.toLocaleString("en-IN")}; close everything on the next trigger. Otherwise close at the close on the trading day before ${fdate(c.expiry)}. <button class="pbtn" type="button" id="curPayoff">Payoff</button></p></div>`;
+}
+
+function marginSection() {
+  const M = DATA.roi, H = DATA.hold, C = H.costs;
+  const KIND = { slip: "Slippage", stt: "STT", brk: "Brokerage", exch: "NSE transaction charges and SEBI fee", gst: "GST", stamp: "Stamp duty" };
+  const p1 = v => pct(v, 1);
+  return `<h2 id="margin">Return on margin and costs</h2>
+  <p class="sub">${esc(M.note)}. Margin moves roughly with NIFTY, so the "scaled" figures size each trade's margin by NIFTY at its entry (today's quote applies at NIFTY ${M.niftyNow.toLocaleString("en-IN")}). Simple returns, not compounded, before tax.</p>
+  <div class="tiles">
+    <div class="tile"><div class="k">Margin per set</div><div class="v">${rs(M.margin)}</div><div class="c">₹3,50,000 for 5 sets</div></div>
+    <div class="tile"><div class="k">Return a year</div><div class="v pos">${p1(M.scaledYear)}</div><div class="c">scaled; ${p1(M.flatYear)} on a flat ${rs(M.margin)}</div></div>
+    <div class="tile"><div class="k">Average trade</div><div class="v">${p1(M.scaledTrade)}</div><div class="c">of margin, in about ${Math.round(H.avgHeldCal)} days</div></div>
+    <div class="tile"><div class="k">Worst trade</div><div class="v neg">${p1(M.scaledWorst)}</div><div class="c">of margin (${rs(H.worst)})</div></div>
+    <div class="tile"><div class="k">Margin in use</div><div class="v">${pct(M.deployed)}</div><div class="c">of the time; free otherwise</div></div>
+  </div>
+  <div class="two"><div class="card tbl-wrap"><table><thead><tr><th>Year</th><th class="n">Trades</th><th class="n">Return on margin</th></tr></thead><tbody>
+    ${M.byYear.map((y, i) => `<tr><td>${y.year}${i === 0 || i === M.byYear.length - 1 ? " (part)" : ""}</td><td class="n">${y.trades}</td><td class="n"><span class="${cls(y.roi)}">${p1(y.roi)}</span></td></tr>`).join("")}
+    <tr class="hl"><td>Full years, average</td><td class="n"></td><td class="n">${p1(M.scaledFullYears)}</td></tr></tbody></table></div>
+  <div class="card tbl-wrap"><table><thead><tr><th>Costs per sold lot, ten years</th><th class="n">Total</th><th class="n">Per trade</th></tr></thead><tbody>
+    <tr><td>Profit before costs</td><td class="n">${srs(H.gross)}</td><td class="n">${srs(H.gross / H.trades)}</td></tr>
+    ${Object.entries(KIND).map(([k, n]) => `<tr><td>${n}</td><td class="n">${rs(-C[k])}</td><td class="n">${rs(-C[k] / H.trades)}</td></tr>`).join("")}
+    <tr><td><b>All costs</b></td><td class="n"><b>${rs(-H.cost)}</b></td><td class="n"><b>${rs(-H.avgCost)}</b></td></tr>
+    <tr class="hl"><td>Profit after costs</td><td class="n">${srs(H.total)}</td><td class="n">${srs(H.avg)}</td></tr></tbody></table>
+    <p class="chart-note">Costs take ${pct(H.cost / H.gross)} of the profit before costs. Slippage is the largest: with worse fills the result falls quickly.</p></div></div>`;
+}
+
+function example() {
+  const t = DATA.trades[DATA.trades.length - 1], R = DATA.rules;
+  return `<div class="note"><b>Latest trade (${fmonth(t.m)}):</b> on ${fdate(t.entry)} NIFTY's monthly future closed at ${Math.round(t.fin).toLocaleString("en-IN")} and India VIX at ${t.vix.toFixed(2)}, inside the band. Sold the ${esc(t.shorts.split(" > ")[0])} call and put, bought the ${esc(t.wings.replace("/", " and "))}, for a net credit of ${t.credit.toFixed(1)} points (${rs(t.credit * R.lot)} per set). It ended on ${fdate(t.exit)} (${(WHY[t.why] || t.why).toLowerCase()}) at ${srs(t.pnl)} per sold lot.</div>`;
+}
+
+function barChart(el, { cats, vals, height }) {
+  const W = Math.max(300, el.clientWidth), Hh = height, m = { l: 56, r: 10, t: 10, b: 28 };
+  const hi = Math.max(0, ...vals), lo = Math.min(0, ...vals);
+  const y = v => m.t + (1 - (v - lo) / (hi - lo || 1)) * (Hh - m.t - m.b);
+  const bw = (W - m.l - m.r) / cats.length;
+  let svg = `<svg class="bars" viewBox="0 0 ${W} ${Hh}" role="img">`;
+  for (let k = 0; k <= 4; k++) { const t = lo + (hi - lo) * k / 4; svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(t)}" y2="${y(t)}" stroke="${css("--grid")}"/><text x="${m.l - 6}" y="${y(t) + 4}" text-anchor="end">${rs(t)}</text>`; }
+  svg += `<line x1="${m.l}" x2="${W - m.r}" y1="${y(0)}" y2="${y(0)}" stroke="${css("--muted")}"/>`;
+  cats.forEach((c, i) => {
+    const v = vals[i], top = y(Math.max(v, 0)), hgt = Math.abs(y(v) - y(0));
+    svg += `<rect x="${m.l + i * bw + bw * 0.18}" y="${top}" width="${bw * 0.64}" height="${Math.max(hgt, 0.5)}" rx="2" fill="${css(v >= 0 ? "--s1" : "--neg")}"><title>${c}: ${rs(v)}</title></rect>`;
+    svg += `<text x="${m.l + i * bw + bw / 2}" y="${Hh - 8}" text-anchor="middle">${c}</text>`;
+  });
+  el.innerHTML = svg + "</svg>";
+}
+
+function drawCharts() {
+  const step = v => { const p = Math.pow(10, Math.floor(Math.log10(v || 1))); return [1, 2, 2.5, 5, 10].map(k => k * p).find(s => v / s <= 6); };
+  lineChart($("#eqChart"), { height: 320, log: false, fmtY: t => rs(t),
+    ticksY: (lo, hi) => { const s = step(hi - lo), o = []; for (let t = Math.ceil(lo / s) * s; t <= hi + 1e-9; t += s) o.push(t); return o; },
+    series: [{ k: "brake", name: "With the VIX brake", c: "--s2", w: 1.3, fmt: rs }, { k: "hold", name: "Rules as above", c: "--s1", w: 2.4, fmt: rs }] });
+  const Y = DATA.yearly;
+  barChart($("#yrChart"), { height: 240, cats: Object.keys(Y), vals: Object.values(Y).map(v => v.hold) });
+  if (shownPayoff) payoff(shownPayoff);
+}
+
+let shownPayoff = null;
+function payoff(m) {
+  shownPayoff = m;
+  document.querySelectorAll(".pbtn").forEach(b => b.classList.toggle("on", b.dataset.m === m));
+  const t = m === "current" ? currentTrade() : DATA.trades.find(x => x.m === m), L = DATA.rules.lot, el = $("#payoffCard");
+  const wing = Math.max(t.kc - t.steps[0].k, t.steps[0].k - t.kp);
+  const strikes = [t.kp, t.kc, ...t.steps.map(p => p.k), t.fin, t.fout].filter(v => v);
+  const x0 = Math.min(...strikes) - wing * 0.8, x1 = Math.max(...strikes) + wing * 0.8;
+  const pay = (p, S) => (p.cash - Math.abs(S - p.k) + Math.max(S - t.kc, 0) + Math.max(t.kp - S, 0)) * L;
+  const knots = p => [x0, t.kp, p.k, t.kc, x1].sort((a, b) => a - b);
+  const all = t.steps.flatMap(p => knots(p).map(S => pay(p, S)));
+  const lo = Math.min(0, ...all), hi = Math.max(0, ...all);
+  const W = Math.max(320, el.clientWidth - 32), H = 280, mg = { l: 64, r: 14, t: 16, b: 30 };
+  const X = S => mg.l + (S - x0) / (x1 - x0) * (W - mg.l - mg.r);
+  const Yy = v => mg.t + (1 - (v - lo) / (hi - lo || 1)) * (H - mg.t - mg.b);
+  const cols = ["--s1", "--s2", "--s3"];
+  let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Payoff at expiry">`;
+  for (let k = 0; k <= 4; k++) { const v = lo + (hi - lo) * k / 4; svg += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${Yy(v)}" y2="${Yy(v)}" stroke="${css("--grid")}"/><text x="${mg.l - 6}" y="${Yy(v) + 4}" text-anchor="end">${rs(v)}</text>`; }
+  svg += `<line x1="${mg.l}" x2="${W - mg.r}" y1="${Yy(0)}" y2="${Yy(0)}" stroke="${css("--muted")}"/>`;
+  [t.kp, ...new Set(t.steps.map(p => p.k)), t.kc].forEach(S => svg += `<text x="${X(S)}" y="${H - 10}" text-anchor="middle">${S}</text>`);
+  t.steps.forEach((p, i) => {
+    const d = knots(p).map((S, j) => `${j ? "L" : "M"}${X(S).toFixed(1)},${Yy(pay(p, S)).toFixed(1)}`).join("");
+    svg += `<path d="${d}" fill="none" stroke="${css(cols[i % 3])}" stroke-width="${i === t.steps.length - 1 ? 2.4 : 1.5}" ${i < t.steps.length - 1 ? 'stroke-dasharray="5 4"' : ""}/>`;
+  });
+  const mark = (S, label, c) => S ? `<line x1="${X(S)}" x2="${X(S)}" y1="${mg.t}" y2="${H - mg.b}" stroke="${css(c)}" stroke-dasharray="2 3"/><text x="${X(S) + 4}" y="${mg.t + 10}" style="fill:${css(c)}">${label} ${Math.round(S)}</text>` : "";
+  svg += mark(t.fin, "entry", "--text-2") + mark(t.fout, t.open ? "now" : "exit", t.pnl >= 0 ? "--good" : "--bad") + "</svg>";
+  const facts = t.steps.map((p, i) => {
+    const ks = knots(p), vals = ks.map(S => pay(p, S)), be = [];
+    for (let j = 1; j < ks.length; j++) { const a = vals[j - 1], c = vals[j];
+      if ((a < 0 && c >= 0) || (a >= 0 && c < 0)) be.push(Math.round(ks[j - 1] + (ks[j] - ks[j - 1]) * (0 - a) / (c - a))); }
+    return `<span><i style="display:inline-block;width:14px;height:2px;vertical-align:middle;margin-right:6px;background:${css(cols[i % 3])}"></i><b>${i ? "After roll on " + fdate(p.d) : "At entry"}:</b> short ${p.k}, net credit ${p.cash.toFixed(1)} pts · max profit ${rs(Math.max(...vals))} · max loss ${rs(Math.min(...vals))} · ${be.length ? "breakeven " + be.join(" and ") : "no breakeven in range"}</span>`; }).join("");
+  el.innerHTML = `<h3 style="margin-top:0">Payoff at expiry: ${fmonth(t.m)} trade${t.open ? " (open)" : ""} (per set, before costs)</h3>${svg}<div class="facts">${facts}<span><b>${t.open ? "So far" : "Result"}:</b> ${t.open ? `at the ${fdate(t.exit)} close, ${srs(t.pnl)} per sold lot after costs if closed then` : `${(WHY[t.why] || t.why).toLowerCase()} on ${fdate(t.exit)}, ${srs(t.pnl)} per sold lot after costs`}</span></div>
+    <p class="chart-note">The lines show what the position would be worth at expiry with NIFTY at each level; ${t.open ? "the trade is still open and will be closed by its own rules, at the latest the day before expiry." : "the trade itself was closed earlier, on its exit day, at market prices."} Bought wings ${t.kp} put and ${t.kc} call stay through any roll. ${t.steps.length > 1 ? "Dashed = the position before the roll; the solid line includes the loss booked by rolling." : ""}</p>`;
+}
+
+render();
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(drawCharts, 150); });
+if (matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", drawCharts);
+
+</script>
+<footer class="site-footer"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>© 2026 Let Money Earn</span></footer>
+<script src="nav.js"></script>
+</body>
+</html>
