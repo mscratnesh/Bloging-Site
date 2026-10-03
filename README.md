@@ -183,6 +183,19 @@ node book\build_book.js            # Momentum_Investing_Book.docx
 
 Open the .docx in Word and update the table of contents (right-click it > Update Field) after rebuilding.
 
+## Reels (`reels/`)
+
+Short portrait videos (1080×1920) for Instagram, drawn on a canvas. Not part of the site build.
+
+- `reels/madhur-vani-reel.html` — the Kabir doha on sweet speech (ऐसी वाणी बोलिए…): title card, the doha word by word, its meaning, and a recap, over a tanpura drone. Open it in a browser to preview or record a silent 25-second version.
+- `reels/madhur-vani-reel.mp4` — the finished reel (36.8 s), narrated by the Azure neural voice `hi-IN-SwaraNeural` over the tanpura.
+- `reels/make_reel_video.py` — builds the MP4: speaks the title, doha and meaning with `edge-tts`, renders every frame of the page in Microsoft Edge (Playwright), renders the page's tanpura offline, and mixes everything with ffmpeg. The page's sections are stretched to fit the narration; the spoken text, rates and start times are in `CLIPS` and the section timings in `KNOTS`, so update both together. Voice clips and intermediates go to `reels/build/` (git-ignored). Needs an internet connection for the voice and the Google Fonts.
+
+```powershell
+py -m pip install edge-tts imageio-ffmpeg playwright   # once; uses the installed Edge, no browser download
+py reels\make_reel_video.py                            # writes reels\madhur-vani-reel.mp4
+```
+
 ## Building the executables
 
 The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder):
