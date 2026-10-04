@@ -18,10 +18,12 @@ import http.cookiejar
 import urllib.error
 import urllib.parse
 import urllib.request
+import zipfile
 from datetime import datetime, timedelta, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
+import market_reel
 import momentum
 
 ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
@@ -36,11 +38,17 @@ BREAKOUT_SHEET_ID = "1gLrCYp_GmRSpEkrCVwwEn_Ec97IQr6YfNo7mvPQLZgk"
 BREAKOUT_SHEET_GID_CH = "649235540"
 BREAKOUT_SHEET_GID_MYB = "1080335833"
 BREAKOUT_CACHE_TTL = 15 * 60
+NSE_INDICES_URL = "https://nsearchives.nseindia.com/content/indices/ind_close_all_{date}.csv"
+NSE_INDICES_CACHE_PATH = ROOT / "nse_indices_cache.json"
+NSE_INDICES_CACHE_TTL = 30 * 60
+NSE_FO_BHAVCOPY_URL = "https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip"
+OI_CHANGE_CACHE_PATH = ROOT / "oi_change_cache.json"
+OI_CHANGE_CACHE_TTL = 30 * 60
 MF_API_URL = "https://api.mfapi.in/mf"
 MF_CACHE_DIR = ROOT / "mf_nav_cache"
 MF_CODE_RE = re.compile(r"^\d{1,8}$")
 SITE_URL = "https://letmoneyearn.in"
-SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
+SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nse-indices.html", "oi-change.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -499,6 +507,35 @@ def refresh_mf_cache_nightly():
         refresh_mf_cache()
 
 
+def build_market_reel_daily():
+    """Build the FII/DII + OI market reel and post it to Instagram on weekday evenings (IST): every
+    30 minutes from 8:30 pm until midnight, since NSE's files land at different times. market_reel.run
+    does nothing on holidays, before NSE has published or once the day is posted, so repeat runs cost
+    one NSE request. Each run's outcome is appended to market_reel.log next to the server."""
+    log = ROOT / "market_reel.log"
+    if os.environ.get("MARKET_REEL_TEST_OUT"):    # check a build: one unposted reel for the latest data, at startup
+        try:
+            print("Market reel test:", market_reel.run(ROOT, fetch_oi_change, force=True, post=False, keep=os.environ["MARKET_REEL_TEST_OUT"]))
+        except Exception as error:
+            print("Market reel test failed:", type(error).__name__, error)
+    while True:
+        now = datetime.now(IST)
+        start = now.replace(hour=20, minute=30, second=0, microsecond=0)
+        if now.weekday() < 5 and now >= start:
+            try:
+                status = market_reel.run(ROOT, fetch_oi_change)
+            except Exception as error:            # network, ffmpeg or Instagram trouble: retried next run
+                status = f"failed: {type(error).__name__}: {error}"
+            with open(log, "a", encoding="utf-8") as out:
+                out.write(f"[{datetime.now(IST):%Y-%m-%d %H:%M}] {status}\n")
+            wake = datetime.now(IST) + timedelta(minutes=30)
+            if wake.date() != now.date():
+                wake = start + timedelta(days=1)
+        else:
+            wake = start if now < start else start + timedelta(days=1)
+        time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
+
+
 def post_slugs(database):
     """Each published post's URL slug, from its title: /post/<slug>. A later post whose title gives
     the same slug as an earlier one gets its id on the end."""
@@ -644,6 +681,167 @@ def fetch_breakout_data():
             except (OSError, ValueError):
                 pass
         return {"updatedAt": None, "rows": []}
+
+
+def parse_nse_indices_csv(csv_text):
+    rows = []
+    for record in csv.DictReader(io.StringIO(csv_text)):
+        name = (record.get("Index Name") or "").strip()
+        if not name:
+            continue
+        rows.append({
+            "name": name,
+            "open": breakout_num(record.get("Open Index Value")),
+            "high": breakout_num(record.get("High Index Value")),
+            "low": breakout_num(record.get("Low Index Value")),
+            "close": breakout_num(record.get("Closing Index Value")),
+            "change": breakout_num(record.get("Points Change")),
+            "changePct": breakout_num(record.get("Change(%)")),
+            "volume": breakout_num(record.get("Volume")),
+            "turnover": breakout_num(record.get("Turnover (Rs. Cr.)")),
+            "pe": breakout_num(record.get("P/E")),
+            "pb": breakout_num(record.get("P/B")),
+            "divYield": breakout_num(record.get("Div Yield")),
+        })
+    return rows
+
+
+NSE_INDICES_CACHE = {"data": None, "fetched_at": 0.0}
+
+
+def fetch_nse_indices():
+    # NSE posts the day's index closing file in the evening, so walk back from today
+    # (IST) to the most recent trading day that has one.
+    now = time.time()
+    cached = NSE_INDICES_CACHE["data"]
+    if cached is not None and (now - NSE_INDICES_CACHE["fetched_at"]) < NSE_INDICES_CACHE_TTL:
+        return cached
+    today = datetime.now(IST).date()
+    for back in range(10):
+        day = today - timedelta(days=back)
+        if day.weekday() >= 5:
+            continue
+        url = NSE_INDICES_URL.format(date=day.strftime("%d%m%Y"))
+        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+        try:
+            with urllib.request.urlopen(request, timeout=10) as response:
+                text = response.read().decode("utf-8-sig")
+        except (urllib.error.URLError, OSError, ValueError):
+            continue
+        if not text.startswith("Index Name"):
+            continue
+        rows = parse_nse_indices_csv(text)
+        if not rows:
+            continue
+        data = {"date": day.isoformat(), "fetchedAt": datetime.now(IST).isoformat(timespec="seconds"), "rows": rows}
+        NSE_INDICES_CACHE["data"] = data
+        NSE_INDICES_CACHE["fetched_at"] = now
+        save_json_cache(NSE_INDICES_CACHE_PATH, data)
+        return data
+    if cached is not None:
+        return cached
+    stored = load_json_cache(NSE_INDICES_CACHE_PATH)
+    if stored.get("rows"):
+        return stored
+    return {"date": None, "fetchedAt": None, "rows": []}
+
+
+def oi_buildup(price_change, oi_change):
+    if not price_change or not oi_change:
+        return None
+    if oi_change > 0:
+        return "Long buildup" if price_change > 0 else "Short buildup"
+    return "Short covering" if price_change > 0 else "Long unwinding"
+
+
+def parse_fo_bhavcopy(csv_text):
+    # One row per underlying: futures OI summed over all expiries, price from the nearest
+    # expiry's future, and option OI split into calls and puts. OI is in shares.
+    symbols = {}
+    for record in csv.DictReader(io.StringIO(csv_text)):
+        kind = record.get("FinInstrmTp")
+        if kind not in ("IDF", "STF", "IDO", "STO"):
+            continue
+        symbol = (record.get("TckrSymb") or "").strip()
+        row = symbols.setdefault(symbol, {
+            "symbol": symbol, "index": kind in ("IDF", "IDO"), "expiry": None,
+            "price": None, "prevClose": None, "spot": None, "lot": None,
+            "futOi": 0.0, "futOiChg": 0.0, "futContracts": 0.0,
+            "ceOi": 0.0, "ceOiChg": 0.0, "peOi": 0.0, "peOiChg": 0.0,
+        })
+        oi = breakout_num(record.get("OpnIntrst")) or 0.0
+        chg = breakout_num(record.get("ChngInOpnIntrst")) or 0.0
+        if kind in ("IDF", "STF"):
+            row["futOi"] += oi
+            row["futOiChg"] += chg
+            row["futContracts"] += breakout_num(record.get("TtlTradgVol")) or 0.0
+            expiry = record.get("XpryDt") or ""
+            if row["expiry"] is None or expiry < row["expiry"]:
+                row.update(expiry=expiry, price=breakout_num(record.get("ClsPric")),
+                           prevClose=breakout_num(record.get("PrvsClsgPric")),
+                           spot=breakout_num(record.get("UndrlygPric")),
+                           lot=breakout_num(record.get("NewBrdLotQty")))
+        else:
+            side = "ce" if record.get("OptnTp") == "CE" else "pe"
+            row[side + "Oi"] += oi
+            row[side + "OiChg"] += chg
+            if row["spot"] is None:
+                row["spot"] = breakout_num(record.get("UndrlygPric"))
+    rows = []
+    for row in symbols.values():
+        if not row["futOi"]:
+            continue
+        price, prev = row["price"], row["prevClose"]
+        row["priceChgPct"] = round((price / prev - 1) * 100, 2) if price and prev else None
+        base = row["futOi"] - row["futOiChg"]
+        row["futOiChgPct"] = round(row["futOiChg"] / base * 100, 2) if base > 0 else None
+        row["pcr"] = round(row["peOi"] / row["ceOi"], 2) if row["ceOi"] else None
+        row["buildup"] = oi_buildup(row["priceChgPct"], row["futOiChg"])
+        rows.append(row)
+    rows.sort(key=lambda r: (not r["index"], r["symbol"]))
+    return rows
+
+
+OI_CHANGE_CACHE = {"data": None, "fetched_at": 0.0}
+
+
+def fetch_oi_change():
+    # Walk back from today (IST) to the latest F&O bhavcopy. A day already held in the cache
+    # is not downloaded again, so once the evening file is in, later checks cost nothing.
+    now = time.time()
+    cached = OI_CHANGE_CACHE["data"]
+    if cached is None:
+        stored = load_json_cache(OI_CHANGE_CACHE_PATH)
+        cached = stored if stored.get("rows") else None
+        OI_CHANGE_CACHE["data"] = cached
+    if cached is not None and (now - OI_CHANGE_CACHE["fetched_at"]) < OI_CHANGE_CACHE_TTL:
+        return cached
+    today = datetime.now(IST).date()
+    for back in range(10):
+        day = today - timedelta(days=back)
+        if day.weekday() >= 5:
+            continue
+        if cached is not None and cached.get("date") == day.isoformat():
+            OI_CHANGE_CACHE["fetched_at"] = now
+            return cached
+        url = NSE_FO_BHAVCOPY_URL.format(date=day.strftime("%Y%m%d"))
+        request = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.nseindia.com/"})
+        try:
+            with urllib.request.urlopen(request, timeout=30) as response:
+                payload = response.read()
+            with zipfile.ZipFile(io.BytesIO(payload)) as archive:
+                text = archive.read(archive.namelist()[0]).decode("utf-8-sig")
+        except (urllib.error.URLError, OSError, ValueError, zipfile.BadZipFile, IndexError):
+            continue
+        rows = parse_fo_bhavcopy(text)
+        if not rows:
+            continue
+        data = {"date": day.isoformat(), "fetchedAt": datetime.now(IST).isoformat(timespec="seconds"), "rows": rows}
+        OI_CHANGE_CACHE["data"] = data
+        OI_CHANGE_CACHE["fetched_at"] = now
+        save_json_cache(OI_CHANGE_CACHE_PATH, data)
+        return data
+    return cached or {"date": None, "fetchedAt": None, "rows": []}
 
 
 class BlogHandler(BaseHTTPRequestHandler):
@@ -804,6 +1002,12 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/breakout-desk":
             self.send_json(fetch_breakout_data())
+            return
+        if route == "/api/nse-indices":
+            self.send_json(fetch_nse_indices())
+            return
+        if route == "/api/oi-change":
+            self.send_json(fetch_oi_change())
             return
         if route == "/api/momentum":
             self.send_json(momentum.load_state(ROOT))
@@ -1189,6 +1393,7 @@ if __name__ == "__main__":
     port = int(os.environ.get("LET_MONEY_EARN_PORT", "8000"))
     server = ThreadingHTTPServer((host, port), BlogHandler)
     threading.Thread(target=refresh_mf_cache_nightly, daemon=True).start()
+    threading.Thread(target=build_market_reel_daily, daemon=True).start()
     display_host = "127.0.0.1" if host == "0.0.0.0" else host
     print(f"Let Money Earn is running at http://{display_host}:{port}")
     try:

@@ -52,7 +52,7 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
+The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`; Risk Profile & Goal SIP: `goal-sip-calculator.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
 
 ### Draft articles (`drafts/`)
 
@@ -73,6 +73,16 @@ Menu: **Mutual Funds → Fund SWP Calculator**. Pick up to six funds, an amount 
 - **Data:** NAV history from [mfapi.in](https://www.mfapi.in/) (AMFI data), fetched by the server: `/api/mf/search?q=` (searches mfapi.in's full scheme list, about 40,000 schemes, matching every word typed in any order; the list is saved in `mf_nav_cache/schemes.json`) and `/api/mf/nav/<scheme code>` (full history, cached on disk in `mf_nav_cache/<code>.json`, git-ignored; if mfapi.in can't be reached the last saved copy is served). Both caches last until midnight IST: the public app loads the scheme list when it starts, and just after midnight a background thread re-fetches it and every cached fund (`refresh_mf_cache_nightly`), so each day starts on the previous evening's NAVs. All return maths runs in the browser (`mf-compare.js`).
 - The "+ Nifty 50 index fund" button and the ready-made comparisons use fixed scheme codes (`BENCHMARK_CODE`, `PRESETS` in `mf-compare.js`).
 - Returns come from published NAVs and ignore exit loads and taxes.
+
+### Risk Profile & Goal SIP Calculator (`goal-sip-calculator.html`)
+
+Menu: **Calculators → Risk Profile & Goal SIP**, also linked from the top of `calculators.html`. Kept out of search for now (`noindex`, not in `SITEMAP_STATIC_PAGES`) until compliance signs it off (BRS CR-08). Everything runs in the browser and nothing is stored or sent. Ten scored questions give a risk capacity score (Q1–5) and a willingness score (Q6–10); the lower one picks one of five profiles and its equity/debt/gold mix, with equity capped for goals under 7 years. For up to six goals it shows the inflated cost, monthly SIP (start of month), step-up SIP and lumpsum, funds goals from the monthly surplus in priority order, and lists what-if levers for goals left short. "Save as PDF" prints an A4 report with the disclaimers on every page.
+
+- `goal-sip-config.js`: everything compliance reviews (CR-09): ARN, score bands, allocations, horizon caps, default rates and inflation, and all question and report wording (`strings.en`, so a Hindi block can be added).
+- `goal-sip-calc.js`: the maths, no DOM. Tests: `node --test tests/goal-sip.test.js` checks every figure against a month-by-month simulation to within ₹1.
+- `goal-sip.js`: the steps, the live report and printing.
+
+After sign-off: change the page's robots meta to `index, follow` and add the page to `SITEMAP_STATIC_PAGES` in `app.py`.
 
 ### Loan EMI & Prepayment (`loan-prepayment.html`)
 
@@ -196,16 +206,27 @@ py -m pip install edge-tts imageio-ffmpeg playwright   # once; uses the installe
 py reels\make_reel_video.py                            # writes reels\madhur-vani-reel.mp4
 ```
 
+## Daily market reel (`market_reel.py`)
+
+The public server builds a 2-minute English market-data reel every weekday evening and posts it to the @let.money.earn Instagram account as a Reel. `app.py` (`build_market_reel_daily`) calls `market_reel.run()` every 30 minutes from 8:30 pm IST until midnight; a run does nothing on holidays, before NSE has published, or once the day is posted. Scenes: FII/DII cash flows, a 5-session FII/DII trend (once 3 days are saved), index-futures long/short by participant, NIFTY/BANKNIFTY F&O, OI change across all F&O stocks, the four buildups, and a disclaimer with the ARN. Data comes from NSE's provisional FII/DII API, the participant-wise OI file and the F&O bhavcopy (`fetch_oi_change`).
+
+Each scene is drawn with Pillow and joined by ffmpeg with crossfades and background music, in a temporary folder that is deleted afterwards, so no browser and no extra folder are needed on the server. The brand background, music and Mukta fonts (`market-reel/assets/`) and an ffmpeg binary (from `imageio-ffmpeg`) are bundled into `LetMoneyEarn.exe` by the spec. Two files sit next to the exe:
+
+- `instagram.env` — `INSTAGRAM_USER_ID` and `INSTAGRAM_TOKEN` (see `market-reel/instagram.env.example`). Without it no reel is built. The token lasts 60 days and is not refreshed by this code; paste a new one before it expires.
+- `market_reel_state.json` — saved FII/DII history and the dates already posted (so a day is never posted twice).
+
+Each run's outcome goes to `market_reel.log` next to the exe. To check a build without posting, start the exe with `MARKET_REEL_TEST_OUT=C:\path\preview.mp4`: it builds one reel for the latest data at startup. From source: `py market_reel.py --force --no-post --out preview.mp4`.
+
 ## Building the executables
 
-The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder):
+The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder). The build Python needs `pillow` and `imageio-ffmpeg` (`py -m pip install pillow imageio-ffmpeg`) for the market reel:
 
 ```powershell
 py -m PyInstaller --noconfirm LetMoneyEarn.spec
 py -m PyInstaller --noconfirm LetMoneyEarnAdmin.spec
 ```
 
-Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, `upi-qr.png` (the payment QR on `sheets.html`), plus `breakout_data.json`, `momentum_teaser.json`, `momentum_nse_teaser.json` and `etf_teaser.json` (not `momentum_study.json`, `momentum_nse_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database. The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
+Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, `upi-qr.png` (the payment QR on `sheets.html`), plus `breakout_data.json`, `momentum_teaser.json`, `momentum_nse_teaser.json` and `etf_teaser.json` (not `momentum_study.json`, `momentum_nse_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database, and keep the VM's own `instagram.env` and `market_reel_state.json` (copy `instagram.env` there once). The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
 
 ## Punam Numerology (subdomain site)
 

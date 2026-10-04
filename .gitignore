@@ -9,6 +9,8 @@ dist/
 *.exe
 price_history_cache.json
 fundamentals_cache.json
+nse_indices_cache.json
+oi_change_cache.json
 mf_nav_cache/
 momentum_prices.json
 *.json.tmp
@@ -33,3 +35,16 @@ study/fno_bhavcopy/
 
 # NIFTY iron fly handbook (sold for Rs 500): sources, charts and the Word file stay out of this public repo
 study/iron_fly_handbook/
+
+# daily market reel output
+market-reel/out/
+market-reel/data.js
+market-reel/market_reel.log
+market-reel/venv/
+market-reel/instagram.env
+market_reel_state.json
+instagram.env
+preview.mp4
+
+# Hindi doha reel pipeline: venv, voice model and rendered videos (3+ GB)
+dohe/

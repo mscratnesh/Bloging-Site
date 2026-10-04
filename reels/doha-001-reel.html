@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>दोहा 1 Reel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=Mukta:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b1a10;--panel:#13291b;--line:#2c4a35;--fg:#eef6ee;--muted:#9fb8a5;--accent:#f2b632;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 Mukta,'Nirmala UI',system-ui,sans-serif;min-height:100vh;display:flex;gap:32px;align-items:center;justify-content:center;flex-wrap:wrap;padding:24px 16px}
+canvas{height:min(88vh,1100px);aspect-ratio:9/16;max-width:100%;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.5);background:#000}
+.panel{width:min(340px,100%);display:flex;flex-direction:column;gap:14px}
+h1{font-size:22px;margin:0}
+p{margin:0;color:var(--muted)}
+button{font:inherit;font-weight:600;padding:12px 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:#1a1405;cursor:pointer}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+#status{min-height:1.5em;font-variant-numeric:tabular-nums}
+</style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1920"></canvas>
+<div class="panel">
+  <h1>दोहा 1 · Compounding और धैर्य</h1>
+  <p>1080×1920 portrait reel built from "निवेश और जीवन के 100 दोहे". This page is the silent preview; make_doha_reel.py records the MP4 with voice and music.</p>
+  <button id="play">▶ Preview</button>
+  <div id="status"></div>
+</div>
+<script>
+const W = 1080, H = 1920;
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+const F_DOHA = "'Tiro Devanagari Hindi','Nirmala UI',serif";
+const F_BODY = "Mukta,'Nirmala UI',sans-serif";
+const COL = { cream: '#FFF8E6', gold: '#F5C04A', goldDeep: '#E2A21B', green: '#7FD88F', muted: 'rgba(255,248,230,.72)' };
+
+// ---- Content (दोहा 1 from निवेश_और_जीवन_के_100_दोहे_3.docx) -------------------
+const SITE = 'letmoneyearn.in';
+const SHORT_DISCLAIMER = 'शैक्षिक सामग्री • निवेश सलाह नहीं';
+const FULL_DISCLAIMER = [
+  'यह वीडियो केवल शैक्षिक उद्देश्य के लिए है, यह निवेश सलाह नहीं है।',
+  'उदाहरणों के आंकड़े अनुमानित हैं; पिछला प्रदर्शन भविष्य की गारंटी नहीं है।',
+  'Mutual Fund investments are subject to market risks, read all scheme related documents carefully.',
+  'Ratnesh Kumar Singh — NISM certified Mutual Fund Distributor (AMFI ARN-132137). Not a SEBI-registered Research Analyst.',
+  'निवेश से पहले अपने वित्तीय सलाहकार से परामर्श करें।',
+];
+const SERIES = 'निवेश और जीवन के दोहे';
+const NUM = 'दोहा 1  •  कबीर';
+const LESSON = 'Compounding और धैर्य';
+const MOOL = ['धीरे-धीरे रे मना,', 'धीरे सब कुछ होय।', 'माली सींचे सौ घड़ा,', 'ऋतु आए फल होय॥'];
+const ARTH = 'मन को समझाओ — धीरे-धीरे सब कुछ होता है। माली सैकड़ों घड़े पानी डालता है, पर फल तभी आता है जब ऋतु आती है।';
+const NIVESH = ['धीरे-धीरे रे निवेशक,', 'धीरे सब कुछ होय।', 'SIP करे सौ मास,', 'ब्याज बढ़त होय॥'];
+const VYAKHYA = 'जैसे माली रोज़ पानी देता है पर फल समय पर आता है, वैसे ही SIP में हर महीने छोटी राशि डालने से समय के साथ बड़ा corpus बनता है।';
+const SIP_NOTE = '₹5,000/माह SIP • 12% सालाना (अनुमानित)';
+const SIP_ROWS = [['10 साल', '₹11.6 लाख', 11.6], ['20 साल', '₹49.9 लाख', 49.9], ['30 साल', '₹1.76 करोड़', 176]];
+const CLOSER = 'Compounding का जादू तभी दिखता है जब निवेशक धैर्य रखे।';
+const GLOW_WORDS = new Set(['धीरे-धीरे', 'फल', 'SIP', 'ब्याज', 'निवेशक']);
+
+// Scene lengths in seconds. make_doha_reel.py replaces them with lengths fitted to the narration.
+let SCENES = [
+  { id: 'intro', d: 4 }, { id: 'mool', d: 9 }, { id: 'arth', d: 9 },
+  { id: 'nivesh', d: 9 }, { id: 'vyakhya', d: 18 }, { id: 'outro', d: 8 },
+];
+const total = () => SCENES.reduce((a, s) => a + s.d, 0);
+function setDurations(ds) { ds.forEach((d, i) => SCENES[i].d = d); return total(); }
+
+// ---- Helpers -------------------------------------------------------------
+const clamp = x => Math.max(0, Math.min(1, x));
+const seg = (t, a, b) => clamp((t - a) / (b - a));
+const eo = x => 1 - Math.pow(1 - x, 3);
+
+let seed = 11;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+const SPARKS = Array.from({ length: 55 }, () => ({
+  x: rnd() * W, y: rnd() * H, r: 1.5 + rnd() * 3.5, s: 10 + rnd() * 26, p: rnd() * 6.28, a: .25 + rnd() * .5
+}));
+
+const BG = new Image();
+function setBackground(src) {
+  return new Promise(ok => { BG.onload = BG.onerror = () => ok(BG.naturalWidth); BG.src = src; });
+}
+
+// Brand image, cover-fit with a slow zoom; `dim` lays a dark green veil over it for text scenes.
+function background(t, dim) {
+  ctx.fillStyle = '#0d3b1e'; ctx.fillRect(0, 0, W, H);
+  if (BG.naturalWidth) {
+    const z = 1.02 + .04 * Math.sin(t * .08);
+    const s = Math.max(W / BG.naturalWidth, H / BG.naturalHeight) * z;
+    const w = BG.naturalWidth * s, h = BG.naturalHeight * s;
+    ctx.drawImage(BG, (W - w) / 2, (H - h) / 2, w, h);
+  }
+  if (dim > 0) {
+    const g = ctx.createLinearGradient(0, 0, 0, H);
+    g.addColorStop(0, `rgba(4,30,14,${.84 * dim})`); g.addColorStop(.45, `rgba(4,32,15,${.9 * dim})`); g.addColorStop(1, `rgba(3,24,11,${.8 * dim})`);
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+  }
+  for (const p of SPARKS) {
+    const y = ((p.y - t * p.s) % H + H) % H, x = p.x + Math.sin(t * .6 + p.p) * 16;
+    ctx.fillStyle = `rgba(255,230,140,${p.a * (.6 + .4 * Math.sin(t * 2 + p.p))})`;
+    ctx.beginPath(); ctx.arc(x, y, p.r, 0, 7); ctx.fill();
+  }
+}
+
+function text(str, x, y, font, color, alpha, align = 'center', shadow = 10) {
+  if (alpha <= 0) return;
+  ctx.font = font; ctx.fillStyle = color; ctx.globalAlpha = alpha; ctx.textAlign = align;
+  ctx.shadowColor = 'rgba(0,0,0,.55)'; ctx.shadowBlur = shadow;
+  ctx.fillText(str, x, y);
+  ctx.shadowBlur = 0; ctx.globalAlpha = 1; ctx.textAlign = 'left';
+}
+
+function roundRect(x, y, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+}
+
+// Gold pill with a section name, e.g. "मूल दोहा".
+function pill(label, y, alpha) {
+  if (alpha <= 0) return;
+  ctx.font = `700 46px ${F_BODY}`;
+  const w = ctx.measureText(label).width + 80;
+  ctx.globalAlpha = alpha; ctx.fillStyle = COL.gold;
+  roundRect(W / 2 - w / 2, y - 50, w, 76, 38); ctx.fill();
+  ctx.fillStyle = '#2a1d00'; ctx.textAlign = 'center'; ctx.fillText(label, W / 2, y + 2);
+  ctx.textAlign = 'left'; ctx.globalAlpha = 1;
+}
+
+function ornament(y, alpha, half = 200) {
+  if (alpha <= 0) return;
+  const cx = W / 2, w = half * eo(alpha);
+  ctx.globalAlpha = alpha; ctx.strokeStyle = COL.gold; ctx.lineWidth = 2;
+  ctx.beginPath(); ctx.moveTo(cx - w, y); ctx.lineTo(cx - 24, y); ctx.moveTo(cx + 24, y); ctx.lineTo(cx + w, y); ctx.stroke();
+  ctx.fillStyle = COL.gold;
+  ctx.beginPath(); ctx.moveTo(cx, y - 9); ctx.lineTo(cx + 9, y); ctx.lineTo(cx, y + 9); ctx.lineTo(cx - 9, y); ctx.fill();
+  ctx.globalAlpha = 1;
+}
+
+// Reveal a line word by word, centred.
+function drawWords(line, y, font, t0, gap, t, alpha) {
+  if (alpha <= 0) return;
+  ctx.font = font;
+  const ws = line.split(' '), sp = ctx.measureText(' ').width;
+  const widths = ws.map(w => ctx.measureText(w).width);
+  let x = W / 2 - (widths.reduce((a, b) => a + b, 0) + sp * (ws.length - 1)) / 2;
+  ws.forEach((w, i) => {
+    const k = eo(seg(t, t0 + i * gap, t0 + i * gap + .6));
+    if (k > 0) {
+      const glow = GLOW_WORDS.has(w.replace(/[,।॥]/g, ''));
+      ctx.globalAlpha = alpha * k;
+      ctx.fillStyle = glow ? COL.gold : COL.cream;
+      ctx.shadowColor = glow ? 'rgba(245,192,74,.8)' : 'rgba(0,0,0,.5)';
+      ctx.shadowBlur = glow ? 26 : 12;
+      ctx.fillText(w, x, y + (1 - k) * 22);
+    }
+    x += widths[i] + sp;
+  });
+  ctx.globalAlpha = 1; ctx.shadowBlur = 0; ctx.shadowColor = 'transparent';
+}
+
+function wrap(str, font, maxW) {
+  ctx.font = font;
+  const lines = []; let line = '';
+  for (const w of str.split(' ')) {
+    const test = line ? line + ' ' + w : w;
+    if (ctx.measureText(test).width > maxW && line) { lines.push(line); line = w; } else line = test;
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+function paragraph(str, y, font, lh, t0, t, alpha, maxW = 900) {
+  const lines = wrap(str, font, maxW);
+  lines.forEach((ln, i) => drawWords(ln, y + i * lh, font, t0 + i * .5, .04, t, alpha));
+  return y + lines.length * lh;
+}
+
+// Four half-lines of a doha, revealed across `span` seconds.
+function doha(lines, t, d, alpha) {
+  const ys = [760, 880, 1110, 1230], span = Math.min(d * .7, 6);
+  lines.forEach((h, i) => drawWords(h, ys[i], `84px ${F_DOHA}`, .5 + i * span / 4, .22, t, alpha));
+  ornament(990, seg(t, .5 + span / 2 - .4, .5 + span / 2 + .2) * alpha, 110);
+}
+
+function header(alpha) {
+  text(SERIES, W / 2, 200, `600 40px ${F_BODY}`, COL.gold, alpha);
+  text(`${NUM}  •  ${LESSON}`, W / 2, 262, `500 38px ${F_BODY}`, COL.muted, alpha);
+}
+
+function footer(alpha) {
+  if (alpha <= 0) return;
+  ctx.globalAlpha = alpha * .9; ctx.fillStyle = 'rgba(0,0,0,.35)';
+  roundRect(W / 2 - 330, 1712, 660, 132, 28); ctx.fill(); ctx.globalAlpha = 1;
+  text(SITE, W / 2, 1772, `700 48px ${F_BODY}`, COL.gold, alpha);
+  text(SHORT_DISCLAIMER, W / 2, 1822, `500 32px ${F_BODY}`, COL.cream, alpha);
+}
+
+// ---- Scenes (t = seconds into the scene, d = its length, a = its fade) ---------
+const DRAW = {
+  intro(t, d, a) {
+    text(SERIES, W / 2, 210, `600 50px ${F_BODY}`, COL.cream, a * eo(seg(t, .2, .9)), 'center', 18);
+    text(NUM, W / 2, 300, `600 58px ${F_BODY}`, COL.gold, a * eo(seg(t, .5, 1.2)), 'center', 18);
+    const k = eo(seg(t, .9, 1.7));
+    ctx.font = `700 64px ${F_BODY}`;
+    const w = ctx.measureText(LESSON).width + 100;
+    ctx.globalAlpha = a * k; ctx.fillStyle = 'rgba(6,48,22,.88)';
+    roundRect(W / 2 - w / 2, 1330 - 62 + (1 - k) * 30, w, 100, 50); ctx.fill(); ctx.globalAlpha = 1;
+    text(LESSON, W / 2, 1352 + (1 - k) * 30, `700 64px ${F_BODY}`, COL.gold, a * k);
+  },
+  mool(t, d, a) { header(a); pill('मूल दोहा', 520, a); doha(MOOL, t, d, a); text('— संत कबीर', W / 2, 1420, `500 42px ${F_BODY}`, COL.muted, a * seg(t, d * .7, d * .7 + .6)); },
+  arth(t, d, a) { header(a); pill('अर्थ', 520, a); paragraph(ARTH, 760, `500 60px ${F_BODY}`, 100, .4, t, a); },
+  nivesh(t, d, a) { header(a); pill('निवेश दोहा', 520, a); doha(NIVESH, t, d, a); },
+  vyakhya(t, d, a) {
+    header(a); pill('व्याख्या', 520, a);
+    const end = paragraph(VYAKHYA, 680, `500 50px ${F_BODY}`, 80, .3, t, a);
+    // SIP growth bars appear in the middle third of the scene
+    const t1 = d * .38, bx = 140, bw = 800;
+    text(SIP_NOTE, W / 2, end + 40, `600 40px ${F_BODY}`, COL.green, a * seg(t, t1, t1 + .5));
+    SIP_ROWS.forEach(([yrs, amt, v], i) => {
+      const y = end + 120 + i * 120, k = eo(seg(t, t1 + .4 + i * 1.2, t1 + 1.6 + i * 1.2));
+      if (k <= 0) return;
+      text(yrs, bx, y, `600 40px ${F_BODY}`, COL.cream, a * k, 'left');
+      ctx.globalAlpha = a * .25; ctx.fillStyle = COL.cream; roundRect(bx, y + 18, bw, 26, 13); ctx.fill();
+      ctx.globalAlpha = a; ctx.fillStyle = COL.gold; roundRect(bx, y + 18, Math.max(26, bw * v / 176 * k), 26, 13); ctx.fill();
+      ctx.globalAlpha = 1;
+      text(amt, bx + bw, y, `700 44px ${F_BODY}`, COL.gold, a * k, 'right');
+    });
+    paragraph(CLOSER, end + 540, `600 50px ${F_BODY}`, 78, d * .72, t, a);
+  },
+  outro(t, d, a) {
+    // logo stays visible from the background; URL and the full disclaimer sit below it
+    const k = eo(seg(t, .2, 1));
+    text('ऐसी ही सीख के लिए', W / 2, 230, `600 50px ${F_BODY}`, COL.cream, a * k, 'center', 18);
+    text(SITE, W / 2, 320, `700 76px ${F_BODY}`, COL.gold, a * k, 'center', 20);
+    const c = eo(seg(t, .8, 1.6)), font = `500 34px ${F_BODY}`;
+    const paras = FULL_DISCLAIMER.map(p => wrap(p, font, W - 220));
+    const h = 130 + paras.reduce((s, ls) => s + ls.length * 48 + 18, 0) + 20, y0 = 1830 - h;
+    ctx.globalAlpha = a * c * .95; ctx.fillStyle = '#FFFDF6';
+    roundRect(70, y0, W - 140, h, 28); ctx.fill(); ctx.globalAlpha = 1;
+    text('Disclaimer', W / 2, y0 + 70, `700 46px ${F_BODY}`, '#9b1c1c', a * c, 'center', 0);
+    let y = y0 + 140;
+    for (const ls of paras) {
+      for (const ln of ls) { text(ln, W / 2, y, font, '#1f3326', a * c, 'center', 0); y += 48; }
+      y += 18;
+    }
+  },
+};
+
+function render(t) {
+  ctx.textBaseline = 'alphabetic'; ctx.textAlign = 'left';
+  let start = 0, i = 0;
+  while (i < SCENES.length - 1 && t >= start + SCENES[i].d) start += SCENES[i++].d;
+  const { id, d } = SCENES[i], lt = t - start;
+  const textScene = id !== 'intro' && id !== 'outro';
+  // veil: off for the intro and outro so the logo shows, on for the text scenes
+  const prevText = i > 0 && !['intro', 'outro'].includes(SCENES[i - 1].id);
+  const dim = textScene ? (prevText ? 1 : eo(seg(lt, 0, .6))) : (i > 0 ? .55 * (1 - seg(lt, 0, .6)) + .25 : 0);
+  background(t, id === 'outro' ? Math.max(dim, .25) : dim);
+
+  const a = eo(seg(lt, 0, .5)) * (i === SCENES.length - 1 ? 1 : 1 - seg(lt, d - .4, d));
+  DRAW[id](lt, d, a);
+  if (id !== 'outro') footer(id === 'intro' ? eo(seg(lt, 1.2, 1.8)) : 1);
+
+  const black = Math.max(1 - seg(t, 0, .6), seg(t, total() - .6, total()));
+  if (black > 0) { ctx.fillStyle = `rgba(0,0,0,${black})`; ctx.fillRect(0, 0, W, H); }
+}
+
+// ---- Preview ---------------------------------------------------------------
+const $ = id => document.getElementById(id);
+$('play').onclick = () => {
+  $('play').disabled = true;
+  const t0 = performance.now(), D = total();
+  (function frame() {
+    const t = Math.min((performance.now() - t0) / 1000, D);
+    render(t);
+    $('status').textContent = `${t.toFixed(1)} / ${D}s`;
+    if (t < D) requestAnimationFrame(frame); else $('play').disabled = false;
+  })();
+};
+
+Promise.all([
+  setBackground('assets/brand_bg.png'),
+  document.fonts.load(`84px ${F_DOHA}`, 'धीरे'),
+  document.fonts.load(`500 60px ${F_BODY}`, 'धीरे'),
+  document.fonts.load(`700 48px ${F_BODY}`, 'धीरे'),
+]).catch(() => {}).finally(() => render(16));
+</script>
+</body>
+</html>

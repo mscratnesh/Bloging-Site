@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="NSE index dashboard — closing level, daily change, volume, turnover, P/E, P/B and dividend yield for every NSE index, updated each trading day.">
+<title>NSE Index Dashboard | Let Money Earn</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<link rel="canonical" href="https://letmoneyearn.in/nse-indices.html">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .ix-hero{padding:40px max(24px,calc((100% - 1180px)/2)) 28px;border-bottom:1px solid var(--line)}
+  .ix-hero h1{max-width:760px;font:600 clamp(36px,4.8vw,56px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .ix-hero p{max-width:600px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .ix-stamp{margin-top:20px;font:12px var(--mono);color:var(--muted)}
+  .ix-stamp .stale{background:#f3e3df;color:var(--coral-text);padding:2px 8px;margin-left:6px}
+
+  .ix-wrap{padding:32px max(24px,calc((100% - 1180px)/2)) 60px}
+  .ix-strip{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:32px}
+  .ix-tile{min-width:0;background:var(--paper);padding:16px 18px;display:flex;flex-direction:column;gap:4px;border-top:3px solid var(--c,var(--line))}
+  .ix-tile .l{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ix-tile .n{font:600 26px var(--serif);font-variant-numeric:tabular-nums}
+  .ix-tile .d{font:13px var(--mono);font-variant-numeric:tabular-nums}
+  @media(max-width:900px){.ix-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.ix-tile:last-child:nth-child(odd){grid-column:1/-1}.ix-tile{padding:14px}.ix-tile .n{font-size:22px}}
+
+  .ix-section{min-width:0;border-top:1px solid var(--ink);padding-top:16px;margin-bottom:36px}
+  .ix-section h2{font:600 30px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
+  .ix-section .sub{color:var(--muted);font-size:13px;margin:0 0 20px}
+
+  .ix-movers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px}
+  .ix-movers h3{font:600 11px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 8px}
+  .ix-movers ol{list-style:none;margin:0;padding:0}
+  .ix-movers li{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px}
+  .ix-movers li span:first-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ix-movers li span:last-child{font-family:var(--mono);font-variant-numeric:tabular-nums;flex-shrink:0}
+  @media(max-width:700px){.ix-movers{grid-template-columns:minmax(0,1fr)}}
+
+  .ix-tools{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-bottom:14px}
+  .ix-search{flex:1 1 240px;min-width:0;padding:10px 12px;border:1px solid var(--line);background:#fff;font:14px var(--sans);color:var(--ink)}
+  .ix-search:focus{outline:2px solid var(--ink);outline-offset:-1px}
+  .ix-groups{display:flex;flex-wrap:wrap;gap:6px}
+  .ix-groups button{border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 12px;font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+  .ix-groups button:hover{border-color:var(--ink)}
+  .ix-groups button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .ix-count{font:12px var(--mono);color:var(--muted);margin:0 0 10px}
+
+  .ix-table-wrap{overflow-x:auto;border:1px solid var(--line);background:#fff}
+  .ix-table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  .ix-table th,.ix-table td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+  .ix-table th:first-child,.ix-table td:first-child{text-align:left;position:sticky;left:0;background:#fff;max-width:280px;overflow:hidden;text-overflow:ellipsis;border-right:1px solid var(--line)}
+  .ix-table th{font:500 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--paper)!important;position:sticky;top:0}
+  .ix-table th button{all:unset;cursor:pointer}
+  .ix-table th button:hover,.ix-table th[aria-sort] button{color:var(--ink)}
+  .ix-table th[aria-sort="ascending"] button::after{content:" ▲"}
+  .ix-table th[aria-sort="descending"] button::after{content:" ▼"}
+  .ix-table td{font-family:var(--mono)}
+  .ix-table td:first-child{font-family:var(--sans);font-weight:600}
+  .ix-table tbody tr:hover td{background:#faf9f4}
+  .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
+  .ix-empty{padding:16px;color:var(--muted);font:12px var(--mono)}
+  .ix-note{color:var(--muted);font-size:12px;margin:14px 0 0}
+
+  @media(max-width:700px){
+    .ix-hero{padding:32px 16px 24px}
+    .ix-wrap{padding:24px 16px 44px}
+    .ix-table th:first-child,.ix-table td:first-child{max-width:170px}
+    .site-disclaimer{padding:25px 16px}
+  }
+  .site-disclaimer{padding:25px max(24px,calc((100% - 1180px)/2));border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+  .site-disclaimer strong{display:block;color:var(--ink);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+</style>
+</head>
+<body>
+  <div class="top-strip"><span class="ts-long">Questions about investing or mutual funds? Talk to us on</span><span class="ts-short">Talk to us</span><a class="ts-wa" href="https://wa.me/919967355038?text=Hi%2C%20I%20found%20you%20on%20Let%20Money%20Earn." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><a class="ts-tg" href="https://t.me/+nxbISOilZJoxOTFl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2l-11 6.9-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Telegram</a><span class="ts-arn">AMFI-registered MFD · ARN-132137</span></div>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a><a href="goal-sip-calculator.html">Risk Profile &amp; Goal SIP</a><a href="mf-compare.html">MF Rolling Returns Compare</a><a href="mf-sip.html">MF SIP Calculator</a><a href="mf-swp.html">MF SWP Calculator</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Markets</button><div class="nav-sub"><a href="nse-indices.html">NSE Index Dashboard</a><a href="oi-change.html">F&amp;O OI Change</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="ix-hero">
+      <p class="eyebrow">NSE · end of day · every index</p>
+      <h1>NSE Index Dashboard</h1>
+      <p>Closing level, daily change, volume, turnover and valuation (P/E, P/B, dividend yield) for every index NSE publishes, broad market to sector, strategy and bond indices.</p>
+      <p class="ix-stamp" id="stamp">Loading latest close…</p>
+    </section>
+
+    <div class="ix-wrap">
+      <div class="ix-strip" id="tiles" aria-label="Key indices"></div>
+
+      <section class="ix-section">
+        <h2>Today's movers</h2>
+        <p class="sub" id="breadth">Equity indices only. Inverse, leveraged, bond and volatility indices are left out.</p>
+        <div class="ix-movers">
+          <div><h3>Top gainers</h3><ol id="gainers"></ol></div>
+          <div><h3>Top losers</h3><ol id="losers"></ol></div>
+        </div>
+      </section>
+
+      <section class="ix-section">
+        <h2>All indices</h2>
+        <p class="sub">Click a column heading to sort. Turnover is in ₹ crore.</p>
+        <div class="ix-tools">
+          <input class="ix-search" id="search" type="search" placeholder="Search an index, e.g. bank, momentum, midcap" aria-label="Search indices">
+          <div class="ix-groups" id="groups" role="group" aria-label="Index group">
+            <button type="button" data-g="all" aria-pressed="true">All</button>
+            <button type="button" data-g="broad" aria-pressed="false">Broad</button>
+            <button type="button" data-g="sector" aria-pressed="false">Sector &amp; theme</button>
+            <button type="button" data-g="strategy" aria-pressed="false">Strategy</button>
+            <button type="button" data-g="other" aria-pressed="false">Bonds &amp; other</button>
+          </div>
+        </div>
+        <p class="ix-count" id="count"></p>
+        <div class="ix-table-wrap">
+          <table class="ix-table">
+            <thead><tr id="head"></tr></thead>
+            <tbody id="body"><tr><td colspan="12" class="ix-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <p class="ix-note">Source: NSE Indices daily closing file. P/E, P/B and dividend yield are as published by NSE; they are blank for indices where NSE does not report them.</p>
+      </section>
+    </div>
+  </main>
+
+  <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is a mutual fund distributor (AMFI ARN-132137), associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Nothing on this site is personal advice or a recommendation. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>AMFI-registered MFD · <a href="https://www.amfiindia.com/locate-distributor" target="_blank" rel="noopener" style="color:inherit">ARN-132137</a> · © 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script>
+  (function(){
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const num = (v, d = 2) => v == null ? "–" : Number(v).toLocaleString("en-IN", {minimumFractionDigits:d, maximumFractionDigits:d});
+    const signed = (v, d = 2, suffix = "") => v == null ? "–" : (v > 0 ? "+" : "") + num(v, d) + suffix;
+    const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
+    const vol = v => {
+      if (!v) return "–";
+      if (v >= 1e7) return num(v / 1e7, 2) + " Cr";
+      if (v >= 1e5) return num(v / 1e5, 2) + " L";
+      return num(v, 0);
+    };
+
+    const BROAD = /^(nifty 50|nifty next 50|nifty 100|nifty 200|nifty 500|nifty midcap 50|nifty midcap 100|nifty smallcap 100|nifty smallcap 250|nifty smallcap 50|nifty smallcap 500|nifty midcap 150|nifty midcap select|nifty largemidcap 250|nifty midsmallcap 400|nifty microcap 250|nifty total market|nifty next 100|nifty sme emerge|nifty500 multicap 50:25:25)$/i;
+    const OTHER = /g-sec|bharat bond|1d rate|inverse|leverage|futures|arbitrage|dividend points|india vix|usd|reits/i;
+    const STRATEGY = /momentum|quality|value|volatility|alpha|equal|beta|dividend|growth|esg|multifactor|shariah|ahimsa|liquid 15|flexicap|equal-cap/i;
+    const group = name => BROAD.test(name) ? "broad" : OTHER.test(name) ? "other" : STRATEGY.test(name) ? "strategy" : "sector";
+
+    const COLS = [
+      { key: "name", label: "Index", fmt: r => esc(r.name), text: true },
+      { key: "close", label: "Close", fmt: r => num(r.close) },
+      { key: "change", label: "Change", fmt: r => signed(r.change), cls: r => cls(r.change) },
+      { key: "changePct", label: "% Chg", fmt: r => signed(r.changePct, 2, "%"), cls: r => cls(r.changePct) },
+      { key: "open", label: "Open", fmt: r => num(r.open) },
+      { key: "high", label: "High", fmt: r => num(r.high) },
+      { key: "low", label: "Low", fmt: r => num(r.low) },
+      { key: "volume", label: "Volume", fmt: r => vol(r.volume) },
+      { key: "turnover", label: "Turnover", fmt: r => r.turnover ? num(r.turnover) : "–" },
+      { key: "pe", label: "P/E", fmt: r => num(r.pe) },
+      { key: "pb", label: "P/B", fmt: r => num(r.pb) },
+      { key: "divYield", label: "Div yld", fmt: r => r.divYield == null ? "–" : num(r.divYield) + "%" }
+    ];
+    const TILES = [["Nifty 50", "Nifty 50"], ["Nifty Bank", "Bank Nifty"], ["Nifty Midcap 150", "Midcap 150"], ["Nifty Smallcap 250", "Smallcap 250"], ["India VIX", "India VIX"]];
+
+    let rows = [], sortKey = null, sortDir = 1, activeGroup = "all";
+
+    function renderHead() {
+      $("head").innerHTML = COLS.map(c => {
+        const sort = c.key === sortKey ? ` aria-sort="${sortDir > 0 ? "ascending" : "descending"}"` : "";
+        return `<th scope="col"${sort}><button type="button" data-k="${c.key}">${c.label}</button></th>`;
+      }).join("");
+    }
+
+    function renderBody() {
+      const q = $("search").value.trim().toLowerCase();
+      let list = rows.filter(r => (activeGroup === "all" || r.group === activeGroup) && (!q || r.name.toLowerCase().includes(q)));
+      if (sortKey) {
+        const text = COLS.find(c => c.key === sortKey).text;
+        list = list.slice().sort((a, b) => {
+          const x = a[sortKey], y = b[sortKey];
+          if (x == null && y == null) return 0;
+          if (x == null) return 1;
+          if (y == null) return -1;
+          return (text ? String(x).localeCompare(String(y)) : x - y) * sortDir;
+        });
+      }
+      $("count").textContent = `${list.length} of ${rows.length} indices`;
+      $("body").innerHTML = list.length
+        ? list.map(r => "<tr>" + COLS.map(c => `<td class="${c.cls ? c.cls(r) : ""}"${c.text ? ` title="${esc(r.name)}"` : ""}>${c.fmt(r)}</td>`).join("") + "</tr>").join("")
+        : `<tr><td colspan="${COLS.length}" class="ix-empty">No index matches.</td></tr>`;
+    }
+
+    function renderTiles() {
+      const byName = Object.fromEntries(rows.map(r => [r.name.toLowerCase(), r]));
+      $("tiles").innerHTML = TILES.map(([name, label]) => {
+        const r = byName[name.toLowerCase()];
+        if (!r) return "";
+        const color = r.changePct > 0 ? "var(--success)" : r.changePct < 0 ? "var(--coral-text)" : "var(--line)";
+        return `<div class="ix-tile" style="--c:${color}"><span class="l">${esc(label)}</span><span class="n">${num(r.close)}</span><span class="d ${cls(r.changePct)}">${signed(r.change)} (${signed(r.changePct, 2, "%")})</span></div>`;
+      }).join("");
+    }
+
+    function renderMovers() {
+      const equity = rows.filter(r => r.group !== "other" && r.changePct != null);
+      const up = equity.filter(r => r.changePct > 0).length, down = equity.filter(r => r.changePct < 0).length;
+      $("breadth").textContent = `${up} equity indices up, ${down} down. Inverse, leveraged, bond and volatility indices are left out.`;
+      const item = r => `<li><span title="${esc(r.name)}">${esc(r.name)}</span><span class="${cls(r.changePct)}">${signed(r.changePct, 2, "%")}</span></li>`;
+      const sorted = equity.slice().sort((a, b) => b.changePct - a.changePct);
+      $("gainers").innerHTML = sorted.slice(0, 5).map(item).join("");
+      $("losers").innerHTML = sorted.slice(-5).reverse().map(item).join("");
+    }
+
+    $("head").addEventListener("click", e => {
+      const k = e.target.closest("button")?.dataset.k;
+      if (!k) return;
+      if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = k === "name" ? 1 : -1; }
+      renderHead(); renderBody();
+    });
+    $("search").addEventListener("input", renderBody);
+    $("groups").addEventListener("click", e => {
+      const b = e.target.closest("button");
+      if (!b) return;
+      activeGroup = b.dataset.g;
+      $("groups").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+      renderBody();
+    });
+
+    renderHead();
+    fetch("/api/nse-indices").then(r => r.json()).then(data => {
+      rows = (data.rows || []).map(r => ({ ...r, group: group(r.name) }));
+      if (!rows.length) {
+        $("stamp").textContent = "NSE data is unavailable right now. Please try again later.";
+        $("body").innerHTML = `<tr><td colspan="${COLS.length}" class="ix-empty">No data.</td></tr>`;
+        return;
+      }
+      const day = new Date(data.date + "T00:00:00");
+      const label = day.toLocaleDateString("en-IN", { weekday: "short", day: "2-digit", month: "short", year: "numeric" });
+      const ageDays = (Date.now() - day.getTime()) / 864e5;
+      $("stamp").innerHTML = `Close of ${esc(label)} · ${rows.length} indices` + (ageDays > 4 ? `<span class="stale">older than usual</span>` : "");
+      renderTiles(); renderMovers(); renderBody();
+    }).catch(() => {
+      $("stamp").textContent = "Could not load index data. Please refresh to try again.";
+    });
+  })();
+  </script>
+</body>
+</html>

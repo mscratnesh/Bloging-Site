@@ -70,6 +70,7 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `review.html` | submit a review | — | `/api/reviews` |
 | `calculators.html` | finance calculators | client-side only (`calculators.js`) | — |
 | `loan-prepayment.html` | loan EMI and prepayment | client-side only (`loan-prepayment.js`) | — |
+| `goal-sip-calculator.html` | risk profile test and goal-wise SIP (noindex until compliance sign-off) | client-side only (`goal-sip-config.js`, `goal-sip-calc.js`, `goal-sip.js`) | — |
 | `mf-compare.html`, `mf-sip.html`, `mf-swp.html` | fund rolling returns, SIP and SWP on real NAVs | `/api/mf/search`, `/api/mf/nav/:code` (`mf-compare.js`) | — |
 | `admin-login.html` | admin auth | — | `/api/admin/login` |
 | `admin.html` | posts CRUD | `/api/admin/posts` | POST/PUT/DELETE `/api/admin/posts` |

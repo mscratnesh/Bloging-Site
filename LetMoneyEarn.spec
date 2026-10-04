@@ -1,11 +1,17 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 
+import glob, imageio_ffmpeg
+
+# market reel: brand background, music, fonts and an ffmpeg binary, unpacked to market_reel_assets/
+reel_assets = [(f, 'market_reel_assets') for f in glob.glob('market-reel/assets/*')]
+reel_assets.append((imageio_ffmpeg.get_ffmpeg_exe(), 'market_reel_assets'))
+
 a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=reel_assets,
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
