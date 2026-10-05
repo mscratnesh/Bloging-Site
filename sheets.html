@@ -3,27 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Two ready-made Google Sheets for Indian stocks: the Momentum Sharpe Scan (₹4,999) and the Multi-Year Breakout Tracker (₹500).">
+  <meta name="description" content="Two rule-based Google Sheets tools for learning and testing stock-screening methods: a Sharpe-ratio momentum screener (₹4,999) and a multi-year breakout screener (₹500). Tools, not recommendations.">
   <link rel="canonical" href="https://letmoneyearn.in/sheets.html">
   <meta name="robots" content="index, follow">
-  <title>Google Sheets | Let Money Earn</title>
+  <title>Google Sheets Tools | Let Money Earn</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Let Money Earn">
-  <meta property="og:title" content="Google Sheets | Let Money Earn">
-  <meta property="og:description" content="Momentum Sharpe Scan and Multi-Year Breakout Tracker: ready-made Google Sheets for Indian stocks, ₹4,999 and ₹500.">
+  <meta property="og:title" content="Google Sheets Tools | Let Money Earn">
+  <meta property="og:description" content="Rule-based Google Sheets screeners for Indian stocks: you set the rules and the stock list, the sheet does the arithmetic. Tools for learning, not recommendations.">
   <meta property="og:url" content="https://letmoneyearn.in/sheets.html">
   <meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Google Sheets | Let Money Earn">
-  <meta name="twitter:description" content="Momentum Sharpe Scan and Multi-Year Breakout Tracker: ready-made Google Sheets for Indian stocks, ₹4,999 and ₹500.">
+  <meta name="twitter:title" content="Google Sheets Tools | Let Money Earn">
+  <meta name="twitter:description" content="Rule-based Google Sheets screeners for Indian stocks: you set the rules and the stock list, the sheet does the arithmetic. Tools for learning, not recommendations.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
   <style>
     .sheets-hero{padding:44px max(24px,calc((100% - 1180px)/2)) 44px;border-bottom:1px solid var(--line);background:linear-gradient(120deg,#f5f4ee 0%,#eaf0d1 100%);display:flex;justify-content:space-between;align-items:center;gap:40px}
-    .sheets-hero h1{max-width:820px;font:600 clamp(32px,4.2vw,54px) var(--serif);line-height:1.02;letter-spacing:-.02em;margin:0}.sheets-hero h1 em{color:var(--coral);font-weight:500}.sheets-hero p:last-child{max-width:540px;color:var(--muted);font-size:16px;margin:28px 0 0}
+    .sheets-hero h1{max-width:820px;font:600 clamp(32px,4.2vw,54px) var(--serif);line-height:1.02;letter-spacing:-.02em;margin:0}.sheets-hero h1 em{color:var(--coral);font-weight:500}.sheets-hero p:last-child{max-width:540px;color:var(--muted);font-size:16px;margin:28px 0 0}.sheets-hero p a{color:var(--ink)}.sheets-hero p a:hover{color:var(--coral)}
     
     .products{padding:0 max(24px,calc((100% - 1180px)/2)) 56px}.products>header{border-top:1px solid var(--ink);padding:13px 0 26px;font:11px var(--mono);text-transform:uppercase;display:flex;justify-content:space-between}
     .product-grid{display:grid;grid-template-columns:1fr 1fr;gap:28px}
@@ -54,42 +54,51 @@
   <div class="top-strip"><span class="ts-long">Questions about investing or mutual funds? Talk to us on</span><span class="ts-short">Talk to us</span><a class="ts-wa" href="https://wa.me/919967355038?text=Hi%2C%20I%20found%20you%20on%20Let%20Money%20Earn." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><a class="ts-tg" href="https://t.me/+nxbISOilZJoxOTFl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2l-11 6.9-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Telegram</a><span class="ts-arn">AMFI-registered MFD · ARN-132137</span></div>
   <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a><a href="goal-sip-calculator.html">Risk Profile &amp; Goal SIP</a><a href="mf-compare.html">MF Rolling Returns Compare</a><a href="mf-sip.html">MF SIP Calculator</a><a href="mf-swp.html">MF SWP Calculator</a><a href="portfolio-beta.html">Portfolio Beta</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Markets</button><div class="nav-sub"><a href="nse-indices.html">NSE Index Dashboard</a><a href="oi-change.html">F&amp;O OI Change</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
-    <section class="sheets-hero"><div><p class="eyebrow">Google Sheets for Indian stocks</p><h1>Two ready-made sheets.<br><em>The rules run themselves.</em></h1><p>A momentum scanner and a multi-year breakout tracker, built in Google Sheets with the scripts already set up. You get your own copy, fetch fresh prices with one click or on a schedule, and keep full control of every setting.</p></div></section>
+    <section class="sheets-hero"><div><p class="eyebrow">Google Sheets tools for Indian stocks</p><h1>Two rule-based screeners.<br><em>You set the rules.</em></h1><p>Spreadsheet versions of the methods explained in our <a href="momentum-study.html">Momentum Study</a> and <a href="breakout-study.html">Multi-Year Breakout Study</a>. You get your own copy, choose the stock list and every setting, and the sheet does the arithmetic. They are tools for learning and testing rules, not stock recommendations: the sheet shows how a rule scores stocks, and what you do with that is your own decision.</p></div></section>
 
     <section class="products"><header><span>The sheets</span><span>₹4,999 and ₹500 · one-time</span></header>
       <div class="product-grid">
         <article class="product" id="momentum">
           <div class="product-top"><h2>Momentum Sharpe Scan</h2><p class="price">₹4,999<small>one-time</small></p></div>
-          <p class="pitch">Ranks stocks by steady strength, builds a ready-to-follow portfolio and tells you exactly what to buy, what to sell and when to hold back.</p>
+          <p class="pitch">A screener that ranks the stocks you choose by a risk-adjusted momentum score (return per unit of volatility, a Sharpe-ratio measure), using the rules described in our Momentum Study.</p>
           <h3>What it does</h3>
           <ul>
-            <li>Scans every stock on your list after the close, by hand or automatically every weekday: the Nifty 500, the whole NSE or your own</li>
-            <li>Leaves out stocks that are in a weak trend, far below their highs or too thinly traded</li>
-            <li>Ranks the rest by how steadily they have risen, with a risk-adjusted momentum score</li>
-            <li>Two back-tested set-ups to choose from, one checked monthly and one weekly</li>
-            <li>Watches the market every day and tells you when to pause new buys or step aside into a liquid fund</li>
-            <li>Builds the rebalance plan: what to sell, what to buy, and how many shares with your money</li>
+            <li>Works on the stock list you choose (the Nifty 500, a wider NSE list or your own), refreshed by hand or on a schedule you set</li>
+            <li>Applies the filters you switch on: trend, distance from the 52-week high and minimum trading volume</li>
+            <li>Ranks the remaining stocks by their risk-adjusted momentum score, with every input shown so you can check the maths</li>
+            <li>Includes two rule settings from the study (monthly and weekly review) that you can change or replace</li>
+            <li>Shows the study's market-trend filter: whether the Nifty trend condition is currently on or off</li>
+            <li>Lets you model a hypothetical portfolio: enter an amount and see how it would be split under the rule's equal-weight method</li>
           </ul>
-          <div class="buy-row"><button class="buy" type="button" data-sheet="Momentum Sharpe Scan sheet (₹4,999)">Buy this sheet · ₹4,999 ↗</button></div>
+          <div class="buy-row"><button class="buy" type="button" data-sheet="Momentum Sharpe Scan sheet (₹4,999)">Get this sheet · ₹4,999 ↗</button></div>
         </article>
         <article class="product" id="breakout">
           <div class="product-top"><h2>Multi-Year Breakout Tracker</h2><p class="price">₹500<small>one-time</small></p></div>
-          <p class="pitch">Finds stocks breaking out of long-standing bases, sizes each trade to your risk and tracks every exit for you, week by week.</p>
+          <p class="pitch">A screener that checks the stocks you choose against the multi-year breakout rules described in our Breakout Study, and a journal for recording and reviewing your own trades.</p>
           <h3>What it does</h3>
           <ul>
-            <li>Flags weekly breakouts above long-standing resistance, confirmed by strong volume</li>
-            <li>Labels every stock: BREAKOUT, NEAR, EXTENDED, SKIP-RISK or BLOCKED</li>
-            <li>Includes a cup-and-handle scanner with its own READY and BREAKOUT signals</li>
-            <li>Allows new entries only when the broader market is in an uptrend</li>
-            <li>Sizes each trade from your capital and your risk per trade, with an initial stop-loss</li>
-            <li>Logs trades every week and manages exits in stages, from the first stop-loss to a trailing exit</li>
+            <li>Checks each stock on your list for a weekly close above long-standing resistance on higher volume</li>
+            <li>Labels each stock's chart state under the rules, such as BREAKOUT, NEAR or EXTENDED, so you can study how the pattern develops</li>
+            <li>Includes a cup-and-handle pattern scanner with its own pattern-state labels</li>
+            <li>Shows the study's market-trend condition (whether the broader market is above its trend line)</li>
+            <li>A position-size calculator: from the capital and risk per trade you enter, it works out the size that rule implies</li>
+            <li>A trade journal: you log the trades you choose to take, and it records them under the exit rules you set, for later review</li>
           </ul>
-          <div class="buy-row"><button class="buy" type="button" data-sheet="Multi-Year Breakout Tracker sheet (₹500)">Buy this sheet · ₹500 ↗</button></div>
+          <div class="buy-row"><button class="buy" type="button" data-sheet="Multi-Year Breakout Tracker sheet (₹500)">Get this sheet · ₹500 ↗</button></div>
         </article>
       </div>
     </section>
 
-    <section class="how"><div class="section-label"><span>How buying works</span><span>Delivered to your Google account</span></div>
+    <section class="how"><div class="section-label"><span>What these sheets are, and are not</span><span>Please read before ordering</span></div>
+      <ol>
+        <li><strong>Tools, not tips</strong>The sheets apply published, fixed rules to price data. A stock appearing in a ranking or with a label is the output of a formula, not our view on it and not a recommendation to buy, sell or hold.</li>
+        <li><strong>You decide</strong>You choose the stock list and every setting, and you make your own decisions. We don't tell anyone which stocks to trade, and we don't answer questions about specific stocks.</li>
+        <li><strong>No return promises</strong>The studies show how the rules behaved in the past, with their losing years. That says nothing certain about the future, and the sheets can lose money if you follow them.</li>
+        <li><strong>Your data, your account</strong>Prices come from Google Finance through your own Google account. We don't see your copy, your settings or your trades.</li>
+      </ol>
+    </section>
+
+    <section class="how"><div class="section-label"><span>How ordering works</span><span>Delivered to your Google account</span></div>
       <ol>
         <li><strong>Pay by UPI</strong>Scan the QR code below with any UPI app, or pay to the UPI ID: ₹4,999 for the Momentum sheet, ₹500 for the Breakout sheet, ₹5,499 for both.</li>
         <li><strong>Send your order</strong>Pick the sheet in the form, give the email of your Google account and the UPI transaction ID.</li>
@@ -131,7 +140,7 @@
       </form>
     </section>
 
-    <aside class="disclaimer"><strong>Important disclaimer</strong>These sheets are research tools. They apply fixed rules to market data and are not investment advice or a recommendation to buy or sell any security. Prices come from free public sources and can be late or wrong, so check before you act. Past behaviour of any rule does not guarantee future returns. The author of this site is a mutual fund distributor (AMFI ARN-132137), associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. You are responsible for your own decisions; consult a qualified financial adviser before investing.</aside>
+    <aside class="disclaimer"><strong>Important disclaimer</strong>These sheets are software tools for education and for testing rule-based screening methods. They apply fixed, published rules to market data. Their rankings, labels and calculations are not a research report, investment advice, or a recommendation to buy, sell or hold any security, and no stock is selected or endorsed by us. Prices come from Google Finance through your own Google account and can be delayed or wrong; check them before relying on any output. Past behaviour of any rule does not guarantee future results, and trading in stocks involves risk of loss. The author of this site is a mutual fund distributor (AMFI ARN-132137), associated with Nirmal Bang, and an investor. The author is not registered with SEBI as an investment adviser or research analyst, does not give investment advice, and does not provide stock-specific recommendations by any channel, including WhatsApp and Telegram. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. You are responsible for your own decisions; consult a SEBI-registered investment adviser before investing.</aside>
   </main>
   <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>AMFI-registered MFD · <a href="https://www.amfiindia.com/locate-distributor" target="_blank" rel="noopener" style="color:inherit">ARN-132137</a> · © 2026 Let Money Earn</span></footer>
   <script src="nav.js"></script>
