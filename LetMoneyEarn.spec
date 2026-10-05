@@ -12,11 +12,12 @@ a = Analysis(
     pathex=[],
     binaries=[],
     datas=reel_assets,
-    hiddenimports=[],
+    hiddenimports=['openpyxl', 'xlrd'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=[],
+    # pandas' optional extras the server never uses; without this the one-file exe balloons past 350 MB
+    excludes=['pyarrow', 'fsspec', 'matplotlib', 'scipy', 'sqlalchemy', 'torch', 'IPython'],
     noarchive=False,
     optimize=0,
 )

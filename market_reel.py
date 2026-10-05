@@ -29,7 +29,6 @@ UA = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.3
       "Accept": "application/json,text/html,*/*", "Accept-Language": "en-US,en;q=0.9"}
 GRAPH = "https://graph.instagram.com/v21.0"
 UPLOAD_URL = "https://uguu.se/upload"
-WHATSAPP = "https://chat.whatsapp.com/FP1WNN227pPGTvGQ1sYbmW"
 HASHTAGS = "#FII #DII #Nifty #OpenInterest #StockMarketIndia"      # Instagram allows at most 5
 KINDS = (("Long buildup", "Long Buildup", (True, True), (110, 224, 138)),
          ("Short covering", "Short Covering", (True, False), (184, 224, 122)),
@@ -418,7 +417,6 @@ def caption(D):
         "NIFTY/BANKNIFTY OI, participant-wise positions, OI change and all four buildups — full data in the reel 👆",
         "",
         "🌐 letmoneyearn.in",
-        f"💬 Get the daily market data on WhatsApp: {WHATSAPP}",
         "",
         "Disclaimer: For educational and information purposes only; not investment or trading advice. Data: NSE (provisional). "
         "Ratnesh Kumar Singh — NISM certified MFD (AMFI ARN-132137), not a SEBI-registered RA.",

@@ -37,6 +37,7 @@ import os
 import re
 import shutil
 import sys
+import time
 import urllib.parse
 import uuid
 import zipfile
@@ -459,8 +460,18 @@ def build(month_end: dt.date = None, out_dir: Path = None, cache_dir: Path = Non
                     houses_data[amc] = (last["asof"], last["schemes"])
                     notes.append(f"{amc}: {e}; kept {last['asof']}")
                 except (OSError, ValueError, KeyError):
-                    notes.append(f"{amc}: {e}; no earlier data")
-                print(f"  {amc}: {e}")
+                    # first run before the 10th (fund houses' deadline): nothing saved yet, so take the month before
+                    prev = last_month_end(month_end)
+                    try:
+                        if houses and amc not in houses:
+                            raise HoldingsError("not fetched this run")
+                        schemes = fetch_house(amc, prev, session)
+                        betas.write_atomic(good, {"asof": prev.isoformat(), "schemes": schemes})
+                        houses_data[amc] = (prev.isoformat(), schemes)
+                        notes.append(f"{amc}: {e}; used {prev:%b %Y}")
+                    except HoldingsError as e2:
+                        notes.append(f"{amc}: {e}; {prev:%b %Y}: {e2}; no earlier data")
+                print(f"  {amc}: {e}" + (f"; used {houses_data[amc][0]}" if amc in houses_data else ""))
         if len(houses_data) < MIN_FUND_HOUSES:
             raise HoldingsError(f"only {len(houses_data)} fund houses have data (need {MIN_FUND_HOUSES})")
 
@@ -511,9 +522,21 @@ def publish(out_dir: Path, index: dict, files: dict, stocks: dict):
     (tmp / "index.json").write_text(json.dumps(index, separators=(",", ":"), ensure_ascii=False), encoding="utf-8")
     shutil.rmtree(old, ignore_errors=True)
     if out_dir.exists():
-        os.replace(out_dir, old)
-    os.replace(tmp, out_dir)
+        _replace(out_dir, old)
+    _replace(tmp, out_dir)
     shutil.rmtree(old, ignore_errors=True)
+
+
+def _replace(src: Path, dst: Path, tries: int = 30):
+    """os.replace, retried: on Windows antivirus or the search indexer briefly holds just-written files,
+    and renaming their folder then fails with Access is denied."""
+    for attempt in range(tries):
+        try:
+            return os.replace(src, dst)
+        except PermissionError:
+            if attempt == tries - 1:
+                raise
+            time.sleep(2)
 
 
 def main():

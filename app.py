@@ -24,6 +24,12 @@ from datetime import datetime, timedelta, timezone
 from http.cookies import SimpleCookie
 from hmac import compare_digest
 
+try:                                              # urllib trusts only the Windows certificate store, which on a bare VM
+    import certifi                                # can miss NSE's root (CERTIFICATE_VERIFY_FAILED); add certifi's bundle,
+    os.environ.setdefault("SSL_CERT_FILE", certifi.where())   # the one requests already uses
+except ImportError:
+    pass
+
 import market_reel
 import momentum
 
