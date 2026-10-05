@@ -47,12 +47,14 @@ OI_CHANGE_CACHE_PATH = ROOT / "oi_change_cache.json"
 OI_CHANGE_CACHE_TTL = 30 * 60
 BETA_JSON_PATH = Path(os.environ.get("BETA_JSON_PATH") or ROOT / "data" / "betas.json")   # written weekly by betas.py
 MF_BETA_JSON_PATH = Path(os.environ.get("MF_BETA_JSON_PATH") or ROOT / "data" / "mf_betas.json")   # and by mf_betas.py
+MF_HOLDINGS_DIR = Path(os.environ.get("MF_HOLDINGS_DIR") or ROOT / "data" / "mf_holdings")   # monthly, by mf_holdings.py
+MF_HOLDINGS_FILE_RE = re.compile(r"^/data/mf_holdings/(index\.json|stocks\.json|f/[a-z0-9-]{3,90}\.json)$")
 DATA_JSON_GZIP = {}   # path -> (etag, gzipped body) for the beta files, so each weekly file is compressed once
 MF_API_URL = "https://api.mfapi.in/mf"
 MF_CACHE_DIR = ROOT / "mf_nav_cache"
 MF_CODE_RE = re.compile(r"^\d{1,8}$")
 SITE_URL = "https://letmoneyearn.in"
-SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nse-indices.html", "oi-change.html", "portfolio-beta.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
+SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nse-indices.html", "oi-change.html", "portfolio-beta.html", "mf-holdings.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -580,6 +582,46 @@ def build_betas_weekly():
                     failed = True
             # Friday's bhavcopy may not be out yet, so check again in 30 minutes; after a failure, in 2 hours
             wake = datetime.now(IST) + (timedelta(hours=2) if failed else timedelta(minutes=30))
+        time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
+
+
+def build_mf_holdings_monthly():
+    """Refresh the Fund Holdings Explorer's data (mf_holdings.py) on the 15th of each month from 9 am IST,
+    for the month just ended: SEBI's deadline is the 10th, and a few fund houses publish late. A fund
+    house that hadn't published keeps its previous month and is retried alone once a day for three
+    days. A missed month (server down) runs at the next start. Runs are logged in betas.db."""
+    try:
+        import betas
+        import mf_holdings                        # pandas, requests, openpyxl, xlrd: if missing, the data stays as it is
+    except ImportError as error:
+        print("Fund holdings builder disabled:", error)
+        return
+    while True:
+        now = datetime.now(IST)
+        target = now.replace(day=15, hour=9, minute=0, second=0, microsecond=0)
+        if target > now:
+            target = (target.replace(day=1) - timedelta(days=1)).replace(day=15)
+        month_end = target.date().replace(day=1) - timedelta(days=1)
+        last = betas.last_success(table=mf_holdings.RUN_TABLE)
+        index_path = mf_holdings.MF_HOLDINGS_DIR / "index.json"
+        stale = None
+        if last is not None and index_path.is_file() and datetime.fromisoformat(last["finished_at"]) >= target:
+            try:
+                houses = json.loads(index_path.read_text(encoding="utf-8"))["houses"]
+                names = {v: k for k, v in mf_holdings.AMCS.items()}
+                stale = [names[h] for h, asof in houses.items() if asof < month_end.isoformat() and h in names]
+                stale += [k for k, v in mf_holdings.AMCS.items() if v not in houses]
+            except (OSError, ValueError, KeyError):
+                stale = None
+        if stale == [] or (stale and now >= target + timedelta(days=3)):
+            wake = (target.replace(day=1) + timedelta(days=32)).replace(day=15)     # next month's 15th
+        else:
+            try:
+                mf_holdings.build(month_end, houses=stale or None)
+                wake = now + timedelta(days=1)                    # check again tomorrow for late fund houses
+            except Exception as error:                            # the previous data stays
+                print("Fund holdings build failed:", type(error).__name__, error)
+                wake = now + timedelta(hours=6)
         time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
 
 
@@ -1134,6 +1176,16 @@ class BlogHandler(BaseHTTPRequestHandler):
         if route == "/data/mf_betas.json":
             self.serve_data_json(MF_BETA_JSON_PATH)
             return
+        if route.startswith("/data/mf_holdings/"):
+            match = MF_HOLDINGS_FILE_RE.match(route)
+            if not match:
+                self.send_error(404)
+                return
+            self.serve_data_json(MF_HOLDINGS_DIR / match.group(1))
+            return
+        if route in ("/tools/mf-holdings", "/tools/mf-holdings/"):
+            self.redirect("/mf-holdings.html")
+            return
         if route == "/api/momentum":
             self.send_json(momentum.load_state(ROOT))
             return
@@ -1520,6 +1572,7 @@ if __name__ == "__main__":
     threading.Thread(target=refresh_mf_cache_nightly, daemon=True).start()
     threading.Thread(target=build_market_reel_daily, daemon=True).start()
     threading.Thread(target=build_betas_weekly, daemon=True).start()
+    threading.Thread(target=build_mf_holdings_monthly, daemon=True).start()
     display_host = "127.0.0.1" if host == "0.0.0.0" else host
     print(f"Let Money Earn is running at http://{display_host}:{port}")
     try:
