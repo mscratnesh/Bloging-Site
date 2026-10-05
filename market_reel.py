@@ -469,7 +469,8 @@ def _graph(cfg, path, params=None, post=True):
 def post_reel(cfg, mp4, text):
     """Publishes mp4 as a Reel that also shows in the feed. Returns (media id, permalink)."""
     container = _graph(cfg, f"{cfg['user']}/media", {"media_type": "REELS", "video_url": _upload(mp4),
-                                                      "share_to_feed": "true", "caption": text[:2200]})["id"]
+                                                      "share_to_feed": "true", "caption": text[:2200],
+                                                      "thumb_offset": "2000"})["id"]   # cover from the intro card, not frame 0 (black: the video fades in)
     for _ in range(60):                       # video processing usually takes a minute or two
         status = _graph(cfg, container, {"fields": "status_code,status"}, post=False)
         if status.get("status_code") == "FINISHED":
