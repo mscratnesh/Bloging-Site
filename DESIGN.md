@@ -57,6 +57,8 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `reviews` | name, review, rating, status (`pending`/`approved`/`rejected`), image_url | public submissions default `pending`; admin-added reviews (`/api/admin/reviews` POST) are inserted pre-`approved` |
 | `comments` | post_id (FK→posts), name, comment, status | same pending/approve flow as reviews, scoped per post |
 
+**`betas.db`** (separate file, not the blog database): table `beta_runs` (started_at, finished_at, status `ok`/`failed`, asof, stocks, days, message), one row per Portfolio Beta build. `betas.py` creates it on first run; `app.py`'s `build_betas_weekly` thread reads it to decide whether this week's build is done.
+
 `initialize_database()` runs `CREATE TABLE IF NOT EXISTS` + ad-hoc `ALTER TABLE` migrations for older DBs, then seeds demo posts/reviews/comments only if the tables are empty. This is the only migration mechanism — there's no migration framework, so schema changes go directly into this function.
 
 ### Page ↔ route map
@@ -71,6 +73,7 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `calculators.html` | finance calculators | client-side only (`calculators.js`) | — |
 | `loan-prepayment.html` | loan EMI and prepayment | client-side only (`loan-prepayment.js`) | — |
 | `goal-sip-calculator.html` | risk profile test and goal-wise SIP (noindex until compliance sign-off) | client-side only (`goal-sip-config.js`, `goal-sip-calc.js`, `goal-sip.js`) | — |
+| `portfolio-beta.html` | portfolio beta vs Nifty 50 from pasted holdings (also `/tools/portfolio-beta/`, a 301) | `/data/betas.json` (weekly, built by `betas.py`); all maths client-side, holdings never sent | — |
 | `mf-compare.html`, `mf-sip.html`, `mf-swp.html` | fund rolling returns, SIP and SWP on real NAVs | `/api/mf/search`, `/api/mf/nav/:code` (`mf-compare.js`) | — |
 | `admin-login.html` | admin auth | — | `/api/admin/login` |
 | `admin.html` | posts CRUD | `/api/admin/posts` | POST/PUT/DELETE `/api/admin/posts` |

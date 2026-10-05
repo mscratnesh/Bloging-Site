@@ -44,11 +44,12 @@ NSE_INDICES_CACHE_TTL = 30 * 60
 NSE_FO_BHAVCOPY_URL = "https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_FO_0_0_0_{date}_F_0000.csv.zip"
 OI_CHANGE_CACHE_PATH = ROOT / "oi_change_cache.json"
 OI_CHANGE_CACHE_TTL = 30 * 60
+BETA_JSON_PATH = Path(os.environ.get("BETA_JSON_PATH") or ROOT / "data" / "betas.json")   # written weekly by betas.py
 MF_API_URL = "https://api.mfapi.in/mf"
 MF_CACHE_DIR = ROOT / "mf_nav_cache"
 MF_CODE_RE = re.compile(r"^\d{1,8}$")
 SITE_URL = "https://letmoneyearn.in"
-SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nse-indices.html", "oi-change.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
+SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nse-indices.html", "oi-change.html", "portfolio-beta.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -536,6 +537,37 @@ def build_market_reel_daily():
         time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
 
 
+def build_betas_weekly():
+    """Rebuild the Portfolio Beta tool's betas.json (betas.py) every Friday from 8:15 pm IST, once NSE has
+    published the week's last bhavcopy. The week counts as done once a run succeeds with Friday's data,
+    or with any data after Friday midnight (a Friday holiday). A missed week (server down) runs at the next
+    start, and so does the first ever start. Runs are logged in betas.db, never in the blog's database."""
+    try:
+        import betas                              # pandas + requests: if missing, the tool's data just stays stale
+    except ImportError as error:
+        print("Portfolio beta builder disabled:", error)
+        return
+    while True:
+        now = datetime.now(IST)
+        friday = (now - timedelta(days=(now.weekday() - 4) % 7)).replace(hour=20, minute=15, second=0, microsecond=0)
+        if friday > now:
+            friday -= timedelta(days=7)
+        saturday = (friday + timedelta(days=1)).replace(hour=0, minute=0)
+        last = betas.last_success()
+        done = (last is not None and betas.BETA_JSON_PATH.is_file()
+                and (last["asof"] >= friday.date().isoformat() or datetime.fromisoformat(last["finished_at"]) >= saturday))
+        if done:
+            wake = friday + timedelta(days=7)
+        else:
+            try:
+                betas.build()
+                wake = datetime.now(IST) + timedelta(minutes=30)    # Friday's file may not be out yet
+            except Exception as error:             # failed a sanity check or NSE trouble: the old file stays
+                print("Portfolio beta build failed:", type(error).__name__, error)
+                wake = datetime.now(IST) + timedelta(hours=2)
+        time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
+
+
 def post_slugs(database):
     """Each published post's URL slug, from its title: /post/<slug>. A later post whose title gives
     the same slug as an earlier one gets its id on the end."""
@@ -905,6 +937,30 @@ class BlogHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def serve_betas_json(self):
+        """The Portfolio Beta tool's data. It changes once a week, so browsers may keep it an hour and then
+        revalidate with its ETag (the file's mtime), which costs a 304 rather than the whole file."""
+        try:
+            stat = BETA_JSON_PATH.stat()
+        except OSError:
+            self.send_error(404)
+            return
+        etag = f'"{stat.st_mtime_ns:x}-{stat.st_size:x}"'
+        if self.headers.get("If-None-Match") == etag:
+            self.send_response(304)
+            self.send_header("ETag", etag)
+            self.send_header("Cache-Control", "public, max-age=3600")
+            self.end_headers()
+            return
+        body = BETA_JSON_PATH.read_bytes()
+        self.send_response(200)
+        self.send_header("Content-Type", "application/json")
+        self.send_header("Content-Length", str(len(body)))
+        self.send_header("ETag", etag)
+        self.send_header("Cache-Control", "public, max-age=3600")
+        self.end_headers()
+        self.wfile.write(body)
+
     def redirect(self, location):
         self.send_response(301)
         self.send_header("Location", location)
@@ -1008,6 +1064,12 @@ class BlogHandler(BaseHTTPRequestHandler):
             return
         if route == "/api/oi-change":
             self.send_json(fetch_oi_change())
+            return
+        if route in ("/tools/portfolio-beta", "/tools/portfolio-beta/"):
+            self.redirect("/portfolio-beta.html")
+            return
+        if route == "/data/betas.json":
+            self.serve_betas_json()
             return
         if route == "/api/momentum":
             self.send_json(momentum.load_state(ROOT))
@@ -1394,6 +1456,7 @@ if __name__ == "__main__":
     server = ThreadingHTTPServer((host, port), BlogHandler)
     threading.Thread(target=refresh_mf_cache_nightly, daemon=True).start()
     threading.Thread(target=build_market_reel_daily, daemon=True).start()
+    threading.Thread(target=build_betas_weekly, daemon=True).start()
     display_host = "127.0.0.1" if host == "0.0.0.0" else host
     print(f"Let Money Earn is running at http://{display_host}:{port}")
     try:

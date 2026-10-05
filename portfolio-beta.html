@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Free portfolio beta calculator for Indian stocks. Paste holdings from Excel or your broker and see your beta vs Nifty 50, a 10% fall estimate and hedge size.">
+<title>Portfolio Beta Calculator vs Nifty 50 | Let Money Earn</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<link rel="canonical" href="https://letmoneyearn.in/portfolio-beta.html">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Let Money Earn">
+<meta property="og:locale" content="en_IN">
+<meta property="og:title" content="Portfolio Beta Calculator: your stocks vs Nifty 50">
+<meta property="og:description" content="Paste your holdings from Excel or your broker and see how much your portfolio moves when Nifty moves. Free, betas for 2,500+ NSE stocks, and your data never leaves your browser.">
+<meta property="og:url" content="https://letmoneyearn.in/portfolio-beta.html">
+<meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<meta property="og:image:alt" content="Let Money Earn">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Portfolio Beta Calculator: your stocks vs Nifty 50">
+<meta name="twitter:description" content="Paste your holdings from Excel or your broker and see how much your portfolio moves when Nifty moves. Free, betas for 2,500+ NSE stocks, and your data never leaves your browser.">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[
+{"@type":"WebApplication","name":"Portfolio Beta Calculator","url":"https://letmoneyearn.in/portfolio-beta.html","description":"Paste stock holdings from Excel or a broker export and see the portfolio's beta against Nifty 50, an estimate of the move in a 10% Nifty fall, the Nifty hedge notional and each stock's beta and R², using one year of NSE end-of-day data. Runs in the browser.","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"inLanguage":"en-IN","publisher":{"@type":"Organization","name":"Let Money Earn","url":"https://letmoneyearn.in/"}},
+{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://letmoneyearn.in/"},{"@type":"ListItem","position":2,"name":"Calculators","item":"https://letmoneyearn.in/calculators.html"},{"@type":"ListItem","position":3,"name":"Portfolio Beta Calculator","item":"https://letmoneyearn.in/portfolio-beta.html"}]},
+{"@type":"FAQPage","mainEntity":[
+{"@type":"Question","name":"What is portfolio beta?","acceptedAnswer":{"@type":"Answer","text":"Portfolio beta is the value-weighted average of the betas of the stocks you hold. It shows how much your portfolio has tended to move for every 1% move in Nifty 50. A beta of 1.2 means about 1.2% for a 1% Nifty move; below 1 means calmer than the market."}},
+{"@type":"Question","name":"How is each stock's beta calculated here?","acceptedAnswer":{"@type":"Answer","text":"From the last 250 trading days of NSE end-of-day bhavcopy data. Each day's return is the close divided by NSE's previous close minus 1, so splits and bonuses are already adjusted. Beta is the covariance of the stock's daily returns with NIFTYBEES (a Nifty 50 ETF) divided by the variance of NIFTYBEES's returns."}},
+{"@type":"Question","name":"What is a good portfolio beta?","acceptedAnswer":{"@type":"Answer","text":"There is no single right number; it depends on your goals and how much fall you can sit through. This tool calls a beta above 1.15 aggressive, 0.85 to 1.15 market-like and below 0.85 defensive. Adding debt, gold or cash lowers your total portfolio beta."}},
+{"@type":"Question","name":"How does portfolio beta relate to hedging with Nifty futures?","acceptedAnswer":{"@type":"Answer","text":"The Nifty notional that would offset the market part of your equity holdings is roughly equity beta times equity value. For example, ₹10 lakh of stocks with a beta of 1.2 moves like about ₹12 lakh of Nifty. Hedges cost money and don't remove stock-specific risk, so treat this as a learning figure, not advice."}},
+{"@type":"Question","name":"Is my holdings data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Your paste is read and calculated entirely in your browser. The page only downloads the shared table of betas; your holdings are never sent to a server or stored."}},
+{"@type":"Question","name":"How often are the betas updated?","acceptedAnswer":{"@type":"Answer","text":"Once a week, on Friday evening after NSE publishes the day's bhavcopy. The date the betas run to is shown under the paste box."}}
+]}]}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .ix-hero{padding:40px max(24px,calc((100% - 1180px)/2)) 28px;border-bottom:1px solid var(--line)}
+  .ix-hero h1{max-width:760px;font:600 clamp(36px,4.8vw,56px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .ix-hero p{max-width:620px;color:var(--muted);font-size:16px;margin:24px 0 0}
+
+  /* Portfolio beta tool: everything scoped under .pb-tool so the site's styles and these don't clash */
+  .pb-tool{
+    --bg:#f7f6f2; --card:#ffffff; --ink:#1b1d21; --muted:#6b6f76; --line:#e4e2dc;
+    --accent:#0f6b4f; --accent-soft:#e3f1ea; --warn:#a6461b; --warn-soft:#fbeee6;
+    --hi:#b4361f; --mid:#8a6a12; --lo:#2f6f9f;
+  }
+  @media (prefers-color-scheme: dark){
+    .pb-tool{ --bg:#14161a; --card:#1c1f24; --ink:#eceae4; --muted:#9a9ea6; --line:#2c3037;
+      --accent:#4fbf93; --accent-soft:#1d3a2f; --warn:#e8915f; --warn-soft:#3a2519;
+      --hi:#ef7a62; --mid:#d9b552; --lo:#73b3e3; }
+  }
+  .pb-tool{background:var(--bg);color:var(--ink);font:16px/1.55 var(--sans);
+    padding:28px max(16px,calc((100% - 980px)/2)) 60px}
+  .pb-tool *{box-sizing:border-box}
+  .pb-tool .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:18px}
+  .pb-tool label{font-weight:600;font-size:.92rem;display:block;margin-bottom:6px}
+  .pb-tool .hint{color:var(--muted);font-size:.85rem;font-weight:400}
+  .pb-tool textarea{width:100%;min-height:190px;resize:vertical;border:1px solid var(--line);border-radius:10px;
+    padding:12px;font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    background:var(--bg);color:var(--ink);tab-size:14;white-space:pre;overflow-x:auto}
+  .pb-tool textarea:focus,.pb-tool input:focus{outline:2px solid var(--accent);outline-offset:1px}
+  .pb-tool .row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;margin-top:12px}
+  .pb-tool .field{flex:1 1 220px}
+  .pb-tool input[type=number]{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+    font-size:15px;background:var(--bg);color:var(--ink)}
+  .pb-tool button{border:0;border-radius:10px;padding:11px 18px;font-weight:600;font-size:15px;cursor:pointer;font-family:var(--sans)}
+  .pb-tool .primary{background:var(--accent);color:#fff}
+  .pb-tool .ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+  .pb-tool .result{display:none}
+  .pb-tool .hero{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-bottom:14px}
+  .pb-tool .stat{border:1px solid var(--line);border-radius:12px;padding:14px;background:var(--bg)}
+  .pb-tool .stat .k{color:var(--muted);font-size:.82rem;text-transform:uppercase;letter-spacing:.05em}
+  .pb-tool .stat .v{font-size:2rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+  .pb-tool .stat .s{color:var(--muted);font-size:.85rem}
+  .pb-tool .verdict{background:var(--accent-soft);border-radius:12px;padding:14px 16px;margin-bottom:14px}
+  .pb-tool .warnbox{background:var(--warn-soft);color:var(--ink);border-left:4px solid var(--warn);
+    border-radius:8px;padding:10px 14px;margin:12px 0;font-size:.92rem}
+  .pb-tool .tablewrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .pb-tool table{border-collapse:collapse;width:100%;font-size:.92rem;font-variant-numeric:tabular-nums}
+  .pb-tool th,.pb-tool td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+  .pb-tool th:first-child,.pb-tool td:first-child{text-align:left}
+  .pb-tool th{font-size:.78rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);cursor:pointer;user-select:none}
+  .pb-tool .bar{height:6px;border-radius:3px;background:var(--accent);min-width:2px}
+  .pb-tool .b-hi{color:var(--hi);font-weight:600}.pb-tool .b-mid{color:var(--mid);font-weight:600}.pb-tool .b-lo{color:var(--lo);font-weight:600}
+  .pb-tool .meta{color:var(--muted);font-size:.8rem;margin-top:10px}
+  .pb-tool details{margin-top:10px} .pb-tool summary{cursor:pointer;font-weight:600}
+  .pb-tool .disc{color:var(--muted);font-size:.78rem;margin-top:26px;line-height:1.5}
+  .pb-tool a{color:var(--accent)}
+
+  /* rules, source and disclaimer */
+  .pb-tool details.rules{margin-top:0}
+  .pb-tool .rules > summary{list-style:none;display:block;position:relative;padding-right:28px;font-weight:400}
+  .pb-tool .rules > summary::-webkit-details-marker{display:none}
+  .pb-tool .rules > summary::after{content:"+";position:absolute;right:0;top:0;font:400 24px var(--mono);color:var(--accent)}
+  .pb-tool .rules[open] > summary::after{content:"−"}
+  .pb-tool .rules[open] > summary .hint{display:none}
+  .pb-tool .rules h2{font:600 26px var(--serif);margin:0 0 4px;letter-spacing:-.01em}
+  .pb-tool .rules h3{font-size:1rem;margin:22px 0 6px}
+  .pb-tool .rules ol,.pb-tool .rules ul{margin:0;padding-left:1.3em}
+  .pb-tool .rules li{margin:5px 0}
+  .pb-tool .rules p{margin:6px 0}
+  .pb-tool .rules code{font:13px var(--mono);background:var(--bg);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
+
+  .pb-tool .faq h2{font:600 26px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
+  .pb-tool .faq details{border-bottom:1px solid var(--line);margin:0}
+  .pb-tool .faq summary{padding:13px 0}
+  .pb-tool .faq p{color:var(--muted);margin:0 0 14px}
+
+  @media(max-width:700px){
+    .ix-hero{padding:32px 16px 24px}
+    .site-disclaimer{padding:25px 16px}
+  }
+  .site-disclaimer{padding:25px max(24px,calc((100% - 1180px)/2));border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+  .site-disclaimer strong{display:block;color:var(--ink);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+</style>
+</head>
+<body>
+  <div class="top-strip"><span class="ts-long">Questions about investing or mutual funds? Talk to us on</span><span class="ts-short">Talk to us</span><a class="ts-wa" href="https://wa.me/919967355038?text=Hi%2C%20I%20found%20you%20on%20Let%20Money%20Earn." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><a class="ts-tg" href="https://t.me/+nxbISOilZJoxOTFl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2l-11 6.9-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Telegram</a><span class="ts-arn">AMFI-registered MFD · ARN-132137</span></div>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a><a href="goal-sip-calculator.html">Risk Profile &amp; Goal SIP</a><a href="mf-compare.html">MF Rolling Returns Compare</a><a href="mf-sip.html">MF SIP Calculator</a><a href="mf-swp.html">MF SWP Calculator</a><a href="portfolio-beta.html">Portfolio Beta</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Markets</button><div class="nav-sub"><a href="nse-indices.html">NSE Index Dashboard</a><a href="oi-change.html">F&amp;O OI Change</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="ix-hero">
+      <p class="eyebrow">Calculator · NSE stocks vs Nifty 50 · runs in your browser</p>
+      <h1>Portfolio Beta Calculator</h1>
+      <p>Paste your holdings straight from Excel, Zerodha, Groww or any broker export. See how much your portfolio tends to move when Nifty 50 moves. Your data never leaves your browser.</p>
+    </section>
+
+    <div class="pb-tool">
+      <section class="card">
+        <label for="paste">Your holdings <span class="hint">: copy the rows (with the header row) from Excel and paste here</span></label>
+        <textarea id="paste" spellcheck="false" placeholder="Symbol	Qty	LTP
+RELIANCE	50	1187
+HDFCBANK	40	1650
+TCS	10	2050"></textarea>
+        <div class="row">
+          <div class="field">
+            <label for="other">Non-equity holdings, ₹ <span class="hint">(debt funds, FDs, gold, cash: optional)</span></label>
+            <input id="other" type="number" min="0" step="1000" placeholder="0">
+          </div>
+          <button class="primary" id="go">Calculate beta</button>
+          <button class="ghost" id="sample">Try a sample</button>
+        </div>
+        <p class="meta" id="dataInfo">Loading beta data…</p>
+      </section>
+
+      <section class="card result" id="result" aria-live="polite">
+        <div class="hero" id="hero"></div>
+        <div class="verdict" id="verdict"></div>
+        <div id="warns"></div>
+        <div class="tablewrap">
+          <table id="tbl">
+            <thead><tr>
+              <th data-k="sym">Stock</th><th data-k="val">Value ₹</th><th data-k="w">Weight</th>
+              <th data-k="b">Beta</th><th data-k="c">Contribution</th><th data-k="r2">Market-driven</th><th></th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <details>
+          <summary>How to read this</summary>
+          <p><b>Beta</b> measures how much a stock has moved, on average, for every 1% move in Nifty 50 over the last year. A beta of 1.3 means roughly 1.3% for a 1% Nifty move. Below 1 is calmer than the market; above 1 amplifies it.</p>
+          <p><b>Portfolio beta</b> is the value-weighted average of your stocks' betas. Debt, gold and cash are treated as beta 0. <b>Market-driven</b> (R²) shows how much of a stock's daily movement Nifty explains. When it is low, the beta is less reliable and the stock follows its own story.</p>
+          <p>Beta is backward-looking. It changes over time and does not capture stock-specific risk, so treat it as a guide, not a guarantee.</p>
+        </details>
+      </section>
+
+      <details class="card rules" id="rules">
+        <summary><h2>Rules, data source and limits</h2><span class="hint">Exactly how the numbers above are produced, so you can check them yourself. Tap to open.</span></summary>
+
+        <h3>Data source</h3>
+        <ul>
+          <li><b>Prices:</b> NSE cash-market end-of-day bhavcopy files (UDiFF format) from NSE's public archives at <code>nsearchives.nseindia.com/content/cm/</code>. Only the betas worked out from them are used on this page.</li>
+          <li><b>Benchmark:</b> NIFTYBEES (Nippon India ETF Nifty 50 BeES), a Nifty 50 ETF listed in the same file, used as the stand-in for Nifty 50. It tracks the index closely but not perfectly.</li>
+          <li><b>Window:</b> the latest 250 trading days of daily returns (about one year), ending on the date shown under the paste box.</li>
+          <li><b>Updates:</b> once a week, on Friday evening after NSE publishes the day's file. Between updates the betas are up to a week old.</li>
+        </ul>
+
+        <h3>How each stock's beta is calculated</h3>
+        <ol>
+          <li><b>Daily return</b> = today's close ÷ previous close − 1, using NSE's own previous-close figure. NSE adjusts that figure on the ex-date of a split or bonus, so those don't show up as false crashes. Dividends are not adjusted for; their effect is small.</li>
+          <li><b>Series counted:</b> EQ, BE and BZ (normal and trade-for-trade segments). ETFs trade in EQ, so they are included.</li>
+          <li><b>Bad prints removed:</b> any daily return above +35% or below −35% is treated as a data error or relisting day and left out.</li>
+          <li><b>Minimum history:</b> a stock needs at least 120 days on which both it and NIFTYBEES have a return. Newer or rarely traded stocks get no beta and show as "Not found".</li>
+          <li><b>Beta</b> = covariance(stock, NIFTYBEES) ÷ variance(NIFTYBEES), over the shared days.</li>
+          <li><b>Market-driven (R²)</b> = the square of the correlation between the stock's and NIFTYBEES's daily returns.</li>
+        </ol>
+
+        <h3>How your portfolio's numbers are calculated</h3>
+        <ol>
+          <li><b>Holding value:</b> your Value column if you pasted one; otherwise Qty × your LTP/Price column; otherwise Qty × the last close in our data.</li>
+          <li><b>Repeated symbols</b> (for example, the same stock held in two accounts) are added together.</li>
+          <li><b>Weight</b> = holding value ÷ total equity value. <b>Equity beta</b> = sum of weight × beta over all matched stocks. A stock's <b>Contribution</b> is its weight × beta.</li>
+          <li><b>Total portfolio beta</b> (shown when you fill the non-equity box) = equity beta × equity value ÷ (equity value + non-equity value). Debt, FDs, gold and cash count as beta 0.</li>
+          <li><b>If Nifty falls 10%</b> = beta × 10%, and in rupees beta × value × 10%. It uses total portfolio beta and total value when you fill the non-equity box, and equity beta and equity value otherwise.</li>
+          <li><b>Nifty hedge to neutralise</b> = equity beta × equity value: the approximate notional of short Nifty futures that would offset the equity part's market moves.</li>
+          <li><b>Labels:</b> above 1.15 is <i>Aggressive</i>, 0.85 to 1.15 is <i>Market-like</i>, below 0.85 is <i>Defensive</i>. The same bands colour each stock's beta in the table.</li>
+          <li><b>Warnings:</b> symbols we can't match are listed, never silently dropped, and so are rows with no quantity or value. Any stock above 5% of your equity with R² below 15% is flagged as having a less reliable beta.</li>
+        </ol>
+
+        <h3>What you can paste</h3>
+        <ul>
+          <li>Rows copied from Excel or Google Sheets (tab-separated), CSV (quoted numbers such as <code>"1,187.50"</code> are fine), or columns separated by spaces.</li>
+          <li><b>Columns are recognised by header:</b> Symbol, Instrument, Scrip, Stock, Ticker, Trading symbol, Security, Company or Name for the stock; Qty, Quantity, Shares or Units for quantity; Value, Cur. val, Market value, Present value or Holding value for value; LTP, Last, CMP, Close, Current price, Market price or Price for price. A Zerodha holdings export works as-is.</li>
+          <li><b>No header row?</b> The columns are read as Symbol, Qty and an optional Price.</li>
+          <li><b>Symbols are cleaned:</b> <code>NSE:INFY</code>, <code>wipro.ns</code> and <code>HDFCBANK-BE</code> become INFY, WIPRO and HDFCBANK. Use NSE symbols, not company names (<i>HDFCBANK</i>, not <i>HDFC Bank Ltd</i>). Rows starting with "Total" or "Grand" are skipped. ₹ signs and commas are ignored.</li>
+          <li><b>Not covered:</b> mutual funds, bonds, SGBs and BSE-only stocks. Add their value in the non-equity box instead.</li>
+        </ul>
+
+        <h3>Limits</h3>
+        <ul>
+          <li>Beta describes the past year. It changes over time and is not a forecast.</li>
+          <li>It captures only market-linked risk. Company news, sector shocks and liquidity are not in it.</li>
+          <li>The 10% fall and hedge figures are rough, linear estimates. Real moves in a sell-off can be larger.</li>
+          <li>Data may contain errors or gaps. Check anything important against another source before acting.</li>
+        </ul>
+
+        <h3>Privacy</h3>
+        <p>All parsing and calculation happens in your browser. Your holdings are never uploaded or stored. The page only downloads the shared beta table.</p>
+      </details>
+
+      <section class="card faq" id="faq">
+        <h2>Questions</h2>
+        <details><summary>What is portfolio beta?</summary><p>Portfolio beta is the value-weighted average of the betas of the stocks you hold. It shows how much your portfolio has tended to move for every 1% move in Nifty 50. A beta of 1.2 means about 1.2% for a 1% Nifty move; below 1 means calmer than the market.</p></details>
+        <details><summary>How is each stock's beta calculated here?</summary><p>From the last 250 trading days of NSE end-of-day bhavcopy data. Each day's return is the close divided by NSE's previous close minus 1, so splits and bonuses are already adjusted. Beta is the covariance of the stock's daily returns with NIFTYBEES (a Nifty 50 ETF) divided by the variance of NIFTYBEES's returns.</p></details>
+        <details><summary>What is a good portfolio beta?</summary><p>There is no single right number; it depends on your goals and how much fall you can sit through. This tool calls a beta above 1.15 aggressive, 0.85 to 1.15 market-like and below 0.85 defensive. Adding debt, gold or cash lowers your total portfolio beta.</p></details>
+        <details><summary>How does portfolio beta relate to hedging with Nifty futures?</summary><p>The Nifty notional that would offset the market part of your equity holdings is roughly equity beta times equity value. For example, ₹10 lakh of stocks with a beta of 1.2 moves like about ₹12 lakh of Nifty. Hedges cost money and don't remove stock-specific risk, so treat this as a learning figure, not advice.</p></details>
+        <details><summary>Is my holdings data uploaded anywhere?</summary><p>No. Your paste is read and calculated entirely in your browser. The page only downloads the shared table of betas; your holdings are never sent to a server or stored.</p></details>
+        <details><summary>How often are the betas updated?</summary><p>Once a week, on Friday evening after NSE publishes the day's bhavcopy. The date the betas run to is shown under the paste box.</p></details>
+      </section>
+
+      <p class="disc"><b>Disclaimer:</b> For educational purposes only. Not investment advice. Let Money Earn is not a SEBI-registered investment adviser or research analyst. Betas are computed from NSE end-of-day prices (daily returns, ~1 year, against the Nifty 50 ETF NIFTYBEES) and may contain errors. Please verify before acting. Nothing here is a recommendation to buy, sell or hedge any security. Past behaviour of a stock or portfolio does not guarantee future results.</p>
+    </div>
+  </main>
+
+  <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is a mutual fund distributor (AMFI ARN-132137), associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Nothing on this site is personal advice or a recommendation. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
+
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>AMFI-registered MFD · <a href="https://www.amfiindia.com/locate-distributor" target="_blank" rel="noopener" style="color:inherit">ARN-132137</a> · © 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script>
+  (() => {
+    // Written every Friday by betas.py and served by app.py
+    const BETAS_URL = "/data/betas.json";
+
+    let DB = null;
+    const $ = s => document.querySelector(s);
+    const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
+    const pct = n => (n * 100).toFixed(1) + "%";
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+    fetch(BETAS_URL, {cache: "no-cache"}).then(r => { if (!r.ok) throw 0; return r.json(); })
+      .then(j => {
+        DB = j;
+        $("#dataInfo").textContent =
+          `Betas for ${j.count.toLocaleString("en-IN")} NSE stocks · ${j.window_days} trading days to ${fmtDate(j.asof)} · benchmark ${j.benchmark}`;
+      })
+      .catch(() => { $("#dataInfo").textContent = "Couldn't load beta data. Please refresh in a minute."; });
+
+    function fmtDate(s){ const d = new Date(s + "T00:00:00");
+      return d.toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"}); }
+
+    // ---------- parsing ----------
+    const num = s => { if (s == null) return NaN;
+      const t = String(s).replace(/[₹,\s]/g, "").replace(/^\((.*)\)$/, "-$1");
+      return t === "" ? NaN : Number(t); };
+
+    function cleanSym(s){
+      return String(s).toUpperCase().trim()
+        .replace(/^(NSE|BSE)\s*[:\-]\s*/, "")
+        .replace(/\.(NS|BO|NSE)$/, "")
+        .replace(/-(EQ|BE|BZ|SM|ST)$/, "")
+        .replace(/\s+/g, "");
+    }
+
+    function splitRow(line){
+      if (line.includes("\t")) return line.split("\t");
+      if (line.includes(",")) {               // CSV with quoted fields ("1,187.50")
+        const out = []; let cur = "", q = false;
+        for (let i = 0; i < line.length; i++) {
+          const ch = line[i];
+          if (ch === '"') { if (q && line[i+1] === '"') { cur += '"'; i++; } else q = !q; }
+          else if (ch === "," && !q) { out.push(cur); cur = ""; }
+          else cur += ch;
+        }
+        out.push(cur); return out;
+      }
+      return line.trim().split(/\s{2,}|\s(?=[\d₹(])/);
+    }
+
+    const RX = {
+      sym:   /^(symbol|instrument|scrip|stock|ticker|trading ?symbol|security|company|name)/i,
+      qty:   /(^qty|quantity|shares|units|holding qty|no\.? of)/i,
+      val:   /(cur(rent)?\.? ?val|market ?val|present ?val|^value|holding ?val)/i,
+      price: /(ltp|last|cmp|close|current ?price|market ?price|^price)/i,
+    };
+
+    function parse(text){
+      const lines = text.replace(/\r/g, "").split("\n").filter(l => l.trim());
+      if (!lines.length) return {rows: [], note: "Nothing pasted."};
+      let cols = splitRow(lines[0]).map(c => c.trim());
+      const idx = {};
+      cols.forEach((c, i) => { for (const k in RX) if (idx[k] === undefined && RX[k].test(c)) { idx[k] = i; break; } });
+      let start = 1;
+      if (idx.sym === undefined) {             // no header: assume Symbol, Qty, [Price]
+        idx.sym = 0; idx.qty = 1; if (cols.length > 2) idx.price = 2; start = 0;
+      }
+      const rows = [];
+      for (let i = start; i < lines.length; i++) {
+        const c = splitRow(lines[i]);
+        const sym = cleanSym(c[idx.sym] || "");
+        if (!sym || /^(TOTAL|GRAND)/.test(sym)) continue;
+        rows.push({ sym,
+          qty:   idx.qty   !== undefined ? num(c[idx.qty])   : NaN,
+          price: idx.price !== undefined ? num(c[idx.price]) : NaN,
+          val:   idx.val   !== undefined ? num(c[idx.val])   : NaN });
+      }
+      return {rows};
+    }
+
+    // ---------- calculation ----------
+    function calc(){
+      if (!DB) { alert("Beta data is still loading. Try again in a moment."); return; }
+      const {rows, note} = parse($("#paste").value);
+      if (!rows.length) { alert(note || "Couldn't find any holdings in what you pasted."); return; }
+
+      const merged = new Map(), missing = [], noValue = [];
+      for (const r of rows) {
+        const d = DB.stocks[r.sym];
+        if (!d) { missing.push(r.sym); continue; }
+        let v = r.val;
+        if (!(v > 0)) v = r.qty * (r.price > 0 ? r.price : d.p);
+        if (!(v > 0)) { noValue.push(r.sym); continue; }
+        const m = merged.get(r.sym) || {sym: r.sym, val: 0, b: d.b, r2: d.r2};
+        m.val += v; merged.set(r.sym, m);
+      }
+      const list = [...merged.values()];
+      const eq = list.reduce((s, r) => s + r.val, 0);
+      if (!eq) { render([], 0, 0, missing, noValue); return; }
+      list.forEach(r => { r.w = r.val / eq; r.c = r.w * r.b; });
+      const beta = list.reduce((s, r) => s + r.c, 0);
+      render(list, eq, beta, missing, noValue);
+    }
+
+    let current = [], sortKey = "val", sortDir = -1;
+
+    function render(list, eq, beta, missing, noValue){
+      const other = Math.max(0, num($("#other").value) || 0);
+      const total = eq + other, tBeta = total ? beta * eq / total : 0;
+      $("#result").style.display = "block";
+
+      const stats = [
+        ["Equity beta", eq ? beta.toFixed(2) : "–", `${list.length} stocks · ${inr(eq)}`],
+        other ? ["Total portfolio beta", tBeta.toFixed(2), `incl. ${inr(other)} non-equity at beta 0`] : null,
+        ["If Nifty falls 10%", eq ? "−" + (Math.abs((other ? tBeta : beta) * 10)).toFixed(1) + "%" : "–",
+          `≈ ${inr((other ? total : eq) * (other ? tBeta : beta) * 0.10)} expected move`],
+        ["Nifty hedge to neutralise", eq ? inr(beta * eq) : "–", "short Nifty notional ≈ beta × equity value"],
+      ].filter(Boolean);
+      $("#hero").innerHTML = stats.map(([k, v, s]) =>
+        `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
+
+      const b = other ? tBeta : beta;
+      $("#verdict").innerHTML = !eq ? "No matching holdings were found." :
+        b > 1.15 ? `<b>Aggressive.</b> Your portfolio has amplified Nifty's moves by about ${b.toFixed(2)}×. Expect bigger swings than the index, in both directions.`
+      : b >= 0.85 ? `<b>Market-like.</b> Your portfolio has moved roughly in line with Nifty (beta ${b.toFixed(2)}).`
+      : `<b>Defensive.</b> Your portfolio has moved less than Nifty (beta ${b.toFixed(2)}). It should fall less in sell-offs, and may lag in rallies.`;
+
+      let w = "";
+      if (missing.length) w += `<div class="warnbox"><b>Not found (${missing.length}):</b> ${esc(missing.slice(0,20).join(", "))}${missing.length>20?"…":""}. Check that these are NSE symbols (e.g. <i>HDFCBANK</i>, not <i>HDFC Bank Ltd</i>). Mutual funds, bonds and SGBs aren't covered; add their value in the non-equity box instead.</div>`;
+      if (noValue.length) w += `<div class="warnbox"><b>No quantity or value for:</b> ${esc(noValue.join(", "))}. Include a Qty or Value column.</div>`;
+      const lowR2 = list.filter(r => r.r2 < 0.15 && r.w > 0.05).map(r => r.sym);
+      if (lowR2.length) w += `<div class="warnbox">${lowR2.join(", ")} move mostly on their own news (low R²), so their betas are less reliable.</div>`;
+      $("#warns").innerHTML = w;
+
+      current = list; drawTable();
+    }
+
+    function cls(b){ return b > 1.15 ? "b-hi" : b < 0.85 ? "b-lo" : "b-mid"; }
+    function drawTable(){
+      const rows = [...current].sort((a, b) =>
+        sortKey === "sym" ? sortDir * a.sym.localeCompare(b.sym) : sortDir * (a[sortKey] - b[sortKey]));
+      const maxW = Math.max(...rows.map(r => r.w), 0.0001);
+      $("#tbl tbody").innerHTML = rows.map(r => `<tr>
+        <td>${r.sym}</td><td>${inr(r.val)}</td><td>${pct(r.w)}</td>
+        <td class="${cls(r.b)}">${r.b.toFixed(2)}</td><td>${r.c.toFixed(3)}</td>
+        <td>${Math.round(r.r2 * 100)}%</td>
+        <td style="width:90px"><div class="bar" style="width:${(r.w / maxW * 100).toFixed(0)}%"></div></td></tr>`).join("");
+    }
+    document.querySelectorAll("#tbl th[data-k]").forEach(th => th.addEventListener("click", () => {
+      const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === "sym" ? 1 : -1); sortKey = k; drawTable();
+    }));
+
+    $("#go").addEventListener("click", calc);
+    $("#sample").addEventListener("click", () => {
+      $("#paste").value = "Instrument\tQty.\tAvg. cost\tLTP\tCur. val\n" +
+        "RELIANCE\t50\t1250\t1187\t59350\nHDFCBANK\t40\t1600\t1650\t66000\nTCS\t10\t3400\t2050\t20500\n" +
+        "ITC\t200\t410\t395\t79000\nTMPV\t60\t300\t280\t16800\nNIFTYBEES\t300\t270\t265\t79500";
+      calc();
+    });
+  })();
+  </script>
+</body>
+</html>

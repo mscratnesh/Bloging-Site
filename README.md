@@ -52,7 +52,7 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`; Risk Profile & Goal SIP: `goal-sip-calculator.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
+The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`; Risk Profile & Goal SIP: `goal-sip-calculator.html`; Portfolio Beta: `portfolio-beta.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
 
 ### Draft articles (`drafts/`)
 
@@ -87,6 +87,18 @@ After sign-off: change the page's robots meta to `index, follow` and add the pag
 ### Loan EMI & Prepayment (`loan-prepayment.html`)
 
 Menu: **Calculators → Loan EMI & Prepayment**; the EMI calculator on `calculators.html` links here. Everything runs in the browser (`loan-prepayment.js`), with no server route. Enter a loan (amount, rate, tenure, first EMI month) and any prepayments: a one-off amount after a chosen EMI, a yearly amount after every 12th EMI, a monthly amount, and a yearly EMI increase. Prepayments either shorten the tenure (same EMI) or lower the EMI (recalculated over the remaining original tenure). Shows interest saved, the new closing date, a balance chart and a year-by-year schedule. "Prepay or invest?" gives both plans the same monthly budget until the original loan would end and compares the wealth each builds at an after-tax investment return, plus the break-even return (the loan's effective yearly rate). Assumes a fixed rate and ignores prepayment charges and home-loan tax breaks. Settings are kept in the URL (`?amount=5000000&rate=8.5&years=20&yearly=100000&mode=emi`).
+
+### Portfolio Beta Calculator (`portfolio-beta.html`)
+
+Menu: **Calculators → Portfolio Beta**, also listed on `calculators.html` and in the sitemap; `/tools/portfolio-beta/` redirects here. Visitors paste holdings (Excel rows, CSV, a Zerodha holdings export or a bare `Symbol Qty` list) and see their portfolio's beta against Nifty 50, a 10% fall estimate, the Nifty hedge notional and a sortable table. All parsing and maths run in the browser; the page makes no POSTs, it only downloads `/data/betas.json`. The page lists every rule, the data source and the disclaimer, plus a visible FAQ that is repeated word for word in the page's `FAQPage` JSON-LD (with `WebApplication` and a Home › Calculators breadcrumb): edit both together, since Google ignores FAQ markup that doesn't match the page.
+
+`betas.py` builds `data/betas.json` (beta, R², last close and observation count for about 2,600 NSE symbols) from the last 250 NSE cash-market bhavcopy files (UDiFF, `nsearchives.nseindia.com`). Daily return is `ClsPric / PrvsClsgPric - 1`: NSE adjusts the previous close on ex-dates, so splits and bonuses need no extra step. Series EQ/BE/BZ, moves beyond ±35% are dropped as bad prints, at least 120 shared days, benchmark NIFTYBEES. Don't switch it to NSE's MCP data service: NSE limits that to non-commercial use.
+
+- **Schedule:** the server's `build_betas_weekly` thread runs it on Fridays from 8:15 pm IST, retrying every 30 minutes until Friday's file is in (or midnight passes, for a Friday holiday); a failed run retries in 2 hours. A missed week, or a first start with no data, builds at startup. The first build downloads about 250 files (2–4 minutes); later builds fetch only the new days.
+- **Run by hand:** `py betas.py` (options: `--end YYYY-MM-DD`, `--days`, `--min-obs`, `--benchmark`). It exits non-zero and keeps the previous `betas.json` if fewer than 200 trading days or 1,000 betas come out, or NIFTYBEES is missing. The file is written to a temp file and swapped in, so visitors never get half a file.
+- **Files** (all git-ignored, created on first run, keep them on the VM across deploys): `data/betas.json`; `var/bhavcopy_cache/` (zips, pruned after 400 days, about 50 MB); `betas.db`, the run log (`beta_runs` table: one row per run with status, as-of date, stock count and error). It is a separate file: the blog's `let_money_earn.db` is never touched. Override the paths with the `BETA_JSON_PATH`, `BHAVCOPY_CACHE_DIR` and `BETA_DB_PATH` environment variables.
+- **Caching:** `app.py` serves `/data/betas.json` with `Cache-Control: public, max-age=3600` and an ETag, so browsers revalidate with a cheap 304.
+- **Tests:** `py -m unittest tests.test_betas` (no network): `compute()` recovers known betas of 1.6, 0.5 and 1.2 from synthetic data with a 1:1 bonus, failed sanity checks leave the old file untouched, and the page, redirect and JSON headers.
 
 ### Sheets for sale (`sheets.html`)
 
@@ -219,14 +231,14 @@ Each run's outcome goes to `market_reel.log` next to the exe. To check a build w
 
 ## Building the executables
 
-The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder). The build Python needs `pillow` and `imageio-ffmpeg` (`py -m pip install pillow imageio-ffmpeg`) for the market reel:
+The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder). The build Python needs `pillow` and `imageio-ffmpeg` for the market reel, and `pandas` and `requests` for the portfolio beta builder (`py -m pip install pillow imageio-ffmpeg pandas requests`). If pandas is missing from a build, the site still runs; only the weekly beta update is skipped (the console says so):
 
 ```powershell
 py -m PyInstaller --noconfirm LetMoneyEarn.spec
 py -m PyInstaller --noconfirm LetMoneyEarnAdmin.spec
 ```
 
-Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, `upi-qr.png` (the payment QR on `sheets.html`), plus `breakout_data.json`, `momentum_teaser.json`, `momentum_nse_teaser.json` and `etf_teaser.json` (not `momentum_study.json`, `momentum_nse_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database, and keep the VM's own `instagram.env` and `market_reel_state.json` (copy `instagram.env` there once). The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
+Then copy the site files next to the executables in `dist\`: every `*.html` (including `breakout-study.html`), `*.js`, `*.css`, `upi-qr.png` (the payment QR on `sheets.html`), plus `breakout_data.json`, `momentum_teaser.json`, `momentum_nse_teaser.json` and `etf_teaser.json` (not `momentum_study.json`, `momentum_nse_study.json` or `etf_study.json`: they hold the full studies). Never copy `let_money_earn.db` over the VM's live database, keep the VM's `betas.db`, `data\` and `var\` (portfolio beta data; built on the VM), and keep the VM's own `instagram.env` and `market_reel_state.json` (copy `instagram.env` there once). The runtime caches (`price_history_cache.json`, `fundamentals_cache.json`) are created on the VM as needed; `momentum_prices.json` and `study\prices_extra.json` are only for regenerating snapshots locally and don't belong in `dist`.
 
 ## Punam Numerology (subdomain site)
 

@@ -48,3 +48,7 @@ preview.mp4
 
 # Hindi doha reel pipeline: venv, voice model and rendered videos (3+ GB)
 dohe/
+
+# Portfolio Beta tool (betas.py): bhavcopy download cache and the weekly-built data file (betas.db is covered by *.db)
+var/
+data/betas.json
