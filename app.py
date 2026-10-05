@@ -3,6 +3,7 @@ from pathlib import Path
 from urllib.parse import urlparse, parse_qs
 import base64
 import csv
+import gzip
 import html
 import io
 import json
@@ -45,6 +46,8 @@ NSE_FO_BHAVCOPY_URL = "https://nsearchives.nseindia.com/content/fo/BhavCopy_NSE_
 OI_CHANGE_CACHE_PATH = ROOT / "oi_change_cache.json"
 OI_CHANGE_CACHE_TTL = 30 * 60
 BETA_JSON_PATH = Path(os.environ.get("BETA_JSON_PATH") or ROOT / "data" / "betas.json")   # written weekly by betas.py
+MF_BETA_JSON_PATH = Path(os.environ.get("MF_BETA_JSON_PATH") or ROOT / "data" / "mf_betas.json")   # and by mf_betas.py
+DATA_JSON_GZIP = {}   # path -> (etag, gzipped body) for the beta files, so each weekly file is compressed once
 MF_API_URL = "https://api.mfapi.in/mf"
 MF_CACHE_DIR = ROOT / "mf_nav_cache"
 MF_CODE_RE = re.compile(r"^\d{1,8}$")
@@ -538,12 +541,16 @@ def build_market_reel_daily():
 
 
 def build_betas_weekly():
-    """Rebuild the Portfolio Beta tool's betas.json (betas.py) every Friday from 8:15 pm IST, once NSE has
-    published the week's last bhavcopy. The week counts as done once a run succeeds with Friday's data,
-    or with any data after Friday midnight (a Friday holiday). A missed week (server down) runs at the next
-    start, and so does the first ever start. Runs are logged in betas.db, never in the blog's database."""
+    """Rebuild the Portfolio Beta tool's data every Friday from 8:15 pm IST, once NSE has published the
+    week's last bhavcopy: betas.json (stocks, betas.py), then mf_betas.json (mutual funds, mf_betas.py,
+    which reuses the downloaded bhavcopies for its benchmark). The stock build counts as done once it
+    succeeds with Friday's data, or with any data after Friday midnight (a Friday holiday); the fund
+    build once it succeeds after Friday 8:15 pm (AMFI publishes Friday's NAVs late at night, so it
+    may run to Thursday). A missed week (server down) runs at the next start, and so does the first
+    ever start. Runs are logged in betas.db, never in the blog's database."""
     try:
         import betas                              # pandas + requests: if missing, the tool's data just stays stale
+        import mf_betas
     except ImportError as error:
         print("Portfolio beta builder disabled:", error)
         return
@@ -554,17 +561,25 @@ def build_betas_weekly():
             friday -= timedelta(days=7)
         saturday = (friday + timedelta(days=1)).replace(hour=0, minute=0)
         last = betas.last_success()
-        done = (last is not None and betas.BETA_JSON_PATH.is_file()
-                and (last["asof"] >= friday.date().isoformat() or datetime.fromisoformat(last["finished_at"]) >= saturday))
-        if done:
+        stocks_done = (last is not None and betas.BETA_JSON_PATH.is_file()
+                       and (last["asof"] >= friday.date().isoformat() or datetime.fromisoformat(last["finished_at"]) >= saturday))
+        last_mf = betas.last_success(table=mf_betas.RUN_TABLE)
+        funds_done = (last_mf is not None and mf_betas.MF_BETA_JSON_PATH.is_file()
+                      and datetime.fromisoformat(last_mf["finished_at"]) >= friday)
+        if stocks_done and funds_done:
             wake = friday + timedelta(days=7)
         else:
-            try:
-                betas.build()
-                wake = datetime.now(IST) + timedelta(minutes=30)    # Friday's file may not be out yet
-            except Exception as error:             # failed a sanity check or NSE trouble: the old file stays
-                print("Portfolio beta build failed:", type(error).__name__, error)
-                wake = datetime.now(IST) + timedelta(hours=2)
+            failed = False
+            for done, job in ((stocks_done, betas.build), (funds_done, mf_betas.build)):
+                if done:
+                    continue
+                try:
+                    job()
+                except Exception as error:         # failed a sanity check or NSE/AMFI trouble: the old file stays
+                    print("Portfolio beta build failed:", type(error).__name__, error)
+                    failed = True
+            # Friday's bhavcopy may not be out yet, so check again in 30 minutes; after a failure, in 2 hours
+            wake = datetime.now(IST) + (timedelta(hours=2) if failed else timedelta(minutes=30))
         time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
 
 
@@ -834,6 +849,36 @@ def parse_fo_bhavcopy(csv_text):
     return rows
 
 
+def parse_nifty_hedge(csv_text, min_days=7):
+    """For the Portfolio Beta tool's hedge sizer: NIFTY's lot size and spot, each futures expiry's price,
+    and the closing premium of every NIFTY put between 80% and 101% of spot for the futures (monthly)
+    expiries at least min_days after the file's date. Strikes with no open interest are left out."""
+    futures, puts, spot, lot, trade_date = {}, {}, None, None, None
+    records = [r for r in csv.DictReader(io.StringIO(csv_text)) if (r.get("TckrSymb") or "").strip() == "NIFTY"]
+    for record in records:
+        if record.get("FinInstrmTp") == "IDF":
+            futures[record["XpryDt"]] = breakout_num(record.get("ClsPric"))
+            spot = spot or breakout_num(record.get("UndrlygPric"))
+            lot = lot or breakout_num(record.get("NewBrdLotQty"))
+            trade_date = trade_date or record.get("TradDt")
+    if not futures or not spot or not lot:
+        return None
+    start = (datetime.fromisoformat(trade_date) + timedelta(days=min_days)).date().isoformat() if trade_date else ""
+    expiries = sorted(e for e in futures if e >= start)
+    for record in records:
+        if record.get("FinInstrmTp") != "IDO" or record.get("OptnTp") != "PE" or record.get("XpryDt") not in expiries:
+            continue
+        strike, premium = breakout_num(record.get("StrkPric")), breakout_num(record.get("ClsPric"))
+        oi = breakout_num(record.get("OpnIntrst")) or 0
+        if strike and premium and oi > 0 and 0.8 * spot <= strike <= 1.01 * spot:
+            puts.setdefault(record["XpryDt"], []).append([strike, premium, int(oi), int(breakout_num(record.get("TtlTradgVol")) or 0)])
+    return {
+        "spot": spot, "lot": int(lot),
+        "futures": [{"expiry": e, "price": futures[e]} for e in sorted(futures)],
+        "puts": [{"expiry": e, "strikes": sorted(puts[e])} for e in expiries if puts.get(e)],
+    }
+
+
 OI_CHANGE_CACHE = {"data": None, "fetched_at": 0.0}
 
 
@@ -853,7 +898,7 @@ def fetch_oi_change():
         day = today - timedelta(days=back)
         if day.weekday() >= 5:
             continue
-        if cached is not None and cached.get("date") == day.isoformat():
+        if cached is not None and cached.get("date") == day.isoformat() and "niftyHedge" in cached:
             OI_CHANGE_CACHE["fetched_at"] = now
             return cached
         url = NSE_FO_BHAVCOPY_URL.format(date=day.strftime("%Y%m%d"))
@@ -868,7 +913,8 @@ def fetch_oi_change():
         rows = parse_fo_bhavcopy(text)
         if not rows:
             continue
-        data = {"date": day.isoformat(), "fetchedAt": datetime.now(IST).isoformat(timespec="seconds"), "rows": rows}
+        data = {"date": day.isoformat(), "fetchedAt": datetime.now(IST).isoformat(timespec="seconds"), "rows": rows,
+                "niftyHedge": parse_nifty_hedge(text)}
         OI_CHANGE_CACHE["data"] = data
         OI_CHANGE_CACHE["fetched_at"] = now
         save_json_cache(OI_CHANGE_CACHE_PATH, data)
@@ -937,11 +983,12 @@ class BlogHandler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
-    def serve_betas_json(self):
-        """The Portfolio Beta tool's data. It changes once a week, so browsers may keep it an hour and then
-        revalidate with its ETag (the file's mtime), which costs a 304 rather than the whole file."""
+    def serve_data_json(self, path):
+        """The Portfolio Beta tool's data files (betas.json, mf_betas.json). They change once a week, so
+        browsers may keep them an hour and then revalidate with the ETag (the file's mtime and size),
+        which costs a 304 rather than the whole file. Sent gzipped when the browser accepts it."""
         try:
-            stat = BETA_JSON_PATH.stat()
+            stat = path.stat()
         except OSError:
             self.send_error(404)
             return
@@ -952,9 +999,18 @@ class BlogHandler(BaseHTTPRequestHandler):
             self.send_header("Cache-Control", "public, max-age=3600")
             self.end_headers()
             return
-        body = BETA_JSON_PATH.read_bytes()
+        body = path.read_bytes()
+        zipped = "gzip" in (self.headers.get("Accept-Encoding") or "")
+        if zipped:
+            cached = DATA_JSON_GZIP.get(path)
+            if not cached or cached[0] != etag:
+                cached = DATA_JSON_GZIP[path] = (etag, gzip.compress(body, 6))
+            body = cached[1]
         self.send_response(200)
         self.send_header("Content-Type", "application/json")
+        if zipped:
+            self.send_header("Content-Encoding", "gzip")
+        self.send_header("Vary", "Accept-Encoding")
         self.send_header("Content-Length", str(len(body)))
         self.send_header("ETag", etag)
         self.send_header("Cache-Control", "public, max-age=3600")
@@ -1063,13 +1119,20 @@ class BlogHandler(BaseHTTPRequestHandler):
             self.send_json(fetch_nse_indices())
             return
         if route == "/api/oi-change":
-            self.send_json(fetch_oi_change())
+            self.send_json({key: value for key, value in fetch_oi_change().items() if key != "niftyHedge"})
+            return
+        if route == "/api/nifty-hedge":
+            data = fetch_oi_change()
+            self.send_json({"date": data.get("date"), **(data.get("niftyHedge") or {})})
             return
         if route in ("/tools/portfolio-beta", "/tools/portfolio-beta/"):
             self.redirect("/portfolio-beta.html")
             return
         if route == "/data/betas.json":
-            self.serve_betas_json()
+            self.serve_data_json(BETA_JSON_PATH)
+            return
+        if route == "/data/mf_betas.json":
+            self.serve_data_json(MF_BETA_JSON_PATH)
             return
         if route == "/api/momentum":
             self.send_json(momentum.load_state(ROOT))

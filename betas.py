@@ -164,13 +164,13 @@ def write_atomic(path: Path, payload: dict):
 
 
 @contextlib.contextmanager
-def run_log(db_path: Path = None):
-    """The run log: its own small SQLite file (never the blog's database). The table is created on first use.
-    Commits and closes on exit."""
+def run_log(db_path: Path = None, table: str = "beta_runs"):
+    """The run log: its own small SQLite file (never the blog's database). beta_runs logs the stock builds,
+    mf_beta_runs the fund builds (mf_betas.py). The table is created on first use. Commits and closes on exit."""
     database = sqlite3.connect(db_path or BETA_DB_PATH)
     try:
         database.row_factory = sqlite3.Row
-        database.execute("""CREATE TABLE IF NOT EXISTS beta_runs (
+        database.execute(f"""CREATE TABLE IF NOT EXISTS {table} (
             id INTEGER PRIMARY KEY AUTOINCREMENT, started_at TEXT NOT NULL, finished_at TEXT NOT NULL,
             status TEXT NOT NULL, asof TEXT, stocks INTEGER, days INTEGER, message TEXT DEFAULT ''
         )""")
@@ -180,11 +180,11 @@ def run_log(db_path: Path = None):
         database.close()
 
 
-def last_success(db_path: Path = None):
+def last_success(db_path: Path = None, table: str = "beta_runs"):
     """The latest successful run (a sqlite3.Row with finished_at and asof), or None."""
-    with run_log(db_path) as database:
+    with run_log(db_path, table) as database:
         return database.execute(
-            "SELECT * FROM beta_runs WHERE status = 'ok' ORDER BY id DESC LIMIT 1").fetchone()
+            f"SELECT * FROM {table} WHERE status = 'ok' ORDER BY id DESC LIMIT 1").fetchone()
 
 
 def build(out: Path = None, cache: Path = None, end: dt.date = None, days: int = 250, min_obs: int = 120,

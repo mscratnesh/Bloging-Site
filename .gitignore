@@ -52,3 +52,4 @@ dohe/
 # Portfolio Beta tool (betas.py): bhavcopy download cache and the weekly-built data file (betas.db is covered by *.db)
 var/
 data/betas.json
+data/mf_betas.json

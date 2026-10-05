@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="Free portfolio beta calculator for Indian stocks. Paste holdings from Excel or your broker and see your beta vs Nifty 50, a 10% fall estimate and hedge size.">
+<meta name="description" content="Free portfolio beta calculator for Indian stocks and mutual funds. Paste holdings and see your beta vs Nifty 50 and the Nifty futures or puts to hedge it.">
 <title>Portfolio Beta Calculator vs Nifty 50 | Let Money Earn</title>
 <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
 <link rel="canonical" href="https://letmoneyearn.in/portfolio-beta.html">
@@ -11,24 +11,25 @@
 <meta property="og:site_name" content="Let Money Earn">
 <meta property="og:locale" content="en_IN">
 <meta property="og:title" content="Portfolio Beta Calculator: your stocks vs Nifty 50">
-<meta property="og:description" content="Paste your holdings from Excel or your broker and see how much your portfolio moves when Nifty moves. Free, betas for 2,500+ NSE stocks, and your data never leaves your browser.">
+<meta property="og:description" content="Paste your stocks and mutual funds and see how much your portfolio moves when Nifty moves, plus the Nifty futures or puts that would hedge it. Free, and your data never leaves your browser.">
 <meta property="og:url" content="https://letmoneyearn.in/portfolio-beta.html">
 <meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
 <meta property="og:image:alt" content="Let Money Earn">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Portfolio Beta Calculator: your stocks vs Nifty 50">
-<meta name="twitter:description" content="Paste your holdings from Excel or your broker and see how much your portfolio moves when Nifty moves. Free, betas for 2,500+ NSE stocks, and your data never leaves your browser.">
+<meta name="twitter:description" content="Paste your stocks and mutual funds and see how much your portfolio moves when Nifty moves, plus the Nifty futures or puts that would hedge it. Free, and your data never leaves your browser.">
 <meta name="twitter:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
-{"@type":"WebApplication","name":"Portfolio Beta Calculator","url":"https://letmoneyearn.in/portfolio-beta.html","description":"Paste stock holdings from Excel or a broker export and see the portfolio's beta against Nifty 50, an estimate of the move in a 10% Nifty fall, the Nifty hedge notional and each stock's beta and R², using one year of NSE end-of-day data. Runs in the browser.","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"inLanguage":"en-IN","publisher":{"@type":"Organization","name":"Let Money Earn","url":"https://letmoneyearn.in/"}},
+{"@type":"WebApplication","name":"Portfolio Beta Calculator","url":"https://letmoneyearn.in/portfolio-beta.html","description":"Paste stock and mutual fund holdings from Excel or a broker export and see the portfolio's beta against Nifty 50, an estimate of the move in a 10% Nifty fall, each holding's beta and R², and how many Nifty futures or put lots would hedge it, using one year of NSE and AMFI end-of-day data. Runs in the browser.","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","isAccessibleForFree":true,"offers":{"@type":"Offer","price":"0","priceCurrency":"INR"},"inLanguage":"en-IN","publisher":{"@type":"Organization","name":"Let Money Earn","url":"https://letmoneyearn.in/"}},
 {"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://letmoneyearn.in/"},{"@type":"ListItem","position":2,"name":"Calculators","item":"https://letmoneyearn.in/calculators.html"},{"@type":"ListItem","position":3,"name":"Portfolio Beta Calculator","item":"https://letmoneyearn.in/portfolio-beta.html"}]},
 {"@type":"FAQPage","mainEntity":[
-{"@type":"Question","name":"What is portfolio beta?","acceptedAnswer":{"@type":"Answer","text":"Portfolio beta is the value-weighted average of the betas of the stocks you hold. It shows how much your portfolio has tended to move for every 1% move in Nifty 50. A beta of 1.2 means about 1.2% for a 1% Nifty move; below 1 means calmer than the market."}},
-{"@type":"Question","name":"How is each stock's beta calculated here?","acceptedAnswer":{"@type":"Answer","text":"From the last 250 trading days of NSE end-of-day bhavcopy data. Each day's return is the close divided by NSE's previous close minus 1, so splits and bonuses are already adjusted. Beta is the covariance of the stock's daily returns with NIFTYBEES (a Nifty 50 ETF) divided by the variance of NIFTYBEES's returns."}},
-{"@type":"Question","name":"What is a good portfolio beta?","acceptedAnswer":{"@type":"Answer","text":"There is no single right number; it depends on your goals and how much fall you can sit through. This tool calls a beta above 1.15 aggressive, 0.85 to 1.15 market-like and below 0.85 defensive. Adding debt, gold or cash lowers your total portfolio beta."}},
-{"@type":"Question","name":"How does portfolio beta relate to hedging with Nifty futures?","acceptedAnswer":{"@type":"Answer","text":"The Nifty notional that would offset the market part of your equity holdings is roughly equity beta times equity value. For example, ₹10 lakh of stocks with a beta of 1.2 moves like about ₹12 lakh of Nifty. Hedges cost money and don't remove stock-specific risk, so treat this as a learning figure, not advice."}},
-{"@type":"Question","name":"Is my holdings data uploaded anywhere?","acceptedAnswer":{"@type":"Answer","text":"No. Your paste is read and calculated entirely in your browser. The page only downloads the shared table of betas; your holdings are never sent to a server or stored."}},
-{"@type":"Question","name":"How often are the betas updated?","acceptedAnswer":{"@type":"Answer","text":"Once a week, on Friday evening after NSE publishes the day's bhavcopy. The date the betas run to is shown under the paste box."}}
+{"@type": "Question", "name": "What is portfolio beta?", "acceptedAnswer": {"@type": "Answer", "text": "Portfolio beta is the value-weighted average of the betas of the stocks you hold. It shows how much your portfolio has tended to move for every 1% move in Nifty 50. A beta of 1.2 means about 1.2% for a 1% Nifty move; below 1 means calmer than the market."}},
+{"@type": "Question", "name": "How is each stock's beta calculated here?", "acceptedAnswer": {"@type": "Answer", "text": "From the last 250 trading days of NSE end-of-day bhavcopy data. Each day's return is the close divided by NSE's previous close minus 1, so splits and bonuses are already adjusted. Beta is the covariance of the stock's daily returns with NIFTYBEES (a Nifty 50 ETF) divided by the variance of NIFTYBEES's returns."}},
+{"@type": "Question", "name": "What is a good portfolio beta?", "acceptedAnswer": {"@type": "Answer", "text": "There is no single right number; it depends on your goals and how much fall you can sit through. This tool calls a beta above 1.15 aggressive, 0.85 to 1.15 market-like and below 0.85 defensive. Adding debt, gold or cash lowers your total portfolio beta."}},
+{"@type": "Question", "name": "Can I include mutual funds?", "acceptedAnswer": {"@type": "Answer", "text": "Yes. Paste the scheme name, ISIN or AMFI code with units or current value. A fund's beta comes from its own daily NAVs against NIFTYBEES over the same year as the stocks, so no holdings data is needed. Only open-ended Growth plans are covered, and overseas funds are flagged because their betas read too low."}},
+{"@type": "Question", "name": "How does portfolio beta relate to hedging with Nifty futures?", "acceptedAnswer": {"@type": "Answer", "text": "The Nifty notional that would offset the market part of your holdings is roughly beta times holdings value. For example, ₹10 lakh of stocks with a beta of 1.2 moves like about ₹12 lakh of Nifty. The hedge sizer turns that into Nifty futures or put lots at the last closing prices. Hedges cost money and don't remove stock-specific risk, so treat this as a learning figure, not advice."}},
+{"@type": "Question", "name": "Is my holdings data uploaded anywhere?", "acceptedAnswer": {"@type": "Answer", "text": "No. Your paste is read and calculated entirely in your browser. The page only downloads the shared table of betas; your holdings are never sent to a server or stored."}},
+{"@type": "Question", "name": "How often are the betas updated?", "acceptedAnswer": {"@type": "Answer", "text": "Once a week, on Friday evening after NSE publishes the day's bhavcopy. The date the betas run to is shown under the paste box."}}
 ]}]}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -101,6 +102,19 @@
   .pb-tool .rules p{margin:6px 0}
   .pb-tool .rules code{font:13px var(--mono);background:var(--bg);padding:1px 5px;border-radius:4px;overflow-wrap:anywhere}
 
+  .pb-tool select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font:15px var(--sans);background:var(--bg);color:var(--ink)}
+  .pb-tool .field.narrow{flex:0 1 110px}
+  .pb-tool .field.wide{flex:2 1 300px}
+  .pb-tool .hedge{border-top:1px solid var(--line);margin-top:18px;padding-top:6px}
+  .pb-tool .hedge h2{font:600 24px var(--serif);margin:10px 0 4px;letter-spacing:-.01em}
+  .pb-tool .hedge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(280px,100%),1fr));gap:12px;margin-top:14px}
+  .pb-tool .hedge-grid .v{font-size:1.6rem}
+  .pb-tool .hedge-grid p.s{margin:10px 0 0}
+  .pb-tool .tag{display:inline-block;font:500 10px var(--mono);letter-spacing:.05em;background:var(--accent-soft);color:var(--accent);border-radius:4px;padding:1px 5px;margin-right:6px;vertical-align:1px}
+  .pb-tool .fname{display:inline-block;max-width:260px;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom}
+  .pb-tool .matches{background:var(--bg);border-radius:8px;padding:10px 14px;margin:12px 0;font-size:.92rem}
+  .pb-tool .matches ul{margin:8px 0 0;padding-left:1.1em;list-style:none}
+  .pb-tool .matches li{margin:4px 0;overflow-wrap:anywhere}
   .pb-tool .faq h2{font:600 26px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
   .pb-tool .faq details{border-bottom:1px solid var(--line);margin:0}
   .pb-tool .faq summary{padding:13px 0}
@@ -119,18 +133,18 @@
   <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a><a href="goal-sip-calculator.html">Risk Profile &amp; Goal SIP</a><a href="mf-compare.html">MF Rolling Returns Compare</a><a href="mf-sip.html">MF SIP Calculator</a><a href="mf-swp.html">MF SWP Calculator</a><a href="portfolio-beta.html">Portfolio Beta</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Markets</button><div class="nav-sub"><a href="nse-indices.html">NSE Index Dashboard</a><a href="oi-change.html">F&amp;O OI Change</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
   <main>
     <section class="ix-hero">
-      <p class="eyebrow">Calculator · NSE stocks vs Nifty 50 · runs in your browser</p>
+      <p class="eyebrow">Calculator · NSE stocks &amp; mutual funds vs Nifty 50 · runs in your browser</p>
       <h1>Portfolio Beta Calculator</h1>
-      <p>Paste your holdings straight from Excel, Zerodha, Groww or any broker export. See how much your portfolio tends to move when Nifty 50 moves. Your data never leaves your browser.</p>
+      <p>Paste your stocks and mutual funds straight from Excel, Zerodha, Groww or any broker export. See how much your portfolio tends to move when Nifty 50 moves, and how many Nifty futures or put lots would hedge it. Your data never leaves your browser.</p>
     </section>
 
     <div class="pb-tool">
       <section class="card">
         <label for="paste">Your holdings <span class="hint">: copy the rows (with the header row) from Excel and paste here</span></label>
         <textarea id="paste" spellcheck="false" placeholder="Symbol	Qty	LTP
-RELIANCE	50	1187
-HDFCBANK	40	1650
-TCS	10	2050"></textarea>
+RELIANCE	50	1167.7
+HDFCBANK	40	721.2
+TCS	10	2075"></textarea>
         <div class="row">
           <div class="field">
             <label for="other">Non-equity holdings, ₹ <span class="hint">(debt funds, FDs, gold, cash: optional)</span></label>
@@ -138,7 +152,10 @@ TCS	10	2050"></textarea>
           </div>
           <button class="primary" id="go">Calculate beta</button>
           <button class="ghost" id="sample">Try a sample</button>
+          <button class="ghost" id="download" type="button">Download sample (CSV)</button>
         </div>
+        <p class="meta">Not sure of the format? Download the sample, open it in Excel, replace the rows with your holdings (keep the header row), then copy everything and paste it above.</p>
+        <p class="meta">Mutual funds: paste the scheme name (e.g. <i>Parag Parikh Flexi Cap Fund - Direct Plan - Growth</i>), ISIN or AMFI code with units or value.</p>
         <p class="meta" id="dataInfo">Loading beta data…</p>
       </section>
 
@@ -158,9 +175,22 @@ TCS	10	2050"></textarea>
         <details>
           <summary>How to read this</summary>
           <p><b>Beta</b> measures how much a stock has moved, on average, for every 1% move in Nifty 50 over the last year. A beta of 1.3 means roughly 1.3% for a 1% Nifty move. Below 1 is calmer than the market; above 1 amplifies it.</p>
-          <p><b>Portfolio beta</b> is the value-weighted average of your stocks' betas. Debt, gold and cash are treated as beta 0. <b>Market-driven</b> (R²) shows how much of a stock's daily movement Nifty explains. When it is low, the beta is less reliable and the stock follows its own story.</p>
+          <p><b>Portfolio beta</b> is the value-weighted average of your stocks' and funds' betas. Debt, gold and cash are treated as beta 0. <b>Market-driven</b> (R²) shows how much of a stock's daily movement Nifty explains. When it is low, the beta is less reliable and the stock follows its own story.</p>
           <p>Beta is backward-looking. It changes over time and does not capture stock-specific risk, so treat it as a guide, not a guarantee.</p>
         </details>
+
+        <div class="hedge" id="hedge" hidden>
+          <h2>Hedge sizer</h2>
+          <p class="hint">How many Nifty futures or put lots would offset your holdings' market risk, at the last NSE closing prices. For learning, not a recommendation.</p>
+          <div class="row">
+            <div class="field"><label for="hedgeAmt">Amount to hedge, ₹ <span class="hint">(beta × holdings value)</span></label><input id="hedgeAmt" type="number" min="0" step="10000"></div>
+            <div class="field narrow"><label for="hRatio">Hedge</label><select id="hRatio"><option value="25">25%</option><option value="50">50%</option><option value="75">75%</option><option value="100" selected>100%</option></select></div>
+            <div class="field"><label for="hExpiry">Expiry</label><select id="hExpiry"></select></div>
+            <div class="field wide"><label for="hStrike">Put strike</label><select id="hStrike"></select></div>
+          </div>
+          <div id="hedgeOut"><p class="hint">Loading Nifty prices…</p></div>
+          <p class="hint">Futures need margin and daily mark-to-market, and have to be rolled over each month. Brokerage, taxes and the gap between futures and spot are left out. A hedge offsets market moves only: each stock's or fund's own risk stays.</p>
+        </div>
       </section>
 
       <details class="card rules" id="rules">
@@ -171,7 +201,9 @@ TCS	10	2050"></textarea>
           <li><b>Prices:</b> NSE cash-market end-of-day bhavcopy files (UDiFF format) from NSE's public archives at <code>nsearchives.nseindia.com/content/cm/</code>. Only the betas worked out from them are used on this page.</li>
           <li><b>Benchmark:</b> NIFTYBEES (Nippon India ETF Nifty 50 BeES), a Nifty 50 ETF listed in the same file, used as the stand-in for Nifty 50. It tracks the index closely but not perfectly.</li>
           <li><b>Window:</b> the latest 250 trading days of daily returns (about one year), ending on the date shown under the paste box.</li>
-          <li><b>Updates:</b> once a week, on Friday evening after NSE publishes the day's file. Between updates the betas are up to a week old.</li>
+          <li><b>Mutual fund NAVs:</b> AMFI's daily NAV history for every open-ended scheme (<code>portal.amfiindia.com</code>), Growth plans only.</li>
+          <li><b>Hedge prices:</b> NIFTY futures and put closing prices, lot size and Nifty spot from the latest NSE F&amp;O bhavcopy.</li>
+          <li><b>Updates:</b> stock and fund betas once a week, on Friday evening after NSE publishes the day's file (fund NAVs may run to Thursday, as AMFI publishes late at night). Between updates the betas are up to a week old. Hedge prices update every trading day.</li>
         </ul>
 
         <h3>How each stock's beta is calculated</h3>
@@ -196,13 +228,32 @@ TCS	10	2050"></textarea>
           <li><b>Warnings:</b> symbols we can't match are listed, never silently dropped, and so are rows with no quantity or value. Any stock above 5% of your equity with R² below 15% is flagged as having a less reliable beta.</li>
         </ol>
 
+        <h3>Mutual funds</h3>
+        <ol>
+          <li><b>No portfolio holdings needed:</b> a fund's beta comes from its own daily NAVs. Daily return = NAV ÷ the previous trading day's NAV − 1, read on the same trading days as NIFTYBEES, over the same 250 days. Beta and R² are then worked out exactly as for stocks, so stocks and funds add up in one portfolio beta.</li>
+          <li><b>Growth plans only.</b> IDCW (dividend) plans' NAVs drop on payout days, which would look like falls. Direct and Regular plans are listed separately; their betas are nearly the same.</li>
+          <li><b>Bad prints removed:</b> a daily NAV move above ±15% is treated as a data error. At least 120 shared days are needed.</li>
+          <li><b>Matching:</b> by ISIN or AMFI scheme code when you paste one (exact), otherwise by name: every word you paste must appear in the fund's name, on the same plan (Direct only if your text says Direct), and the closest name wins. Name matches are listed so you can check them; any marked "?" had a near tie.</li>
+          <li><b>Overseas funds</b> (fund-of-funds overseas, US and global funds) are flagged: their NAVs follow markets that close after India, so their betas against Nifty read too low.</li>
+          <li><b>Debt and liquid funds</b> come out near beta 0, which is correct. You can paste them or put their value in the non-equity box.</li>
+        </ol>
+
+        <h3>Hedge sizer</h3>
+        <ol>
+          <li><b>Amount to hedge</b> starts at your holdings beta × holdings value (the Nifty-equivalent exposure). Change it or pick a hedge percentage.</li>
+          <li><b>Futures lots</b> = amount ÷ (futures price × lot size), rounded to the nearest whole lot. Expiries are the monthly NIFTY futures at least 7 days away.</li>
+          <li><b>Put lots</b> = amount ÷ (Nifty spot × lot size), rounded. Cost = lots × lot size × the put's closing premium. The default strike is the one nearest 5% below spot.</li>
+          <li><b>10% fall example:</b> portfolio fall ≈ amount × 10%. Futures gain ≈ lots × lot value × 10%. Puts pay (strike − 90% of spot) × lot size × lots at expiry, less the premium.</li>
+          <li>Prices are the last NSE closing prices, not live quotes; a strike that traded fewer than 100 contracts is marked as thin. Margins, brokerage, taxes, rollover cost and basis are not included.</li>
+        </ol>
+
         <h3>What you can paste</h3>
         <ul>
-          <li>Rows copied from Excel or Google Sheets (tab-separated), CSV (quoted numbers such as <code>"1,187.50"</code> are fine), or columns separated by spaces.</li>
-          <li><b>Columns are recognised by header:</b> Symbol, Instrument, Scrip, Stock, Ticker, Trading symbol, Security, Company or Name for the stock; Qty, Quantity, Shares or Units for quantity; Value, Cur. val, Market value, Present value or Holding value for value; LTP, Last, CMP, Close, Current price, Market price or Price for price. A Zerodha holdings export works as-is.</li>
+          <li>Rows copied from Excel or Google Sheets (tab-separated; <i>Download sample (CSV)</i> gives a template to fill in), CSV (quoted numbers such as <code>"1,187.50"</code> are fine), or columns separated by spaces.</li>
+          <li><b>Columns are recognised by header:</b> Symbol, Instrument, Scrip, Stock, Ticker, Trading symbol, Security, Company, Name, Fund or Scheme for the holding; ISIN; Qty, Quantity, Shares or Units for quantity; Value, Cur. val, Market value, Present value or Holding value for value; LTP, Last, CMP, Close, Current price, Market price, Price or NAV for price. A Zerodha holdings export works as-is.</li>
           <li><b>No header row?</b> The columns are read as Symbol, Qty and an optional Price.</li>
           <li><b>Symbols are cleaned:</b> <code>NSE:INFY</code>, <code>wipro.ns</code> and <code>HDFCBANK-BE</code> become INFY, WIPRO and HDFCBANK. Use NSE symbols, not company names (<i>HDFCBANK</i>, not <i>HDFC Bank Ltd</i>). Rows starting with "Total" or "Grand" are skipped. ₹ signs and commas are ignored.</li>
-          <li><b>Not covered:</b> mutual funds, bonds, SGBs and BSE-only stocks. Add their value in the non-equity box instead.</li>
+          <li><b>Not covered:</b> bonds, SGBs, BSE-only stocks, closed-ended funds and IDCW plans. Add their value in the non-equity box instead.</li>
         </ul>
 
         <h3>Limits</h3>
@@ -222,7 +273,8 @@ TCS	10	2050"></textarea>
         <details><summary>What is portfolio beta?</summary><p>Portfolio beta is the value-weighted average of the betas of the stocks you hold. It shows how much your portfolio has tended to move for every 1% move in Nifty 50. A beta of 1.2 means about 1.2% for a 1% Nifty move; below 1 means calmer than the market.</p></details>
         <details><summary>How is each stock's beta calculated here?</summary><p>From the last 250 trading days of NSE end-of-day bhavcopy data. Each day's return is the close divided by NSE's previous close minus 1, so splits and bonuses are already adjusted. Beta is the covariance of the stock's daily returns with NIFTYBEES (a Nifty 50 ETF) divided by the variance of NIFTYBEES's returns.</p></details>
         <details><summary>What is a good portfolio beta?</summary><p>There is no single right number; it depends on your goals and how much fall you can sit through. This tool calls a beta above 1.15 aggressive, 0.85 to 1.15 market-like and below 0.85 defensive. Adding debt, gold or cash lowers your total portfolio beta.</p></details>
-        <details><summary>How does portfolio beta relate to hedging with Nifty futures?</summary><p>The Nifty notional that would offset the market part of your equity holdings is roughly equity beta times equity value. For example, ₹10 lakh of stocks with a beta of 1.2 moves like about ₹12 lakh of Nifty. Hedges cost money and don't remove stock-specific risk, so treat this as a learning figure, not advice.</p></details>
+        <details><summary>Can I include mutual funds?</summary><p>Yes. Paste the scheme name, ISIN or AMFI code with units or current value. A fund's beta comes from its own daily NAVs against NIFTYBEES over the same year as the stocks, so no holdings data is needed. Only open-ended Growth plans are covered, and overseas funds are flagged because their betas read too low.</p></details>
+        <details><summary>How does portfolio beta relate to hedging with Nifty futures?</summary><p>The Nifty notional that would offset the market part of your holdings is roughly beta times holdings value. For example, ₹10 lakh of stocks with a beta of 1.2 moves like about ₹12 lakh of Nifty. The hedge sizer turns that into Nifty futures or put lots at the last closing prices. Hedges cost money and don't remove stock-specific risk, so treat this as a learning figure, not advice.</p></details>
         <details><summary>Is my holdings data uploaded anywhere?</summary><p>No. Your paste is read and calculated entirely in your browser. The page only downloads the shared table of betas; your holdings are never sent to a server or stored.</p></details>
         <details><summary>How often are the betas updated?</summary><p>Once a week, on Friday evening after NSE publishes the day's bhavcopy. The date the betas run to is shown under the paste box.</p></details>
       </section>
@@ -237,10 +289,13 @@ TCS	10	2050"></textarea>
   <script src="nav.js"></script>
   <script>
   (() => {
-    // Written every Friday by betas.py and served by app.py
+    // Written every Friday by betas.py / mf_betas.py and served by app.py. Fund betas load only when a
+    // pasted row looks like a mutual fund; the hedge sizer's Nifty prices come from the day's F&O bhavcopy.
     const BETAS_URL = "/data/betas.json";
+    const MF_BETAS_URL = "/data/mf_betas.json";
+    const HEDGE_URL = "/api/nifty-hedge";
 
-    let DB = null;
+    let DB = null, MF = null, mfLoading = null, HEDGE = null, hedgeLoading = null;
     const $ = s => document.querySelector(s);
     const inr = n => "₹" + Math.round(n).toLocaleString("en-IN");
     const pct = n => (n * 100).toFixed(1) + "%";
@@ -256,6 +311,60 @@ TCS	10	2050"></textarea>
 
     function fmtDate(s){ const d = new Date(s + "T00:00:00");
       return d.toLocaleDateString("en-IN", {day:"numeric", month:"short", year:"numeric"}); }
+
+    // ---------- mutual funds ----------
+    const ISIN_RX = /^IN[EF][A-Z0-9]{9}$/;
+    const FUND_WORDS = /\b(fund|plan|growth|direct|regular|scheme|fof|idcw|etf)\b/i;
+    const STOP = new Set(["fund","plan","option","options","the","of","scheme","mutual","mf","growth","gr","direct",
+      "dir","regular","reg","open","ended","an","and","g","d","r","ltd","limited","formerly","known","as","fof","erstwhile"]);
+    const OVERSEAS_WORDS = /\b(us|usa|global|international|overseas|world|nasdaq|s&p|china|japan|taiwan|europe|emerging)\b/i;
+    const words = s => String(s).toLowerCase().replace(/&/g, " and ").replace(/[^a-z0-9]+/g, " ").trim().split(" ")
+      .filter(t => t && !STOP.has(t));
+
+    function loadMF(){
+      if (!mfLoading) mfLoading = fetch(MF_BETAS_URL, {cache: "no-cache"}).then(r => { if (!r.ok) throw 0; return r.json(); })
+        .then(j => {
+          const byIsin = {}, index = [];
+          for (const [code, f] of Object.entries(j.funds)) {
+            if (f.isin) byIsin[f.isin] = code;
+            const t = words(f.name), main = words(f.name.replace(/\(.*?\)/g, " "));
+            index.push({code, set: new Set(t), main, joined: t.join(""), direct: /\bdirect\b/i.test(f.name), x: !!f.x, len: f.name.length});
+          }
+          MF = {...j, byIsin, index};
+          $("#dataInfo").textContent += ` · ${j.count.toLocaleString("en-IN")} mutual funds to ${fmtDate(j.asof)}`;
+          return MF;
+        })
+        .catch(() => { mfLoading = null; return null; });
+      return mfLoading;
+    }
+
+    // Best fund for a pasted name: every word must appear in the fund's name (a word of 3+ letters may be
+    // the start of a longer one, "pru" for "Prudential", or 5+ letters run together, "bluechip"), on the
+    // same plan (Direct only if the text says Direct). Fewest extra words wins: words in brackets, such as
+    // "(erstwhile Bluechip Fund)", count as matches but never as extras, and an overseas fund counts two
+    // extra unless the text names a foreign market, so "ICICI Pru Bluechip" finds the Large Cap fund.
+    function matchFund(raw){
+      const t = words(raw);
+      if (t.length < 2) return null;
+      const direct = /\b(direct|dir)\b/i.test(raw), abroad = OVERSEAS_WORDS.test(raw);
+      let best = null, second = null;
+      for (const f of MF.index) {
+        if (f.direct !== direct) continue;
+        let hits = 0;
+        for (const w of t) {
+          if (f.set.has(w) || (w.length >= 5 && f.joined.includes(w)) ||
+              (w.length >= 3 && [...f.set].some(x => x.startsWith(w)))) hits++;
+          else break;
+        }
+        if (hits < t.length) continue;
+        const hit = x => t.some(w => x === w || (w.length >= 3 && x.startsWith(w)) || (w.length >= 5 && w.includes(x)));
+        const cand = {code: f.code, extra: f.main.filter(x => !hit(x)).length + (f.x && !abroad ? 2 : 0), len: f.len};
+        if (!best || cand.extra < best.extra || (cand.extra === best.extra && cand.len < best.len)) { second = best; best = cand; }
+        else if (!second || cand.extra < second.extra) second = cand;
+      }
+      if (!best) return null;
+      return {code: best.code, exact: best.extra === 0, close: !!second && second.extra === best.extra};
+    }
 
     // ---------- parsing ----------
     const num = s => { if (s == null) return NaN;
@@ -286,10 +395,11 @@ TCS	10	2050"></textarea>
     }
 
     const RX = {
-      sym:   /^(symbol|instrument|scrip|stock|ticker|trading ?symbol|security|company|name)/i,
+      isin:  /isin/i,
+      sym:   /^(symbol|instrument|scrip|stock|ticker|trading ?symbol|security|company|name|fund|scheme)/i,
       qty:   /(^qty|quantity|shares|units|holding qty|no\.? of)/i,
       val:   /(cur(rent)?\.? ?val|market ?val|present ?val|^value|holding ?val)/i,
-      price: /(ltp|last|cmp|close|current ?price|market ?price|^price)/i,
+      price: /(ltp|last|cmp|close|current ?price|market ?price|^price|^nav|current ?nav|latest ?nav)/i,
     };
 
     function parse(text){
@@ -300,14 +410,17 @@ TCS	10	2050"></textarea>
       cols.forEach((c, i) => { for (const k in RX) if (idx[k] === undefined && RX[k].test(c)) { idx[k] = i; break; } });
       let start = 1;
       if (idx.sym === undefined) {             // no header: assume Symbol, Qty, [Price]
-        idx.sym = 0; idx.qty = 1; if (cols.length > 2) idx.price = 2; start = 0;
+        if (idx.isin !== undefined) idx.sym = idx.isin;
+        else { idx.sym = 0; idx.qty = 1; if (cols.length > 2) idx.price = 2; start = 0; }
       }
       const rows = [];
       for (let i = start; i < lines.length; i++) {
         const c = splitRow(lines[i]);
-        const sym = cleanSym(c[idx.sym] || "");
+        const raw = String(c[idx.sym] || "").trim();
+        const sym = cleanSym(raw);
         if (!sym || /^(TOTAL|GRAND)/.test(sym)) continue;
-        rows.push({ sym,
+        rows.push({ sym, raw,
+          isin:  idx.isin  !== undefined ? String(c[idx.isin] || "").trim().toUpperCase() : "",
           qty:   idx.qty   !== undefined ? num(c[idx.qty])   : NaN,
           price: idx.price !== undefined ? num(c[idx.price]) : NaN,
           val:   idx.val   !== undefined ? num(c[idx.val])   : NaN });
@@ -315,43 +428,64 @@ TCS	10	2050"></textarea>
       return {rows};
     }
 
+    const fundIsin = r => [r.isin, r.raw.toUpperCase()].find(s => ISIN_RX.test(s) && s.startsWith("INF")) || "";
+    const looksFund = r => !!fundIsin(r) || /^\d{5,6}$/.test(r.raw) || (FUND_WORDS.test(r.raw) && /\s/.test(r.raw));
+
     // ---------- calculation ----------
-    function calc(){
+    async function calc(){
       if (!DB) { alert("Beta data is still loading. Try again in a moment."); return; }
       const {rows, note} = parse($("#paste").value);
       if (!rows.length) { alert(note || "Couldn't find any holdings in what you pasted."); return; }
 
-      const merged = new Map(), missing = [], noValue = [];
+      const fundRows = rows.filter(r => !DB.stocks[r.sym] && looksFund(r));
+      let mfFailed = false;
+      if (fundRows.length && !MF) { $("#go").disabled = true; await loadMF(); $("#go").disabled = false; mfFailed = !MF; }
+
+      const merged = new Map(), missing = [], noValue = [], fundMatches = [];
       for (const r of rows) {
-        const d = DB.stocks[r.sym];
-        if (!d) { missing.push(r.sym); continue; }
+        let key, d, info;
+        if (DB.stocks[r.sym]) { d = DB.stocks[r.sym]; key = r.sym; info = {sym: r.sym, kind: "stock"}; }
+        else if (MF && looksFund(r)) {
+          const isin = fundIsin(r);
+          let m = isin && MF.byIsin[isin] ? {code: MF.byIsin[isin], exact: true, how: "ISIN"}
+                : MF.funds[r.raw] ? {code: r.raw, exact: true, how: "AMFI code"} : null;
+          if (!m) { m = matchFund(r.raw); if (m) m.how = "name"; }
+          if (!m) { missing.push(r.raw || r.sym); continue; }
+          d = MF.funds[m.code]; key = "MF:" + m.code;
+          info = {sym: d.name, kind: "fund", x: d.x, cat: MF.cats[d.c]};
+          if (m.how === "name") fundMatches.push({raw: r.raw, name: d.name, sure: m.exact && !m.close});
+        }
+        else { missing.push(looksFund(r) ? r.raw : r.sym); continue; }
         let v = r.val;
         if (!(v > 0)) v = r.qty * (r.price > 0 ? r.price : d.p);
-        if (!(v > 0)) { noValue.push(r.sym); continue; }
-        const m = merged.get(r.sym) || {sym: r.sym, val: 0, b: d.b, r2: d.r2};
-        m.val += v; merged.set(r.sym, m);
+        if (!(v > 0)) { noValue.push(info.kind === "fund" ? d.name : r.sym); continue; }
+        const m = merged.get(key) || {...info, val: 0, b: d.b, r2: d.r2};
+        m.val += v; merged.set(key, m);
       }
       const list = [...merged.values()];
       const eq = list.reduce((s, r) => s + r.val, 0);
-      if (!eq) { render([], 0, 0, missing, noValue); return; }
+      const extra = {fundMatches, mfFailed: mfFailed && fundRows.length};
+      if (!eq) { render([], 0, 0, missing, noValue, extra); return; }
       list.forEach(r => { r.w = r.val / eq; r.c = r.w * r.b; });
       const beta = list.reduce((s, r) => s + r.c, 0);
-      render(list, eq, beta, missing, noValue);
+      render(list, eq, beta, missing, noValue, extra);
     }
 
-    let current = [], sortKey = "val", sortDir = -1;
+    let current = [], sortKey = "val", sortDir = -1, exposure = 0, holdingsValue = 0;
 
-    function render(list, eq, beta, missing, noValue){
+    function render(list, eq, beta, missing, noValue, extra){
       const other = Math.max(0, num($("#other").value) || 0);
       const total = eq + other, tBeta = total ? beta * eq / total : 0;
+      const nFunds = list.filter(r => r.kind === "fund").length, nStocks = list.length - nFunds;
       $("#result").style.display = "block";
 
       const stats = [
-        ["Equity beta", eq ? beta.toFixed(2) : "–", `${list.length} stocks · ${inr(eq)}`],
+        [nFunds ? "Holdings beta" : "Equity beta", eq ? beta.toFixed(2) : "–",
+          (nFunds ? `${nStocks} stocks, ${nFunds} funds` : `${list.length} stocks`) + ` · ${inr(eq)}`],
         other ? ["Total portfolio beta", tBeta.toFixed(2), `incl. ${inr(other)} non-equity at beta 0`] : null,
         ["If Nifty falls 10%", eq ? "−" + (Math.abs((other ? tBeta : beta) * 10)).toFixed(1) + "%" : "–",
           `≈ ${inr((other ? total : eq) * (other ? tBeta : beta) * 0.10)} expected move`],
-        ["Nifty hedge to neutralise", eq ? inr(beta * eq) : "–", "short Nifty notional ≈ beta × equity value"],
+        ["Nifty hedge to neutralise", eq ? inr(beta * eq) : "–", "short Nifty notional ≈ beta × holdings value"],
       ].filter(Boolean);
       $("#hero").innerHTML = stats.map(([k, v, s]) =>
         `<div class="stat"><div class="k">${k}</div><div class="v">${v}</div><div class="s">${s}</div></div>`).join("");
@@ -363,22 +497,39 @@ TCS	10	2050"></textarea>
       : `<b>Defensive.</b> Your portfolio has moved less than Nifty (beta ${b.toFixed(2)}). It should fall less in sell-offs, and may lag in rallies.`;
 
       let w = "";
-      if (missing.length) w += `<div class="warnbox"><b>Not found (${missing.length}):</b> ${esc(missing.slice(0,20).join(", "))}${missing.length>20?"…":""}. Check that these are NSE symbols (e.g. <i>HDFCBANK</i>, not <i>HDFC Bank Ltd</i>). Mutual funds, bonds and SGBs aren't covered; add their value in the non-equity box instead.</div>`;
-      if (noValue.length) w += `<div class="warnbox"><b>No quantity or value for:</b> ${esc(noValue.join(", "))}. Include a Qty or Value column.</div>`;
-      const lowR2 = list.filter(r => r.r2 < 0.15 && r.w > 0.05).map(r => r.sym);
+      if (extra.mfFailed) w += `<div class="warnbox"><b>Mutual fund betas couldn't be loaded,</b> so the fund rows below are listed as not found. Please try again in a minute.</div>`;
+      if (missing.length) w += `<div class="warnbox"><b>Not found (${missing.length}):</b> ${esc(missing.slice(0,20).join(", "))}${missing.length>20?"…":""}. Use NSE symbols for stocks (e.g. <i>HDFCBANK</i>, not <i>HDFC Bank Ltd</i>), and the scheme name, ISIN or AMFI code for mutual funds (Growth plans only). Bonds and SGBs aren't covered; add their value in the non-equity box instead.</div>`;
+      if (noValue.length) w += `<div class="warnbox"><b>No quantity or value for:</b> ${esc(noValue.join(", "))}. Include a Qty/Units or Value column.</div>`;
+      const lowR2 = list.filter(r => r.kind === "stock" && r.r2 < 0.15 && r.w > 0.05).map(r => r.sym);
       if (lowR2.length) w += `<div class="warnbox">${lowR2.join(", ")} move mostly on their own news (low R²), so their betas are less reliable.</div>`;
+      const overseas = list.filter(r => r.x).map(r => r.sym);
+      if (overseas.length) w += `<div class="warnbox">${esc(overseas.join(", "))} ${overseas.length > 1 ? "invest overseas. Their NAVs are" : "invests overseas. Its NAV is"} struck on foreign markets that trade after India, so ${overseas.length > 1 ? "their betas" : "its beta"} against Nifty ${overseas.length > 1 ? "read" : "reads"} lower than the real market risk.</div>`;
+      if (extra.fundMatches.length) {
+        const unsure = extra.fundMatches.some(m => !m.sure);
+        w += `<details class="matches"${unsure ? " open" : ""}><summary>Funds matched by name (${extra.fundMatches.length})${unsure ? ": please check" : ""}</summary><ul>` +
+          extra.fundMatches.map(m => `<li>${m.sure ? "✓" : "?"} <i>${esc(m.raw)}</i> → ${esc(m.name)}</li>`).join("") +
+          `</ul><p class="hint">Wrong match? Paste the fund's ISIN or AMFI code instead of its name.</p></details>`;
+      }
       $("#warns").innerHTML = w;
 
       current = list; drawTable();
+      exposure = eq ? beta * eq : 0; holdingsValue = eq;
+      $("#hedgeAmt").value = exposure ? Math.round(exposure) : "";
+      showHedge();
     }
 
     function cls(b){ return b > 1.15 ? "b-hi" : b < 0.85 ? "b-lo" : "b-mid"; }
+    function label(r){
+      if (r.kind !== "fund") return esc(r.sym);
+      const short = r.sym.replace(/\s*-\s*(direct|regular)\s*plan.*$/i, "").replace(/\s*-\s*growth.*$/i, "");
+      return `<span class="tag">MF</span><span class="fname" title="${esc(r.sym + (r.cat ? " · " + r.cat : ""))}">${esc(short)}</span>`;
+    }
     function drawTable(){
       const rows = [...current].sort((a, b) =>
         sortKey === "sym" ? sortDir * a.sym.localeCompare(b.sym) : sortDir * (a[sortKey] - b[sortKey]));
       const maxW = Math.max(...rows.map(r => r.w), 0.0001);
       $("#tbl tbody").innerHTML = rows.map(r => `<tr>
-        <td>${r.sym}</td><td>${inr(r.val)}</td><td>${pct(r.w)}</td>
+        <td>${label(r)}</td><td>${inr(r.val)}</td><td>${pct(r.w)}</td>
         <td class="${cls(r.b)}">${r.b.toFixed(2)}</td><td>${r.c.toFixed(3)}</td>
         <td>${Math.round(r.r2 * 100)}%</td>
         <td style="width:90px"><div class="bar" style="width:${(r.w / maxW * 100).toFixed(0)}%"></div></td></tr>`).join("");
@@ -387,12 +538,88 @@ TCS	10	2050"></textarea>
       const k = th.dataset.k; sortDir = sortKey === k ? -sortDir : (k === "sym" ? 1 : -1); sortKey = k; drawTable();
     }));
 
+    // ---------- hedge sizer ----------
+    const fmtNum = (n, d = 2) => Number(n).toLocaleString("en-IN", {minimumFractionDigits: d, maximumFractionDigits: d});
+    const daysTo = e => Math.round((new Date(e + "T15:30:00+05:30") - new Date(HEDGE.date + "T15:30:00+05:30")) / 864e5);
+
+    function showHedge(){
+      $("#hedge").hidden = !exposure;
+      if (!exposure) return;
+      if (!hedgeLoading) hedgeLoading = fetch(HEDGE_URL).then(r => r.json()).then(j => {
+        if (!j.lot || !j.spot || !(j.puts || []).length) throw 0;
+        HEDGE = j;
+        $("#hExpiry").innerHTML = j.puts.map(p => `<option value="${p.expiry}">${fmtDate(p.expiry)} (${daysTo(p.expiry)} days)</option>`).join("");
+        fillStrikes();
+      }).catch(() => { hedgeLoading = null; $("#hedgeOut").innerHTML = `<p class="hint">Nifty futures and option prices couldn't be loaded. Please try again later.</p>`; });
+      hedgeLoading.then(drawHedge);
+    }
+
+    function fillStrikes(){
+      const p = HEDGE.puts.find(x => x.expiry === $("#hExpiry").value) || HEDGE.puts[0];
+      const target = HEDGE.spot * 0.95;
+      let best = p.strikes[0][0];
+      for (const [k] of p.strikes) if (Math.abs(k - target) < Math.abs(best - target)) best = k;
+      $("#hStrike").innerHTML = p.strikes.filter(([k]) => k % 100 === 0 || k === best).map(([k, prem]) =>
+        `<option value="${k}"${k === best ? " selected" : ""}>${fmtNum(k, 0)} · ${((1 - k / HEDGE.spot) * 100).toFixed(1)}% below spot · ₹${fmtNum(prem)}</option>`).join("");
+    }
+
+    function drawHedge(){
+      if (!HEDGE) return;
+      const amt = Math.max(0, num($("#hedgeAmt").value) || 0) * (+$("#hRatio").value / 100);
+      const lot = HEDGE.lot, spot = HEDGE.spot, expiry = $("#hExpiry").value;
+      const fut = HEDGE.futures.find(f => f.expiry === expiry) || HEDGE.futures[0];
+      const p = HEDGE.puts.find(x => x.expiry === expiry);
+      const k = +$("#hStrike").value, row = p.strikes.find(s => s[0] === k), prem = row[1];
+      const lotFut = fut.price * lot, lotSpot = spot * lot;
+      const nF = Math.round(amt / lotFut), nP = Math.round(amt / lotSpot);
+      const loss10 = amt * 0.10, cost = nP * lot * prem;
+      const putPay = Math.max(0, k - spot * 0.9) * lot * nP;
+      const tooSmall = n => n === 0 ? `<p class="warnbox">The amount to hedge is less than half a lot (${inr(lotSpot)}), so it can't be hedged with Nifty contracts. Nifty lots are ${lot} units.</p>` : "";
+      $("#hedgeOut").innerHTML = `
+        <div class="hedge-grid">
+          <div class="stat">
+            <div class="k">Nifty futures (${fmtDate(fut.expiry)})</div>
+            <div class="v">Sell ${nF} lot${nF === 1 ? "" : "s"}</div>
+            <div class="s">${fmtNum(amt / lotFut)} lots exactly · 1 lot = ${lot} × ₹${fmtNum(fut.price)} = ${inr(lotFut)} · hedges ${inr(nF * lotFut)} of ${inr(amt)}</div>
+            ${tooSmall(nF)}
+            <p class="s">If Nifty falls 10%, the short futures gain about ${inr(nF * lotFut * 0.10)} against an expected portfolio fall of about ${inr(loss10)}. If Nifty rises, they lose about as much as the portfolio gains.</p>
+          </div>
+          <div class="stat">
+            <div class="k">Nifty ${fmtNum(k, 0)} puts (${fmtDate(p.expiry)})</div>
+            <div class="v">Buy ${nP} lot${nP === 1 ? "" : "s"}</div>
+            <div class="s">Premium ₹${fmtNum(prem)} × ${lot} × ${nP} = ${inr(cost)} (${holdingsValue ? (cost / holdingsValue * 100).toFixed(2) : "–"}% of holdings) · protection starts ${((1 - k / spot) * 100).toFixed(1)}% below spot</div>
+            ${tooSmall(nP)}
+            <p class="s">If Nifty is 10% lower at expiry, the puts pay about ${inr(putPay)}, or ${inr(putPay - cost)} after the premium, against an expected portfolio fall of about ${inr(loss10)}. If Nifty doesn't fall below ${fmtNum(k, 0)}, the premium is lost.</p>
+          </div>
+        </div>
+        <p class="meta">NSE closing prices of ${fmtDate(HEDGE.date)}: Nifty ${fmtNum(spot)}, lot size ${lot}. Put volume that day: ${row[3].toLocaleString("en-IN")} contracts${row[3] < 100 ? " (thin: the closing price may be stale)" : ""}. Live prices will differ.</p>`;
+    }
+    $("#hedgeAmt").addEventListener("input", drawHedge);
+    $("#hRatio").addEventListener("change", drawHedge);
+    $("#hExpiry").addEventListener("change", () => { fillStrikes(); drawHedge(); });
+    $("#hStrike").addEventListener("change", drawHedge);
+
     $("#go").addEventListener("click", calc);
+    // One sample for "Try a sample" (pasted as tab-separated rows) and "Download sample" (a CSV to fill in)
+    const SAMPLE = [
+      ["Instrument", "Qty.", "Avg. cost", "LTP", "Cur. val"],
+      ["RELIANCE", 250, 1250, 1167.7, 291925], ["HDFCBANK", 400, 760, 721.2, 288480], ["TCS", 100, 3400, 2075, 207500],
+      ["ITC", 1200, 410, 255.9, 307080], ["TMPV", 300, 300, 279.4, 83820], ["NIFTYBEES", 1500, 270, 256.5, 384750],
+      ["Parag Parikh Flexi Cap Fund - Direct Plan - Growth", 6000, 70, 88.26, 529560],
+    ];
     $("#sample").addEventListener("click", () => {
-      $("#paste").value = "Instrument\tQty.\tAvg. cost\tLTP\tCur. val\n" +
-        "RELIANCE\t50\t1250\t1187\t59350\nHDFCBANK\t40\t1600\t1650\t66000\nTCS\t10\t3400\t2050\t20500\n" +
-        "ITC\t200\t410\t395\t79000\nTMPV\t60\t300\t280\t16800\nNIFTYBEES\t300\t270\t265\t79500";
+      $("#paste").value = SAMPLE.map(r => r.join("\t")).join("\n");
       calc();
+    });
+    // Built in the browser (no request): opens in Excel, where the rows can be replaced and pasted back
+    $("#download").addEventListener("click", () => {
+      const cell = v => /[",\n]/.test(String(v)) ? `"${String(v).replace(/"/g, '""')}"` : String(v);
+      const csv = "﻿" + SAMPLE.map(r => r.map(cell).join(",")).join("\r\n") + "\r\n";
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob([csv], {type: "text/csv;charset=utf-8"}));
+      a.download = "portfolio-beta-sample.csv";
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
     });
   })();
   </script>
