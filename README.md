@@ -250,7 +250,7 @@ Each run's outcome goes to `market_reel.log` next to the exe. To check a build w
 
 ## Building the executables
 
-The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder). The build Python needs `pillow` and `imageio-ffmpeg` for the market reel, and `pandas` and `requests` for the portfolio beta builder (`py -m pip install pillow imageio-ffmpeg pandas requests openpyxl xlrd`; `openpyxl` and `xlrd` read the fund houses' Excel files for the holdings explorer). If pandas is missing from a build, the site still runs; only the weekly beta update is skipped (the console says so):
+The VM runs PyInstaller builds (the `.spec` files are git-ignored but live in this folder). For the market-data tools (Portfolio Beta, MF Holdings Explorer), run `deploy\setup_data_tools.bat` once on the build VM: it installs the packages below, adds `openpyxl` and `xlrd` to `hiddenimports` in `LetMoneyEarn.spec` (pandas loads them dynamically, so PyInstaller misses them otherwise), checks the VM can reach NSE, AMFI and the fund houses, and can rebuild the exe. The build Python needs `pillow` and `imageio-ffmpeg` for the market reel, and `pandas` and `requests` for the portfolio beta builder (`py -m pip install pillow imageio-ffmpeg pandas requests openpyxl xlrd`; `openpyxl` and `xlrd` read the fund houses' Excel files for the holdings explorer). If pandas is missing from a build, the site still runs; only the weekly beta update is skipped (the console says so):
 
 ```powershell
 py -m PyInstaller --noconfirm LetMoneyEarn.spec
