@@ -324,15 +324,17 @@
       resizeTimer = setTimeout(() => { if (data && $("charts").clientWidth !== lastWidth) { lastWidth = $("charts").clientWidth; render(); } }, 150);
     });
 
-    fetch("/data/fiidii.json").then(r => { if (!r.ok) throw 0; return r.json(); }).then(j => {
+    fetch("/data/fiidii.json").then(r => { if (!r.ok) throw r.status; return r.json(); }).then(j => {
       data = j;
       const n = j.nse.rows, f = j.fpi.rows;
       const part = (rows, name) => rows.length ? `${name} to ${dlabel(rows[rows.length - 1][0])}` : `${name}: none yet`;
       $("stamp").textContent = `${part(n, "NSE FII/DII")} · ${part(f, "NSDL FPI")}${f.length ? " (from " + dlabel(f[0][0]) + ")" : ""}`;
       if (!n.length && f.length) { series = "fpi"; $("series").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.s === "fpi"))); }
       render();
-    }).catch(() => {
-      $("stamp").textContent = "Couldn't load the FII/DII data. Please refresh in a minute.";
+    }).catch(status => {
+      $("stamp").textContent = status === 404
+        ? "The FII/DII history is being built for the first time. Please check back in a few minutes."
+        : "Couldn't load the FII/DII data. Please refresh in a minute.";
       $("body").innerHTML = `<tr><td class="ix-empty">No data.</td></tr>`;
     });
   })();

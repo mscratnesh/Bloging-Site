@@ -154,8 +154,9 @@ def fetch_fpi_month(year: int, month: int, session: requests.Session) -> dict:
     return {d: v for d, v in parse_archive(r.text).items() if d.startswith(prefix)}
 
 
-def update_fpi(cache_dir: Path = None, today: dt.date = None, pause: float = 1.0, log=print):
-    """Fetch the months not cached yet, and refresh the last two if their copy is over 6 hours old."""
+def update_fpi(cache_dir: Path = None, today: dt.date = None, pause: float = 1.0, log=print, progress=None):
+    """Fetch the months not cached yet, and refresh the last two if their copy is over 6 hours old.
+    progress() is called after every 12 months fetched, so a first backfill shows up while it runs."""
     cache_dir = Path(cache_dir or CACHE_DIR)
     cache_dir.mkdir(parents=True, exist_ok=True)
     today = today or dt.datetime.now(IST).date()
@@ -174,6 +175,8 @@ def update_fpi(cache_dir: Path = None, today: dt.date = None, pause: float = 1.0
                 if rows or (y, m) in recent:          # an empty finished month means a failed page: retry next time
                     _write_json(path, rows)
                 fetched += 1
+                if progress and fetched % 12 == 0:
+                    progress()
             except Exception as e:                   # NSDL down or slow: keep what's cached, retry next run
                 failed += 1
                 log(f"  NSDL FPI {y}-{m:02d}: {type(e).__name__}: {e}")
@@ -208,7 +211,8 @@ def nightly(fetch_fiidii=None, log=print) -> str:
             notes.append(f"NSE {fd['date']} {'saved' if record_nse(fd) else 'unchanged'}")
         except Exception as e:
             notes.append(f"NSE failed: {type(e).__name__}: {e}")
-    fetched, failed = update_fpi(log=log)
+    publish()                                     # whatever is saved already, before the slow NSDL part
+    fetched, failed = update_fpi(log=log, progress=publish)
     notes.append(f"NSDL {fetched} month(s) fetched" + (f", {failed} failed" if failed else ""))
     p = publish()
     notes.append(f"{len(p['nse']['rows'])} NSE days, {len(p['fpi']['rows'])} FPI days")

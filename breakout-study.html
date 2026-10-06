@@ -163,7 +163,7 @@ td.sub { padding-left: 22px; white-space: nowrap; }
 .study-hero .eyebrow { font: 500 16px "DM Mono", monospace; letter-spacing: .08em; text-transform: uppercase; }
 .study-hero h1 { max-width: 820px; margin: 18px 0 0; color: var(--text); font: 600 clamp(36px, 4.8vw, 56px)/.99 "Fraunces", Georgia, serif; letter-spacing: -.03em; }
 .study-hero .stamp { font: 16px "DM Mono", monospace; }
-#app > h1, #app > h1 + .sub { display: none; }
+#app > .report-title, #app > .report-title + .sub { display: none; }
 #app > .theme-btn { float: none; display: block; margin: 0 0 10px auto; }
 .site-footer { max-width: 1080px; margin: 0 auto; padding: 27px 16px; display: flex; justify-content: space-between; align-items: center; color: var(--muted); font: 11px "DM Mono", monospace; border-top: 1px solid var(--border); }
 .site-footer .brand img { height: 32px; }
@@ -292,7 +292,7 @@ function render() {
   const D = DATA, P = D.base, S = D.studies;
   const h = [];
   h.push(`<button class="theme-btn" id="theme" type="button">Theme</button>
-  <h1>Multi-year breakout: backtest report</h1>
+  <div class="report-title">Multi-year breakout: backtest report</div>
   <p class="sub">Nifty 500 stocks breaking above a 2, 3 or 4-year high, each tested separately, with three stop-losses: the previous week's low, the lowest close of the last 2 weeks, and the 2-week low that stops trailing once it is 5% above the buy price and then rises 1% every 2 months. ${rs(D.capital)} to start. Data to ${fdate(D.asOf)}.</p>
   <nav class="nav"><a href="#overview">Comparison</a><a href="#rules">Rules</a><a href="#detail">Backtest</a><a href="#years">Yearly</a><a href="#trades">Trades</a><a href="#after">After a breakout</a><a href="#weeks">Weekly log</a><a href="#method">Method</a></nav>
 

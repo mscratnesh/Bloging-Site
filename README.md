@@ -264,7 +264,22 @@ Before building the reel, each evening run saves that day's FII/DII figures for 
 
 ## SEO checklist for public pages
 
-Every indexable page has a `<title>` of about 60 characters or less ending in `| Let Money Earn`, a meta description of 160 characters or less (longer ones are cut off in Google results), a `canonical` link to `https://letmoneyearn.in/<page>`, `robots` set to `index, follow, max-image-preview:large`, and Open Graph and Twitter tags (`og:title`, `og:description`, `og:url`, `og:image`, `twitter:card`) so shared links show a preview. Tools also carry JSON-LD (`WebApplication`). Add each new indexable page to `SITEMAP_STATIC_PAGES` in `app.py`; `/sitemap.xml` lists those plus every published post. Pages kept out of search (`goal-sip-calculator.html`, `iron-fly-study.html`, `breakout-desk.html`) use `noindex` and stay out of the sitemap.
+**Required on every change.** Whenever a public page is added, renamed, removed, or its content or purpose changes, update its SEO in the same change, then run `py -m unittest tests.test_seo` and fix every failure before committing or building `dist`. `CLAUDE.md` makes this a standing rule for Claude Code sessions.
+
+Every indexable page has:
+
+1. A `<title>` of 65 characters or less ending in `| Let Money Earn` (the home page leads with the brand instead).
+2. A meta description of 70 to 160 characters (longer ones are cut off in Google results). Rewrite it when the page's content changes.
+3. `<link rel="canonical" href="https://letmoneyearn.in/<page>">` (the home page is `https://letmoneyearn.in/`).
+4. `<meta name="robots" content="index, follow, max-image-preview:large">`.
+5. Open Graph and Twitter tags: `og:type`, `og:site_name`, `og:title`, `og:description`, `og:url` (same as the canonical), `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, kept in step with the title and description.
+6. JSON-LD where it fits: `WebApplication` for tools, `Dataset` for data pages (`fii-dii.html`), `Article` for posts.
+7. Exactly one `<h1>` (including any rendered by the page's script).
+8. An entry in `SITEMAP_STATIC_PAGES` in `app.py` (`/sitemap.xml` lists those plus every published post), and a link in the site menu, which must be identical on every page.
+
+Pages kept out of search (`goal-sip-calculator.html`, `iron-fly-study.html`, `breakout-desk.html`) use `noindex` and must not be in the sitemap. When a page is removed, take it out of the sitemap and every menu.
+
+`tests/test_seo.py` checks points 1-5, 7 and 8 on every public page, that sitemap entries exist, and that all menus match.
 
 ## Building the executables
 
