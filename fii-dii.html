@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="FII and DII net buying and selling in Indian stocks by day, week, month and year, from NSE's provisional data and NSDL's FPI records since 2005.">
+<title>FII &amp; DII Activity: Daily to Yearly Flows | Let Money Earn</title>
+<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<link rel="canonical" href="https://letmoneyearn.in/fii-dii.html">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Let Money Earn">
+<meta property="og:title" content="FII &amp; DII Activity: daily, weekly, monthly and yearly flows">
+<meta property="og:description" content="FII and DII net buying and selling in Indian stocks by day, week, month and year, from NSE's provisional data and NSDL's FPI records since 2005.">
+<meta property="og:url" content="https://letmoneyearn.in/fii-dii.html">
+<meta property="og:image" content="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="FII &amp; DII Activity: daily, weekly, monthly and yearly flows">
+<meta name="twitter:description" content="FII and DII net buying and selling in Indian stocks by day, week, month and year, from NSE's provisional data and NSDL's FPI records since 2005.">
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Dataset","name":"FII and DII activity in Indian equities","url":"https://letmoneyearn.in/fii-dii.html","description":"Daily net buying and selling by foreign institutional investors (FII/FPI) and domestic institutional investors (DII) in the Indian cash market from NSE's provisional figures, and daily FPI investment from NSDL since 2005, summarised by week, month and year.","temporalCoverage":"2005-01-01/..","creator":{"@type":"Organization","name":"Let Money Earn","url":"https://letmoneyearn.in/"},"isAccessibleForFree":true,"inLanguage":"en-IN"}
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .ix-hero{padding:40px max(24px,calc((100% - 1180px)/2)) 28px;border-bottom:1px solid var(--line)}
+  .ix-hero h1{max-width:760px;font:600 clamp(36px,4.8vw,56px) var(--serif);line-height:.99;letter-spacing:-.03em;margin:18px 0 0}
+  .ix-hero p{max-width:640px;color:var(--muted);font-size:16px;margin:24px 0 0}
+  .ix-stamp{margin-top:20px;font:12px var(--mono);color:var(--muted)}
+
+  .ix-wrap{padding:32px max(24px,calc((100% - 1180px)/2)) 60px}
+  .fd-controls{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;margin-bottom:24px}
+  .ix-groups{display:flex;flex-wrap:wrap;gap:6px}
+  .ix-groups button{border:1px solid var(--line);background:var(--paper);color:var(--ink);padding:8px 12px;font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+  .ix-groups button:hover{border-color:var(--ink)}
+  .ix-groups button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+  .fd-label{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-right:4px}
+
+  .ix-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-bottom:32px}
+  .ix-strip div{min-width:0;background:var(--paper);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+  .ix-strip .l{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase}
+  .ix-strip .n{font:600 30px var(--serif);font-variant-numeric:tabular-nums}
+  .ix-strip .d{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+  @media(max-width:800px){.ix-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.ix-strip div{padding:14px}.ix-strip .n{font-size:24px}}
+
+  .ix-section{min-width:0;border-top:1px solid var(--ink);padding-top:16px;margin-bottom:36px}
+  .ix-section h2{font:600 30px var(--serif);margin:0 0 6px;letter-spacing:-.01em}
+  .ix-section h3{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase;margin:18px 0 6px}
+  .ix-section .sub{color:var(--muted);font-size:13px;margin:0 0 16px}
+
+  .fd-chart{position:relative;background:#fff;border:1px solid var(--line);padding:8px 8px 4px}
+  .fd-chart svg{display:block}
+  .fd-chart .grid{stroke:var(--line);stroke-width:1}
+  .fd-chart .zero{stroke:var(--muted);stroke-width:1}
+  .fd-chart .axis{font:10px var(--mono);fill:var(--muted)}
+  .fd-chart .bar-pos{fill:var(--success)} .fd-chart .bar-neg{fill:#c4553a}
+  .fd-chart .hit{fill:transparent;cursor:crosshair}
+  .fd-chart .hit:hover + .bar-pos,.fd-chart .hit:hover + .bar-neg{opacity:.75}
+  .fd-tip{position:absolute;pointer-events:none;background:var(--ink);color:var(--paper);font:12px var(--mono);padding:6px 9px;white-space:nowrap;transform:translate(-50%,-100%);display:none;z-index:2}
+  .fd-tip b{font-weight:500;color:var(--lime)}
+
+  .ix-table-wrap{overflow-x:auto;border:1px solid var(--line);background:#fff}
+  .ix-table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+  .ix-table th,.ix-table td{padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--line)}
+  .ix-table th:first-child,.ix-table td:first-child{text-align:left;position:sticky;left:0;background:#fff;border-right:1px solid var(--line)}
+  .ix-table th{font:500 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--paper)!important}
+  .ix-table td{font-family:var(--mono)}
+  .ix-table td:first-child{font-family:var(--sans);font-weight:600}
+  .ix-table tbody tr:hover td{background:#faf9f4}
+  .pos{color:var(--success)} .neg{color:var(--coral-text)} .dim{color:var(--muted)}
+  .ix-empty{padding:16px;color:var(--muted);font:12px var(--mono)}
+  .fd-more{margin-top:12px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 14px;font:500 11px var(--mono);letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+  .fd-more:hover{background:var(--ink);color:var(--paper)}
+  .ix-note{color:var(--muted);font-size:12px;margin:14px 0 0}
+  .fd-about{font-size:14px;max-width:820px}
+  .fd-about li{margin:0 0 8px}
+
+  @media(max-width:700px){
+    .ix-hero{padding:32px 16px 24px}
+    .ix-wrap{padding:24px 16px 44px}
+    .site-disclaimer{padding:25px 16px}
+  }
+  .site-disclaimer{padding:25px max(24px,calc((100% - 1180px)/2));border-top:1px solid var(--line);color:var(--muted);font-size:11px}
+  .site-disclaimer strong{display:block;color:var(--ink);font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:7px}
+</style>
+</head>
+<body>
+  <div class="top-strip"><span class="ts-long">Questions about investing or mutual funds? Talk to us on</span><span class="ts-short">Talk to us</span><a class="ts-wa" href="https://wa.me/919967355038?text=Hi%2C%20I%20found%20you%20on%20Let%20Money%20Earn." target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.2-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>WhatsApp</a><a class="ts-tg" href="https://t.me/+nxbISOilZJoxOTFl" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21.9 4.3 18.7 19.4c-.2 1-.9 1.3-1.7.8l-4.8-3.5-2.3 2.2c-.3.3-.5.5-1 .5l.3-4.9 8.9-8c.4-.3-.1-.5-.6-.2l-11 6.9-4.7-1.5c-1-.3-1-1 .2-1.5L20.5 3c.9-.3 1.6.2 1.4 1.3z"/></svg>Telegram</a><span class="ts-arn">AMFI-registered MFD · ARN-132137</span></div>
+  <header class="site-header"><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><nav><a href="index.html#latest">Insights</a><a href="services.html">Services</a><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Calculators</button><div class="nav-sub"><a href="calculators.html">All Calculators</a><a href="loan-prepayment.html">Loan EMI &amp; Prepayment</a><a href="goal-sip-calculator.html">Risk Profile &amp; Goal SIP</a><a href="mf-compare.html">MF Rolling Returns Compare</a><a href="mf-sip.html">MF SIP Calculator</a><a href="mf-swp.html">MF SWP Calculator</a><a href="mf-holdings.html">MF Holdings Explorer</a><a href="portfolio-beta.html">Portfolio Beta</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Studies</button><div class="nav-sub"><a href="momentum-study.html">Momentum Study</a><a href="gold-vs-nifty.html">Gold vs Nifty</a><a href="breakout-study.html">Multi-Year Breakout</a><a href="nifty-iron-fly.html">NIFTY Iron Fly</a></div></div><div class="nav-group"><button class="nav-toggle" type="button" aria-expanded="false" aria-haspopup="true">Markets</button><div class="nav-sub"><a href="nse-indices.html">NSE Index Dashboard</a><a href="oi-change.html">F&amp;O OI Change</a><a href="fii-dii.html">FII/DII Activity</a></div></div><a href="sheets.html">Sheets</a><a href="index.html#topics">Topics</a><a href="about.html">About</a></nav><button class="menu" aria-label="Open menu"><i></i><i></i></button></header>
+  <main>
+    <section class="ix-hero">
+      <p class="eyebrow">NSE provisional · NSDL FPI since 2005 · updated every trading evening</p>
+      <h1>FII &amp; DII Activity</h1>
+      <p>How much foreign (FII/FPI) and domestic (DII) institutions bought and sold in Indian stocks, day by day, and added up by week, month and year. All figures are in ₹ crore; a positive net is net buying, a negative net is net selling.</p>
+      <p class="ix-stamp" id="stamp">Loading FII/DII data…</p>
+    </section>
+
+    <div class="ix-wrap">
+      <div class="fd-controls">
+        <div class="ix-groups" id="series" role="group" aria-label="Data source">
+          <span class="fd-label">Data</span>
+          <button type="button" data-s="nse" aria-pressed="true">FII &amp; DII · NSE</button>
+          <button type="button" data-s="fpi" aria-pressed="false">FPI · NSDL since 2005</button>
+        </div>
+        <div class="ix-groups" id="period" role="group" aria-label="Summary period">
+          <span class="fd-label">View</span>
+          <button type="button" data-p="day" aria-pressed="true">Daily</button>
+          <button type="button" data-p="week" aria-pressed="false">Weekly</button>
+          <button type="button" data-p="month" aria-pressed="false">Monthly</button>
+          <button type="button" data-p="year" aria-pressed="false">Yearly</button>
+        </div>
+      </div>
+
+      <div class="ix-strip" id="tiles"></div>
+
+      <section class="ix-section">
+        <h2 id="chart-title">Net flows</h2>
+        <p class="sub" id="chart-sub"></p>
+        <div id="charts"></div>
+      </section>
+
+      <section class="ix-section">
+        <h2 id="table-title">History</h2>
+        <p class="sub" id="table-sub"></p>
+        <div class="ix-table-wrap">
+          <table class="ix-table">
+            <thead><tr id="head"></tr></thead>
+            <tbody id="body"><tr><td class="ix-empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
+        <button type="button" class="fd-more" id="more" hidden>Show more</button>
+      </section>
+
+      <section class="ix-section">
+        <h2>About the data</h2>
+        <ul class="fd-about">
+          <li><b>FII &amp; DII · NSE</b> are the provisional cash-market figures NSE publishes each trading evening for NSE, BSE and MSEI together. NSE shows only the latest day, so this page saves each evening's figures; its history starts when the site began recording (the earliest days have net figures only).</li>
+          <li><b>FPI · NSDL</b> is foreign portfolio investment from NSDL's daily report, compiled from custodians' confirmed trades by reporting date, back to January 2005. It covers foreign investors only (there is no domestic figure), and includes the primary market, debt and other routes as well as stock-exchange equity, so it won't match NSE's provisional FII number for the same day.</li>
+          <li><b>Weeks</b> run Monday to Friday and are labelled by their Monday. <b>Years</b> are calendar years. Buy and sell totals are shown only when every day in the period has them.</li>
+          <li>Both series update automatically each trading evening. Institutional flows describe what has already happened; they don't predict where the market goes next.</li>
+        </ul>
+        <p class="ix-note">Sources: NSE (provisional FII/DII trading activity) and NSDL (Daily Trends in FPI Investments).</p>
+      </section>
+    </div>
+  </main>
+
+  <aside class="site-disclaimer"><strong>Important disclaimer</strong>All content on this website is for educational purposes only. The author of this blog is a mutual fund distributor (AMFI ARN-132137), associated with Nirmal Bang, and an investor. The author does not give investment advice and is not registered with SEBI as an investment adviser. This is the author's independent website, and its content is not issued, reviewed or endorsed by Nirmal Bang. Nothing on this site is personal advice or a recommendation. Readers are responsible for their own decisions and should conduct due diligence and consult a qualified financial adviser before acting.</aside>
+  <footer><a class="brand" href="index.html"><img src="https://raw.githubusercontent.com/mscratnesh/htmlSite/main/images/Let_Money_Earn_Logo_Cropped.png" alt="Let Money Earn"></a><span>Learn. Invest. Grow.</span><span class="footer-links"><a href="about.html">About</a><a href="contact.html">Contact</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms &amp; Disclaimer</a></span><span>AMFI-registered MFD · <a href="https://www.amfiindia.com/locate-distributor" target="_blank" rel="noopener" style="color:inherit">ARN-132137</a> · © 2026 Let Money Earn</span></footer>
+  <script src="nav.js"></script>
+  <script>
+  (function(){
+    const $ = id => document.getElementById(id);
+    const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+    const num = (v, d = 0) => v == null ? "–" : Number(v).toLocaleString("en-IN", {minimumFractionDigits:d, maximumFractionDigits:d});
+    const signed = (v, d = 0) => v == null ? "–" : (v > 0 ? "+" : v < 0 ? "−" : "") + num(Math.abs(v), d);
+    const cls = v => v == null ? "dim" : v > 0 ? "pos" : v < 0 ? "neg" : "";
+    const short = v => { const a = Math.abs(v); return (v < 0 ? "−" : "") + (a >= 1e5 ? num(a / 1e5, 1) + "L" : a >= 1e3 ? num(a / 1e3, a >= 1e4 ? 0 : 1) + "k" : num(a)); };
+    const MONTHS = "Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec".split(" ");
+    const dlabel = iso => { const [y, m, d] = iso.split("-"); return `${d} ${MONTHS[m - 1]} ${y}`; };
+
+    // series: which fields to sum, which make the table, and which net each chart and tile shows
+    const SERIES = {
+      nse: {
+        title: "FII & DII · NSE provisional",
+        sum: ["fii_buy", "fii_sell", "fii_net", "dii_buy", "dii_sell", "dii_net"],
+        cols: [["fii_buy", "FII buy"], ["fii_sell", "FII sell"], ["fii_net", "FII net", true], ["dii_buy", "DII buy"], ["dii_sell", "DII sell"], ["dii_net", "DII net", true], ["both_net", "FII + DII net", true]],
+        charts: [["fii_net", "FII/FPI net"], ["dii_net", "DII net"]],
+        tile: ["fii_net", "FII", "dii_net", "DII"]
+      },
+      fpi: {
+        title: "FPI · NSDL",
+        sum: ["eq_buy", "eq_sell", "eq_net", "eq_all_net", "debt_net", "other_net", "total_net"],
+        cols: [["eq_buy", "Equity buy (exch.)"], ["eq_sell", "Equity sell (exch.)"], ["eq_net", "Equity net (exch.)", true], ["eq_all_net", "Equity net (all)", true], ["debt_net", "Debt net", true], ["other_net", "Hybrid, MF, AIF", true], ["total_net", "Total net", true]],
+        charts: [["eq_all_net", "FPI equity net (all routes)"]],
+        tile: ["eq_all_net", "Equity", "total_net", "All assets"]
+      }
+    };
+    const LIMIT = { day: 60, week: 52, month: 60, year: 40 };
+    const NAME = { day: "Daily", week: "Weekly", month: "Monthly", year: "Yearly" };
+
+    let data = null, series = "nse", period = "day", shown = 30;
+
+    function rowsOf(s) {
+      const block = data[s], f = block.fields;
+      return block.rows.map(r => Object.fromEntries(f.map((k, i) => [k, r[i]])));
+    }
+    function keyOf(iso, p) {
+      if (p === "day") return iso;
+      if (p === "month") return iso.slice(0, 7);
+      if (p === "year") return iso.slice(0, 4);
+      const d = new Date(iso + "T00:00:00Z"), back = (d.getUTCDay() + 6) % 7;     // Monday of that week
+      return new Date(d.getTime() - back * 864e5).toISOString().slice(0, 10);
+    }
+    function labelOf(key, p) {
+      if (p === "day") return dlabel(key);
+      if (p === "week") return "w/c " + dlabel(key);
+      if (p === "month") return MONTHS[key.slice(5, 7) - 1] + " " + key.slice(0, 4);
+      return key;
+    }
+    function group(rows, p, fields) {
+      const out = new Map();
+      for (const r of rows) {
+        const k = keyOf(r.date, p);
+        let g = out.get(k);
+        if (!g) { g = { key: k, days: 0, last: r.date }; fields.forEach(f => g[f] = 0); out.set(k, g); }
+        g.days++; g.last = r.date;
+        fields.forEach(f => { g[f] = (g[f] == null || r[f] == null) ? null : g[f] + r[f]; });
+      }
+      const list = [...out.values()];
+      list.forEach(g => { if ("fii_net" in g) g.both_net = g.fii_net == null || g.dii_net == null ? null : g.fii_net + g.dii_net; });
+      return list;                                                                // oldest first
+    }
+    const total = (rows, f) => rows.reduce((a, r) => a + (r[f] ?? 0), 0);
+
+    function renderTiles(rows) {
+      const S = SERIES[series], [a, an, b, bn] = S.tile;
+      if (!rows.length) { $("tiles").innerHTML = ""; return; }
+      const last = rows[rows.length - 1].date, month = last.slice(0, 7), year = last.slice(0, 4);
+      const yearAgo = String(+year - 1) + last.slice(4);
+      const sets = [
+        ["Latest day", rows.filter(r => r.date === last), dlabel(last)],
+        ["Month to date", rows.filter(r => r.date.startsWith(month)), MONTHS[month.slice(5) - 1] + " " + year],
+        ["Year to date", rows.filter(r => r.date.startsWith(year)), "Calendar " + year],
+        ["Last 12 months", rows.filter(r => r.date > yearAgo), "To " + dlabel(last)]
+      ];
+      $("tiles").innerHTML = sets.map(([l, rs, when]) => {
+        const x = total(rs, a), y = total(rs, b);
+        return `<div><span class="l">${l}</span><span class="n ${cls(x)}">${signed(x)}</span>
+          <span class="d">${an} net · ${esc(when)}</span><span class="d">${bn}: <span class="${cls(y)}">${signed(y)}</span> · ${rs.length} day${rs.length === 1 ? "" : "s"}</span></div>`;
+      }).join("");
+    }
+
+    function barPath(x, w, y0, y1) {                 // a bar with 4px rounded corners at its data end
+      const r = Math.min(4, w / 2, Math.abs(y1 - y0)), up = y1 < y0;
+      if (r <= 0) return `M${x},${y0}H${x + w}V${y1}H${x}Z`;
+      const s = up ? 1 : -1, yr = y1 + s * r;
+      return `M${x},${y0}V${yr}Q${x},${y1} ${x + r},${y1}H${x + w - r}Q${x + w},${y1} ${x + w},${yr}V${y0}Z`;
+    }
+    function chartSvg(groups, field, p, W, H) {     // drawn at the box's real pixel size so text stays legible
+      const L = 44, R = 6, T = 10, B = 24;
+      const vals = groups.map(g => g[field] ?? 0);
+      let hi = Math.max(0, ...vals), lo = Math.min(0, ...vals);
+      if (hi === lo) hi = 1;
+      const step = (() => { const raw = (hi - lo) / 4, mag = 10 ** Math.floor(Math.log10(raw)); return [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => s >= raw); })();
+      hi = Math.ceil(hi / step) * step; lo = Math.floor(lo / step) * step;
+      const y = v => T + (hi - v) / (hi - lo) * (H - T - B), slot = (W - L - R) / groups.length;
+      const bw = Math.max(1, Math.min(28, slot - 2));
+      let g = "";
+      for (let v = lo; v <= hi + step / 2; v += step) {
+        g += `<line class="${Math.abs(v) < step / 2 ? "zero" : "grid"}" x1="${L}" x2="${W - R}" y1="${y(v)}" y2="${y(v)}"/>`;
+        g += `<text class="axis" x="${L - 6}" y="${y(v) + 3}" text-anchor="end">${Math.abs(v) < step / 2 ? "0" : short(v)}</text>`;
+      }
+      const every = Math.ceil(groups.length / Math.max(3, Math.floor((W - L) / 72)));
+      groups.forEach((d, i) => {
+        const v = d[field], x = L + i * slot + (slot - bw) / 2;
+        if ((groups.length - 1 - i) % every === 0) {
+          const k = d.key, t = p === "day" || p === "week" ? k.slice(8, 10) + " " + MONTHS[k.slice(5, 7) - 1] : p === "month" ? MONTHS[k.slice(5, 7) - 1] + " " + k.slice(2, 4) : k;
+          const cx = x + bw / 2, end = cx > W - R - 28;                                // keep the last label inside the box
+          g += `<text class="axis" x="${end ? W - R : cx}" y="${H - 8}" text-anchor="${end ? "end" : "middle"}">${t}</text>`;
+        }
+        g += `<rect class="hit" x="${L + i * slot}" y="${T}" width="${slot}" height="${H - T - B}" data-i="${i}"/>`;
+        if (v != null && v !== 0) g += `<path class="${v > 0 ? "bar-pos" : "bar-neg"}" d="${barPath(x, bw, y(0), y(v))}"/>`;
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="Bar chart of ${esc(field)}">${g}</svg>`;
+    }
+    function renderCharts(groups) {
+      const S = SERIES[series], recent = groups.slice(-LIMIT[period]);
+      const W = Math.max(280, $("charts").clientWidth - 18), H = W < 600 ? 200 : 240;
+      $("chart-title").textContent = `${NAME[period]} net flows`;
+      $("chart-sub").textContent = recent.length
+        ? `Last ${recent.length} ${period === "day" ? "trading day" : period}${recent.length === 1 ? "" : "s"} · ₹ crore · green is net buying, coral is net selling. Hover a bar for its value.`
+        : "";
+      $("charts").innerHTML = recent.length ? S.charts.map(([f, name], ci) =>
+        `<h3>${esc(name)}</h3><div class="fd-chart" data-f="${f}">${chartSvg(recent, f, period, W, H)}<div class="fd-tip"></div></div>`).join("")
+        : `<p class="ix-empty">No data for this series yet.</p>`;
+      $("charts").querySelectorAll(".fd-chart").forEach(box => {
+        const tip = box.querySelector(".fd-tip"), f = box.dataset.f, svg = box.querySelector("svg");
+        svg.addEventListener("mousemove", e => {
+          const i = e.target.dataset?.i;
+          if (i == null) { tip.style.display = "none"; return; }
+          const d = recent[i], rect = box.getBoundingClientRect();
+          tip.innerHTML = `${esc(labelOf(d.key, period))}<br><b>${signed(d[f])}</b> cr` + (period !== "day" ? ` · ${d.days}d` : "");
+          tip.style.left = Math.min(Math.max(e.clientX - rect.left, 70), rect.width - 70) + "px";
+          tip.style.top = (e.clientY - rect.top - 10) + "px";
+          tip.style.display = "block";
+        });
+        svg.addEventListener("mouseleave", () => tip.style.display = "none");
+      });
+    }
+
+    function renderTable(groups) {
+      const S = SERIES[series], list = groups.slice().reverse();
+      $("table-title").textContent = `${NAME[period]} history`;
+      $("table-sub").textContent = `${S.title} · ₹ crore · newest first · ${list.length} ${period === "day" ? "days" : period + "s"}`;
+      $("head").innerHTML = `<th scope="col">${period === "day" ? "Date" : period === "week" ? "Week" : period === "month" ? "Month" : "Year"}</th>`
+        + (period === "day" ? "" : `<th scope="col">Days</th>`) + S.cols.map(c => `<th scope="col">${esc(c[1])}</th>`).join("");
+      const view = list.slice(0, shown);
+      $("body").innerHTML = view.length ? view.map(g => `<tr><td>${esc(labelOf(g.key, period))}</td>` + (period === "day" ? "" : `<td>${g.days}</td>`)
+        + S.cols.map(([f, , net]) => `<td class="${net ? cls(g[f]) : ""}">${net ? signed(g[f]) : num(g[f])}</td>`).join("") + "</tr>").join("")
+        : `<tr><td colspan="9" class="ix-empty">No data for this series yet.</td></tr>`;
+      $("more").hidden = list.length <= shown;
+      $("more").textContent = `Show ${Math.min(30, list.length - shown)} more`;
+    }
+
+    function render() {
+      const S = SERIES[series], rows = rowsOf(series), groups = group(rows, period, S.sum);
+      renderTiles(rows); renderCharts(groups); renderTable(groups);
+    }
+    function pick(boxId, attr, set) {
+      $(boxId).addEventListener("click", e => {
+        const b = e.target.closest("button");
+        if (!b || !data) return;
+        set(b.dataset[attr]); shown = 30;
+        $(boxId).querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x === b)));
+        render();
+      });
+    }
+    pick("series", "s", v => series = v);
+    pick("period", "p", v => period = v);
+    $("more").addEventListener("click", () => { shown += 30; render(); });
+    let resizeTimer, lastWidth = 0;
+    window.addEventListener("resize", () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => { if (data && $("charts").clientWidth !== lastWidth) { lastWidth = $("charts").clientWidth; render(); } }, 150);
+    });
+
+    fetch("/data/fiidii.json").then(r => { if (!r.ok) throw 0; return r.json(); }).then(j => {
+      data = j;
+      const n = j.nse.rows, f = j.fpi.rows;
+      const part = (rows, name) => rows.length ? `${name} to ${dlabel(rows[rows.length - 1][0])}` : `${name}: none yet`;
+      $("stamp").textContent = `${part(n, "NSE FII/DII")} · ${part(f, "NSDL FPI")}${f.length ? " (from " + dlabel(f[0][0]) + ")" : ""}`;
+      if (!n.length && f.length) { series = "fpi"; $("series").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", String(x.dataset.s === "fpi"))); }
+      render();
+    }).catch(() => {
+      $("stamp").textContent = "Couldn't load the FII/DII data. Please refresh in a minute.";
+      $("body").innerHTML = `<tr><td class="ix-empty">No data.</td></tr>`;
+    });
+  })();
+  </script>
+</body>
+</html>

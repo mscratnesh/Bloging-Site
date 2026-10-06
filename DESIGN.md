@@ -74,6 +74,7 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `loan-prepayment.html` | loan EMI and prepayment | client-side only (`loan-prepayment.js`) | — |
 | `goal-sip-calculator.html` | risk profile test and goal-wise SIP (noindex until compliance sign-off) | client-side only (`goal-sip-config.js`, `goal-sip-calc.js`, `goal-sip.js`) | — |
 | `portfolio-beta.html` | portfolio beta vs Nifty 50 from pasted holdings (also `/tools/portfolio-beta/`, a 301) | `/data/betas.json` (weekly, `betas.py`), `/data/mf_betas.json` (weekly, `mf_betas.py`; only when a fund is pasted), `/api/nifty-hedge` (hedge sizer: NIFTY lot, futures and put closes from the F&O bhavcopy); all maths client-side, holdings never sent | — |
+| `fii-dii.html` | FII/DII (NSE provisional) and FPI (NSDL, since 2005) flows by day, week, month and year | `/data/fiidii.json` (nightly, `fiidii.py`, from the market reel job); grouping and charts client-side | — |
 | `mf-holdings.html` | mutual fund holdings, sectors, overlap and look-through (also `/tools/mf-holdings/`, a 301) | `/data/mf_holdings/index.json`, `f/<id>.json`, `stocks.json` (monthly, `mf_holdings.py`); all comparisons client-side | — |
 | `mf-compare.html`, `mf-sip.html`, `mf-swp.html` | fund rolling returns, SIP and SWP on real NAVs | `/api/mf/search`, `/api/mf/nav/:code` (`mf-compare.js`) | — |
 | `admin-login.html` | admin auth | — | `/api/admin/login` |
