@@ -14,5 +14,6 @@ Whenever a change adds, renames, removes or changes the content or purpose of a 
 ## Other rules
 
 - Every disclaimer or footer carries the AMFI ARN: ARN-132137.
-- Never overwrite the VM's `let_money_earn.db`, `instagram.env`, `market_reel_state.json`, `betas.db`, `data\` or `var\` when deploying.
+- Never overwrite the VM's `let_money_earn.db`, `fiidii.db`, `instagram.env`, `market_reel_state.json`, `betas.db`, `data\` or `var\` when deploying (except `data\fiidii.json`, which is rebuilt anyway).
+- FII/DII data comes from official sources only (NSE, NSDL); never estimate it or copy it from third-party sites.
 - After changing site files, copy them into `dist\`; after changing Python, rebuild the exes (`py -m PyInstaller --noconfirm LetMoneyEarn.spec`, and `LetMoneyEarnAdmin.spec` when `app.py` changes).

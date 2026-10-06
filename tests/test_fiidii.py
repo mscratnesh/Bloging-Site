@@ -3,9 +3,11 @@ Run from the repo root with:  py -m unittest tests.test_fiidii"""
 
 import datetime as dt
 import json
+import sqlite3
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
@@ -46,21 +48,48 @@ class ParseArchive(unittest.TestCase):
         self.assertEqual(row[6], -5374.91)
 
 
-class Publish(unittest.TestCase):
-    def test_nse_days_merge_with_reel_history_and_publish(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            tmp = Path(tmp)
-            (tmp / "state.json").write_text(json.dumps({"history": {"2026-10-01": {"FII": -9484.22, "DII": 10041.84}}}))
-            fd = {"date": dt.date(2026, 10, 5), "FII": {"buy": 15674.61, "sell": 20373.75, "net": -4699.14},
-                  "DII": {"buy": 20492.93, "sell": 15311.31, "net": 5181.62}}
-            self.assertTrue(fiidii.record_nse(fd, tmp))
-            self.assertFalse(fiidii.record_nse(fd, tmp))                       # same figures again: no change
-            (tmp / "fpi_2026-09.json").write_text(json.dumps({"2026-09-01": [1, 2, -1, -1, 0, 0, -1]}))
-            out = fiidii.publish(tmp / "fiidii.json", tmp, tmp / "state.json")
-            self.assertEqual(out["nse"]["rows"], [["2026-10-01", None, None, -9484.22, None, None, 10041.84],
-                                                  ["2026-10-05", 15674.61, 20373.75, -4699.14, 20492.93, 15311.31, 5181.62]])
-            self.assertEqual(out["fpi"]["rows"], [["2026-09-01", 1, 2, -1, -1, 0, 0, -1]])
-            self.assertEqual(json.loads((tmp / "fiidii.json").read_text())["nse"]["fields"], fiidii.NSE_FIELDS)
+class Database(unittest.TestCase):
+    FD = {"date": dt.date(2026, 10, 5), "FII": {"buy": 15674.61, "sell": 20373.75, "net": -4699.14},
+          "DII": {"buy": 20492.93, "sell": 15311.31, "net": 5181.62}}
+
+    def setUp(self):
+        self.tmp = tempfile.TemporaryDirectory()
+        t = Path(self.tmp.name)
+        self.db, self.seed, self.legacy, self.state = t / "fiidii.db", t / "seed.db", t / "legacy", t / "state.json"
+        self.state.write_text(json.dumps({"history": {"2026-10-01": {"FII": -9484.22, "DII": 10041.84},
+                                                      "2026-10-05": {"FII": -4699.14, "DII": 5181.62}}}))
+        patches = {"DB_PATH": self.db, "SEED_PATH": self.seed, "LEGACY_DIR": self.legacy, "REEL_STATE": self.state}
+        self.saved = {k: getattr(fiidii, k) for k in patches}
+        for k, v in patches.items():
+            setattr(fiidii, k, v)
+
+    def tearDown(self):
+        for k, v in self.saved.items():
+            setattr(fiidii, k, v)
+        self.tmp.cleanup()
+
+    def test_nse_rows_upgrade_reel_history_and_publish(self):
+        self.assertTrue(fiidii.record_nse(self.FD))
+        self.assertFalse(fiidii.record_nse(self.FD))                           # same figures again: no change
+        out = fiidii.publish(Path(self.tmp.name) / "fiidii.json")
+        self.assertEqual(out["nse"]["rows"], [["2026-10-01", None, None, -9484.22, None, None, 10041.84],
+                                              ["2026-10-05", 15674.61, 20373.75, -4699.14, 20492.93, 15311.31, 5181.62]])
+        self.assertEqual(json.loads((Path(self.tmp.name) / "fiidii.json").read_text())["nse"]["fields"], fiidii.NSE_FIELDS)
+
+    def test_legacy_json_and_seed_merge_without_losing_nse_days(self):
+        self.legacy.mkdir()
+        (self.legacy / "nse.json").write_text(json.dumps({"2026-10-02": [1, 2, -1, 3, 1, 2]}))
+        (self.legacy / "fpi_2026-09.json").write_text(json.dumps({"2026-09-01": [1, 2, -1, -1, 0, 0, -1]}))
+        fiidii.record_nse(self.FD)
+        fiidii.write_seed(self.seed)                                           # holds September from the legacy file
+        self.db.unlink()                                                       # a fresh server with only the seed
+        fiidii.record_nse(self.FD)
+        out = fiidii.publish(Path(self.tmp.name) / "fiidii.json")
+        self.assertEqual(out["fpi"]["rows"], [["2026-09-01", 1, 2, -1, -1, 0, 0, -1]])
+        self.assertEqual([r[0] for r in out["nse"]["rows"]], ["2026-10-01", "2026-10-02", "2026-10-05"])
+        with closing(sqlite3.connect(self.seed)) as seed:                      # the seed never carries NSE rows
+            self.assertEqual([r[0] for r in seed.execute("SELECT name FROM sqlite_master WHERE type='table'")],
+                             ["fpi_daily", "fpi_months"])
 
 
 if __name__ == "__main__":

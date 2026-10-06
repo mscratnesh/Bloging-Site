@@ -558,8 +558,8 @@ def build_market_reel_daily():
 
 
 def build_fiidii_history():
-    """At startup, fill in the FII/DII Activity page's NSDL FPI history (fiidii.py): the first start fetches
-    every month since 2005 (about 15 minutes); later starts only refresh the latest months."""
+    """At startup, bring the FII/DII Activity page's database (fiidii.db, via fiidii.py) up to date: it merges
+    the NSDL history shipped in fiidii_seed.db, fetches any months still missing, and rewrites the page's data."""
     try:
         import fiidii
         print(fiidii.nightly())

@@ -1,32 +1,44 @@
-"""History behind the FII/DII Activity page (fii-dii.html), in one file, data/fiidii.json.
+"""History behind the FII/DII Activity page (fii-dii.html). Stored in SQLite (fiidii.db next to the server);
+the page reads data/fiidii.json, which publish() rebuilds from the database.
 
-Two series, both in Rs crore:
-  nse  FII/FPI and DII buy, sell and net in the cash market, NSE's provisional figures (NSE + BSE + MSEI)
-       published each trading evening. NSE only ever shows the latest day, so a row is saved every
-       weekday evening by the market reel job (app.py, build_market_reel_daily) and kept in
-       var/fiidii/nse.json; days before this started come from the reel's market_reel_state.json (net only).
-  fpi  Foreign investment from NSDL's daily FPI report (custodian-confirmed, by reporting date), from
-       2005: equity on the stock exchange (buy, sell, net), all equity, debt, others and total net.
-       Fetched a month at a time from NSDL's archive and kept per month in var/fiidii/fpi_YYYY-MM.json;
-       finished months are never fetched again, the last two are refreshed at most every 6 hours.
+Two series, both in Rs crore, both from official sources only:
+  nse_daily  FII/FPI and DII buy, sell and net in the cash market, NSE's provisional figures (NSE + BSE +
+             MSEI) published each trading evening. NSE only ever shows the latest day, so a row is saved
+             every weekday evening by the market reel job (app.py, build_market_reel_daily). Days the reel
+             saved before this (market_reel_state.json, net only) are kept with source 'reel'. These rows
+             can't be fetched again: back up fiidii.db and never overwrite it on deploy.
+  fpi_daily  Foreign investment from NSDL's daily FPI report (custodian-confirmed, by reporting date), from
+             2005: equity on the stock exchange (buy, sell, net), all equity, debt, others and total net.
+             Fetched a month at a time from NSDL's archive; fpi_months records when each month was fetched.
+             Finished months are never fetched again, the last two are refreshed at most every 6 hours.
+
+fiidii_seed.db (built with --seed, shipped in dist) holds only the NSDL tables, so a new server starts with
+the full history; it's merged in without replacing anything newer. Older JSON caches in var/fiidii/ are
+imported once, so switching to the database loses nothing.
 
 Run by hand: py fiidii.py            (fetch what's missing and rewrite data/fiidii.json)
              py fiidii.py --nse      (also record today's NSE figures)
+             py fiidii.py --seed     (write fiidii_seed.db from fiidii.db, for dist)
 """
 import datetime as dt
 import json
 import os
 import re
+import sqlite3
 import sys
 import threading
 import time
+from contextlib import closing
 from pathlib import Path
 
 import requests
 
 ROOT = Path(sys.executable).resolve().parent if getattr(sys, "frozen", False) else Path(__file__).resolve().parent
+DB_PATH = Path(os.environ.get("FIIDII_DB_PATH") or ROOT / "fiidii.db")
+SEED_PATH = Path(os.environ.get("FIIDII_SEED_PATH") or ROOT / "fiidii_seed.db")
 OUT_PATH = Path(os.environ.get("FIIDII_JSON_PATH") or ROOT / "data" / "fiidii.json")
-CACHE_DIR = Path(os.environ.get("FIIDII_CACHE_DIR") or ROOT / "var" / "fiidii")
+LEGACY_DIR = ROOT / "var" / "fiidii"            # JSON caches from before the database
+REEL_STATE = ROOT / "market_reel_state.json"
 IST = dt.timezone(dt.timedelta(hours=5, minutes=30))
 FPI_START = (2005, 1)
 FPI_REFRESH_SECONDS = 6 * 3600
@@ -34,14 +46,21 @@ NSDL_ARCHIVE = "https://www.fpi.nsdl.co.in/web/Reports/Archive.aspx"
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126 Safari/537.36"
 NSE_FIELDS = ["date", "fii_buy", "fii_sell", "fii_net", "dii_buy", "dii_sell", "dii_net"]
 FPI_FIELDS = ["date", "eq_buy", "eq_sell", "eq_net", "eq_all_net", "debt_net", "other_net", "total_net"]
-LOCK = threading.Lock()          # the startup backfill and the nightly update may overlap
+LOCK = threading.RLock()         # the startup backfill and the nightly update may overlap
+
+SCHEMA = """
+CREATE TABLE IF NOT EXISTS nse_daily (
+    date TEXT PRIMARY KEY, fii_buy REAL, fii_sell REAL, fii_net REAL, dii_buy REAL, dii_sell REAL, dii_net REAL,
+    source TEXT NOT NULL, saved_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS fpi_daily (
+    date TEXT PRIMARY KEY, eq_buy REAL, eq_sell REAL, eq_net REAL, eq_all_net REAL, debt_net REAL, other_net REAL,
+    total_net REAL);
+CREATE TABLE IF NOT EXISTS fpi_months (month TEXT PRIMARY KEY, fetched_at REAL NOT NULL, days INTEGER NOT NULL);
+"""
 
 
-def _write_json(path: Path, data, compact=True):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_name(path.name + ".tmp")
-    tmp.write_text(json.dumps(data, separators=(",", ":")) if compact else json.dumps(data, indent=1), encoding="utf-8")
-    os.replace(tmp, path)
+def _now():
+    return dt.datetime.now(IST).isoformat(timespec="seconds")
 
 
 def _read_json(path: Path, default):
@@ -51,30 +70,64 @@ def _read_json(path: Path, default):
         return default
 
 
+def connect(db_path: Path = None, seed_path: Path = None, legacy_dir: Path = None, reel_state: Path = None):
+    """Open the database, creating it if needed, and merge in the seed, old JSON caches and the reel's history.
+    Every merge is insert-if-missing (or fills a net-only row), so it's safe to run on every open."""
+    db_path = Path(db_path or DB_PATH)
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    db = sqlite3.connect(db_path, timeout=30)
+    db.executescript(SCHEMA)
+    seed = Path(seed_path or SEED_PATH)
+    if seed.is_file() and seed.resolve() != db_path.resolve():
+        db.execute("ATTACH DATABASE ? AS seed", (str(seed),))
+        db.execute("INSERT OR IGNORE INTO fpi_daily SELECT * FROM seed.fpi_daily")
+        db.execute("INSERT OR IGNORE INTO fpi_months SELECT * FROM seed.fpi_months")
+        db.commit()
+        db.execute("DETACH DATABASE seed")
+    legacy = Path(legacy_dir or LEGACY_DIR)
+    if legacy.is_dir():
+        for day, v in _read_json(legacy / "nse.json", {}).items():
+            _upsert_nse(db, day, v, "nse", replace=False)
+        for path in sorted(legacy.glob("fpi_*.json")):
+            month = path.stem[4:]
+            if db.execute("SELECT 1 FROM fpi_months WHERE month = ?", (month,)).fetchone():
+                continue
+            rows = _read_json(path, {})
+            db.executemany("INSERT OR IGNORE INTO fpi_daily VALUES (?,?,?,?,?,?,?,?)", [[d] + v for d, v in rows.items()])
+            if rows:
+                db.execute("INSERT OR IGNORE INTO fpi_months VALUES (?,?,?)", (month, path.stat().st_mtime, len(rows)))
+    for day, v in _read_json(Path(reel_state or REEL_STATE), {}).get("history", {}).items():
+        if "FII" in v and "DII" in v:
+            db.execute("INSERT OR IGNORE INTO nse_daily VALUES (?,?,?,?,?,?,?,?,?)",
+                       (day, None, None, round(v["FII"], 2), None, None, round(v["DII"], 2), "reel", _now()))
+    db.commit()
+    return db
+
+
+def _upsert_nse(db, day, v, source, replace=True):
+    """Save a full NSE row. replace=False only fills a missing day or a net-only 'reel' row."""
+    where = "" if replace else " WHERE nse_daily.source = 'reel'"
+    db.execute(f"""INSERT INTO nse_daily VALUES (?,?,?,?,?,?,?,?,?)
+                   ON CONFLICT(date) DO UPDATE SET fii_buy=excluded.fii_buy, fii_sell=excluded.fii_sell,
+                   fii_net=excluded.fii_net, dii_buy=excluded.dii_buy, dii_sell=excluded.dii_sell,
+                   dii_net=excluded.dii_net, source=excluded.source, saved_at=excluded.saved_at{where}""",
+               [day] + list(v) + [source, _now()])
+
+
 # ---------- NSE provisional (saved nightly) ----------
-def record_nse(fd: dict, cache_dir: Path = None) -> bool:
+def record_nse(fd: dict, db_path: Path = None) -> bool:
     """Save one day of market_reel.fetch_fiidii() output. Returns True if the row is new or changed."""
-    path = Path(cache_dir or CACHE_DIR) / "nse.json"
-    with LOCK:
-        rows = _read_json(path, {})
-        day = fd["date"].isoformat()
-        row = [round(fd["FII"]["buy"], 2), round(fd["FII"]["sell"], 2), round(fd["FII"]["net"], 2),
-               round(fd["DII"]["buy"], 2), round(fd["DII"]["sell"], 2), round(fd["DII"]["net"], 2)]
-        if rows.get(day) == row:
+    day = fd["date"].isoformat()
+    row = [round(fd["FII"]["buy"], 2), round(fd["FII"]["sell"], 2), round(fd["FII"]["net"], 2),
+           round(fd["DII"]["buy"], 2), round(fd["DII"]["sell"], 2), round(fd["DII"]["net"], 2)]
+    with LOCK, closing(connect(db_path)) as db:
+        old = db.execute("SELECT fii_buy, fii_sell, fii_net, dii_buy, dii_sell, dii_net FROM nse_daily WHERE date = ?",
+                         (day,)).fetchone()
+        if old and list(old) == row:
             return False
-        rows[day] = row
-        _write_json(path, dict(sorted(rows.items())), compact=False)
+        _upsert_nse(db, day, row, "nse")
+        db.commit()
         return True
-
-
-def nse_rows(cache_dir: Path = None, reel_state: Path = None):
-    """Saved NSE days, plus net-only days the market reel recorded before this file existed."""
-    rows = _read_json(Path(cache_dir or CACHE_DIR) / "nse.json", {})
-    history = _read_json(Path(reel_state or ROOT / "market_reel_state.json"), {}).get("history", {})
-    merged = {d: [None, None, round(v["FII"], 2), None, None, round(v["DII"], 2)] for d, v in history.items()
-              if "FII" in v and "DII" in v}
-    merged.update(rows)
-    return [[d] + v for d, v in sorted(merged.items())]
 
 
 # ---------- NSDL FPI (fetched by month) ----------
@@ -154,52 +207,66 @@ def fetch_fpi_month(year: int, month: int, session: requests.Session) -> dict:
     return {d: v for d, v in parse_archive(r.text).items() if d.startswith(prefix)}
 
 
-def update_fpi(cache_dir: Path = None, today: dt.date = None, pause: float = 1.0, log=print, progress=None):
-    """Fetch the months not cached yet, and refresh the last two if their copy is over 6 hours old.
+def update_fpi(db_path: Path = None, today: dt.date = None, pause: float = 1.0, log=print, progress=None):
+    """Fetch the months not in the database yet, and refresh the last two if fetched over 6 hours ago.
     progress() is called after every 12 months fetched, so a first backfill shows up while it runs."""
-    cache_dir = Path(cache_dir or CACHE_DIR)
-    cache_dir.mkdir(parents=True, exist_ok=True)
     today = today or dt.datetime.now(IST).date()
+    prev = today.replace(day=1) - dt.timedelta(days=1)
+    recent = {f"{today:%Y-%m}", f"{prev:%Y-%m}"}
+    with LOCK, closing(connect(db_path)) as db:
+        done = dict(db.execute("SELECT month, fetched_at FROM fpi_months").fetchall())
     session = requests.Session()
     session.headers.update({"User-Agent": UA, "Accept-Language": "en-US,en;q=0.9"})
     y, m = FPI_START
-    recent = {(today.year, today.month), ((today.replace(day=1) - dt.timedelta(days=1)).year,
-                                          (today.replace(day=1) - dt.timedelta(days=1)).month)}
     fetched = failed = 0
     while (y, m) <= (today.year, today.month):
-        path = cache_dir / f"fpi_{y:04d}-{m:02d}.json"
-        stale = not path.exists() or ((y, m) in recent and time.time() - path.stat().st_mtime > FPI_REFRESH_SECONDS)
-        if stale:
+        month = f"{y:04d}-{m:02d}"
+        if month not in done or (month in recent and time.time() - done[month] > FPI_REFRESH_SECONDS):
             try:
                 rows = fetch_fpi_month(y, m, session)
-                if rows or (y, m) in recent:          # an empty finished month means a failed page: retry next time
-                    _write_json(path, rows)
+                if rows or month in recent:          # an empty finished month means a failed page: retry next time
+                    with LOCK, closing(connect(db_path)) as db:
+                        db.execute("DELETE FROM fpi_daily WHERE date LIKE ?", (month + "-%",))
+                        db.executemany("INSERT INTO fpi_daily VALUES (?,?,?,?,?,?,?,?)", [[d] + v for d, v in sorted(rows.items())])
+                        db.execute("INSERT OR REPLACE INTO fpi_months VALUES (?,?,?)", (month, time.time(), len(rows)))
+                        db.commit()
                 fetched += 1
                 if progress and fetched % 12 == 0:
                     progress()
-            except Exception as e:                   # NSDL down or slow: keep what's cached, retry next run
+            except Exception as e:                   # NSDL down or slow: keep what's saved, retry next run
                 failed += 1
-                log(f"  NSDL FPI {y}-{m:02d}: {type(e).__name__}: {e}")
+                log(f"  NSDL FPI {month}: {type(e).__name__}: {e}")
             time.sleep(pause)
         y, m = (y + 1, 1) if m == 12 else (y, m + 1)
     return fetched, failed
 
 
-def fpi_rows(cache_dir: Path = None):
-    rows = {}
-    for path in sorted(Path(cache_dir or CACHE_DIR).glob("fpi_*.json")):
-        rows.update(_read_json(path, {}))
-    return [[d] + v for d, v in sorted(rows.items())]
+# ---------- the published file and the seed ----------
+def publish(out_path: Path = None, db_path: Path = None) -> dict:
+    with LOCK, closing(connect(db_path)) as db:
+        nse = [list(r) for r in db.execute(f"SELECT {', '.join(NSE_FIELDS)} FROM nse_daily ORDER BY date")]
+        fpi = [list(r) for r in db.execute(f"SELECT {', '.join(FPI_FIELDS)} FROM fpi_daily ORDER BY date")]
+    payload = {"generated": _now(), "nse": {"fields": NSE_FIELDS, "rows": nse}, "fpi": {"fields": FPI_FIELDS, "rows": fpi}}
+    out = Path(out_path or OUT_PATH)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    tmp = out.with_name(out.name + ".tmp")
+    tmp.write_text(json.dumps(payload, separators=(",", ":")), encoding="utf-8")
+    os.replace(tmp, out)
+    return payload
 
 
-# ---------- the published file ----------
-def publish(out_path: Path = None, cache_dir: Path = None, reel_state: Path = None) -> dict:
-    with LOCK:
-        nse, fpi = nse_rows(cache_dir, reel_state), fpi_rows(cache_dir)
-        payload = {"generated": dt.datetime.now(IST).isoformat(timespec="seconds"),
-                   "nse": {"fields": NSE_FIELDS, "rows": nse}, "fpi": {"fields": FPI_FIELDS, "rows": fpi}}
-        _write_json(Path(out_path or OUT_PATH), payload)
-        return payload
+def write_seed(seed_path: Path = None, db_path: Path = None) -> int:
+    """fiidii_seed.db for dist: the NSDL tables only (never the NSE rows, which only the live server has)."""
+    seed = Path(seed_path or SEED_PATH)
+    seed.unlink(missing_ok=True)
+    with LOCK, closing(connect(db_path)) as db:
+        db.execute("ATTACH DATABASE ? AS seed", (str(seed),))
+        db.executescript("""CREATE TABLE seed.fpi_daily AS SELECT * FROM fpi_daily;
+                            CREATE TABLE seed.fpi_months AS SELECT * FROM fpi_months;""")
+        n = db.execute("SELECT COUNT(*) FROM seed.fpi_daily").fetchone()[0]
+        db.commit()
+        db.execute("DETACH DATABASE seed")
+    return n
 
 
 def nightly(fetch_fiidii=None, log=print) -> str:
@@ -220,6 +287,9 @@ def nightly(fetch_fiidii=None, log=print) -> str:
 
 
 if __name__ == "__main__":
+    if "--seed" in sys.argv:
+        print(f"Wrote {SEED_PATH} with {write_seed()} NSDL days")
+        sys.exit(0)
     fetch = None
     if "--nse" in sys.argv:
         import market_reel
