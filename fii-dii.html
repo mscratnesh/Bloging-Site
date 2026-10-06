@@ -41,6 +41,7 @@
   .ix-strip .l{font:600 12px var(--mono);letter-spacing:.06em;text-transform:uppercase}
   .ix-strip .n{font:600 30px var(--serif);font-variant-numeric:tabular-nums}
   .ix-strip .d{color:var(--muted);font-size:12px;font-variant-numeric:tabular-nums}
+  .ix-strip .fd-partial{color:var(--coral-text);font:500 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;margin-top:2px}
   @media(max-width:800px){.ix-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.ix-strip div{padding:14px}.ix-strip .n{font-size:24px}}
 
   .ix-section{min-width:0;border-top:1px solid var(--ink);padding-top:16px;margin-bottom:36px}
@@ -218,15 +219,17 @@
       const last = rows[rows.length - 1].date, month = last.slice(0, 7), year = last.slice(0, 4);
       const yearAgo = String(+year - 1) + last.slice(4);
       const sets = [
-        ["Latest day", rows.filter(r => r.date === last), dlabel(last)],
-        ["Month to date", rows.filter(r => r.date.startsWith(month)), MONTHS[month.slice(5) - 1] + " " + year],
-        ["Year to date", rows.filter(r => r.date.startsWith(year)), "Calendar " + year],
-        ["Last 12 months", rows.filter(r => r.date > yearAgo), "To " + dlabel(last)]
+        ["Latest day", rows.filter(r => r.date === last), dlabel(last), last],
+        ["Month to date", rows.filter(r => r.date.startsWith(month)), MONTHS[month.slice(5) - 1] + " " + year, month + "-01"],
+        ["Year to date", rows.filter(r => r.date.startsWith(year)), "Calendar " + year, year + "-01-01"],
+        ["Last 12 months", rows.filter(r => r.date > yearAgo), "To " + dlabel(last), yearAgo]
       ];
-      $("tiles").innerHTML = sets.map(([l, rs, when]) => {
-        const x = total(rs, a), y = total(rs, b);
+      const first = rows[0].date;                   // NSE history only starts when the site began saving it
+      $("tiles").innerHTML = sets.map(([l, rs, when, from]) => {
+        const x = total(rs, a), y = total(rs, b), partial = first > from;
         return `<div><span class="l">${l}</span><span class="n ${cls(x)}">${signed(x)}</span>
-          <span class="d">${an} net · ${esc(when)}</span><span class="d">${bn}: <span class="${cls(y)}">${signed(y)}</span> · ${rs.length} day${rs.length === 1 ? "" : "s"}</span></div>`;
+          <span class="d">${an} net · ${esc(when)}</span><span class="d">${bn}: <span class="${cls(y)}">${signed(y)}</span> · ${rs.length} day${rs.length === 1 ? "" : "s"}</span>`
+          + (partial ? `<span class="d fd-partial">Only since ${esc(dlabel(first))}</span>` : "") + `</div>`;
       }).join("");
     }
 
