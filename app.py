@@ -53,7 +53,6 @@ OI_CHANGE_CACHE_PATH = ROOT / "oi_change_cache.json"
 OI_CHANGE_CACHE_TTL = 30 * 60
 BETA_JSON_PATH = Path(os.environ.get("BETA_JSON_PATH") or ROOT / "data" / "betas.json")   # written weekly by betas.py
 MF_BETA_JSON_PATH = Path(os.environ.get("MF_BETA_JSON_PATH") or ROOT / "data" / "mf_betas.json")   # and by mf_betas.py
-FIIDII_JSON_PATH = Path(os.environ.get("FIIDII_JSON_PATH") or ROOT / "data" / "fiidii.json")   # nightly, by fiidii.py
 MF_HOLDINGS_DIR = Path(os.environ.get("MF_HOLDINGS_DIR") or ROOT / "data" / "mf_holdings")   # monthly, by mf_holdings.py
 MF_HOLDINGS_FILE_RE = re.compile(r"^/data/mf_holdings/(index\.json|stocks\.json|f/[a-z0-9-]{3,90}\.json)$")
 DATA_JSON_GZIP = {}   # path -> (etag, gzipped body) for the beta files, so each weekly file is compressed once
@@ -61,7 +60,7 @@ MF_API_URL = "https://api.mfapi.in/mf"
 MF_CACHE_DIR = ROOT / "mf_nav_cache"
 MF_CODE_RE = re.compile(r"^\d{1,8}$")
 SITE_URL = "https://letmoneyearn.in"
-SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nifty-iron-fly.html", "nse-indices.html", "oi-change.html", "fii-dii.html", "portfolio-beta.html", "mf-holdings.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
+SITEMAP_STATIC_PAGES = ("", "services.html", "sheets.html", "gold-vs-nifty.html", "momentum-study.html", "breakout-study.html", "nifty-iron-fly.html", "nse-indices.html", "oi-change.html", "portfolio-beta.html", "mf-holdings.html", "calculators.html", "mf-compare.html", "mf-sip.html", "mf-swp.html", "loan-prepayment.html", "review.html", "question.html", "about.html", "contact.html", "privacy.html", "terms.html")
 UPLOADS_DIR = ROOT / "uploads"
 UPLOAD_EXTENSIONS = {"image/png": ".png", "image/jpeg": ".jpg", "image/gif": ".gif", "image/webp": ".webp"}
 MAX_UPLOAD_BYTES = 5 * 1024 * 1024
@@ -524,8 +523,7 @@ def build_market_reel_daily():
     """Build the FII/DII + OI market reel and post it to Instagram on weekday evenings (IST): every
     30 minutes from 8:30 pm until midnight, since NSE's files land at different times. market_reel.run
     does nothing on holidays, before NSE has published or once the day is posted, so repeat runs cost
-    one NSE request. Each run's outcome is appended to market_reel.log next to the server. Each run first
-    saves the evening's FII/DII figures for the FII/DII Activity page (fiidii.py), posted or not."""
+    one NSE request. Each run's outcome is appended to market_reel.log next to the server."""
     log = ROOT / "market_reel.log"
     if os.environ.get("MARKET_REEL_TEST_OUT"):    # check a build: one unposted reel for the latest data, at startup
         try:
@@ -536,13 +534,6 @@ def build_market_reel_daily():
         now = datetime.now(IST)
         start = now.replace(hour=20, minute=30, second=0, microsecond=0)
         if now.weekday() < 5 and now >= start:
-            try:
-                import fiidii
-                history = fiidii.nightly(market_reel.fetch_fiidii)
-            except Exception as error:            # NSE or NSDL trouble: the page keeps its data, retried next run
-                history = f"fii-dii failed: {type(error).__name__}: {error}"
-            with open(log, "a", encoding="utf-8") as out:
-                out.write(f"[{datetime.now(IST):%Y-%m-%d %H:%M}] {history}\n")
             try:
                 status = market_reel.run(ROOT, fetch_oi_change)
             except Exception as error:            # network, ffmpeg or Instagram trouble: retried next run
@@ -555,16 +546,6 @@ def build_market_reel_daily():
         else:
             wake = start if now < start else start + timedelta(days=1)
         time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
-
-
-def build_fiidii_history():
-    """At startup, bring the FII/DII Activity page's database (fiidii.db, via fiidii.py) up to date: it merges
-    the NSDL history shipped in fiidii_seed.db, fetches any months still missing, and rewrites the page's data."""
-    try:
-        import fiidii
-        print(fiidii.nightly())
-    except Exception as error:
-        print("FII/DII history update failed:", type(error).__name__, error)
 
 
 def build_betas_weekly():
@@ -1198,9 +1179,6 @@ class BlogHandler(BaseHTTPRequestHandler):
         if route == "/data/betas.json":
             self.serve_data_json(BETA_JSON_PATH)
             return
-        if route == "/data/fiidii.json":
-            self.serve_data_json(FIIDII_JSON_PATH)
-            return
         if route == "/data/mf_betas.json":
             self.serve_data_json(MF_BETA_JSON_PATH)
             return
@@ -1601,7 +1579,6 @@ if __name__ == "__main__":
     threading.Thread(target=build_market_reel_daily, daemon=True).start()
     threading.Thread(target=build_betas_weekly, daemon=True).start()
     threading.Thread(target=build_mf_holdings_monthly, daemon=True).start()
-    threading.Thread(target=build_fiidii_history, daemon=True).start()
     display_host = "127.0.0.1" if host == "0.0.0.0" else host
     print(f"Let Money Earn is running at http://{display_host}:{port}")
     try:

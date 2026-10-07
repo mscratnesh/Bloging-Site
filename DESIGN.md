@@ -57,8 +57,6 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `reviews` | name, review, rating, status (`pending`/`approved`/`rejected`), image_url | public submissions default `pending`; admin-added reviews (`/api/admin/reviews` POST) are inserted pre-`approved` |
 | `comments` | post_id (FK→posts), name, comment, status | same pending/approve flow as reviews, scoped per post |
 
-**`fiidii.db`** (separate file): `nse_daily` (NSE provisional FII/DII, saved nightly; exists only on the VM), `fpi_daily` and `fpi_months` (NSDL FPI since 2005). `fiidii_seed.db` ships both in dist and only fills gaps. See README, FII/DII Activity.
-
 **`betas.db`** (separate file, not the blog database): tables `beta_runs` (stock builds, `betas.py`), `mf_beta_runs` (mutual fund builds, `mf_betas.py`) and `mf_holdings_runs` (monthly fund holdings builds, `mf_holdings.py`; `asof` is the month-end, `stocks` the scheme count), each with started_at, finished_at, status `ok`/`failed`, asof, stocks (the count built), days, message: one row per build. `betas.py` creates it on first run; `app.py`'s `build_betas_weekly` thread reads it to decide whether this week's build is done.
 
 `initialize_database()` runs `CREATE TABLE IF NOT EXISTS` + ad-hoc `ALTER TABLE` migrations for older DBs, then seeds demo posts/reviews/comments only if the tables are empty. This is the only migration mechanism — there's no migration framework, so schema changes go directly into this function.
@@ -76,7 +74,6 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `loan-prepayment.html` | loan EMI and prepayment | client-side only (`loan-prepayment.js`) | — |
 | `goal-sip-calculator.html` | risk profile test and goal-wise SIP (noindex until compliance sign-off) | client-side only (`goal-sip-config.js`, `goal-sip-calc.js`, `goal-sip.js`) | — |
 | `portfolio-beta.html` | portfolio beta vs Nifty 50 from pasted holdings (also `/tools/portfolio-beta/`, a 301) | `/data/betas.json` (weekly, `betas.py`), `/data/mf_betas.json` (weekly, `mf_betas.py`; only when a fund is pasted), `/api/nifty-hedge` (hedge sizer: NIFTY lot, futures and put closes from the F&O bhavcopy); all maths client-side, holdings never sent | — |
-| `fii-dii.html` | FII/DII (NSE provisional) and FPI (NSDL, since 2005) flows by day, week, month and year | `/data/fiidii.json` (rebuilt nightly by `fiidii.py` from `fiidii.db`, from the market reel job); grouping and charts client-side | — |
 | `mf-holdings.html` | mutual fund holdings, sectors, overlap and look-through (also `/tools/mf-holdings/`, a 301) | `/data/mf_holdings/index.json`, `f/<id>.json`, `stocks.json` (monthly, `mf_holdings.py`); all comparisons client-side | — |
 | `mf-compare.html`, `mf-sip.html`, `mf-swp.html` | fund rolling returns, SIP and SWP on real NAVs | `/api/mf/search`, `/api/mf/nav/:code` (`mf-compare.js`) | — |
 | `admin-login.html` | admin auth | — | `/api/admin/login` |

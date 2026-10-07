@@ -35,7 +35,7 @@ The live site (letmoneyearn.in) runs on a Windows VM using the prebuilt `dist/` 
    taskkill /IM LetMoneyEarnAdmin.exe /F
    C:\nginx\nginx.exe -s stop
    ```
-2. Replace the VM's `dist` folder with the new build — **except** `let_money_earn.db` and `fiidii.db` (and `uploads\`, if present). The live database holds real articles, comments, reviews, and questions; never overwrite it with a locally-built copy. Update it in place with targeted SQL instead of replacing the file. Make sure the build includes the market-tool data files (`momentum_teaser.json`, `momentum_nse_teaser.json`, `etf_teaser.json`, `breakout_data.json`) — see [Building the executables](#building-the-executables).
+2. Replace the VM's `dist` folder with the new build — **except** `let_money_earn.db` (and `uploads\`, if present). The live database holds real articles, comments, reviews, and questions; never overwrite it with a locally-built copy. Update it in place with targeted SQL instead of replacing the file. Make sure the build includes the market-tool data files (`momentum_teaser.json`, `momentum_nse_teaser.json`, `etf_teaser.json`, `breakout_data.json`) — see [Building the executables](#building-the-executables).
 3. Run `dist\setup_all.bat` as Administrator — copies `nginx.conf`, tests it, and starts nginx plus both apps.
 4. Verify at https://www.letmoneyearn.in/.
 
@@ -52,7 +52,7 @@ The homepage hero story is whichever post has `image_class = 'featured'` in the 
 
 ## Market tools
 
-The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`; Risk Profile & Goal SIP: `goal-sip-calculator.html`; Portfolio Beta: `portfolio-beta.html`; MF Holdings Explorer: `mf-holdings.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`), a **Markets** dropdown (NSE Index Dashboard: `nse-indices.html`; F&O OI Change: `oi-change.html`; FII/DII Activity: `fii-dii.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
+The site menu has a **Calculators** dropdown (All Calculators: `calculators.html`; Loan EMI & Prepayment: `loan-prepayment.html`; Risk Profile & Goal SIP: `goal-sip-calculator.html`; Portfolio Beta: `portfolio-beta.html`; MF Holdings Explorer: `mf-holdings.html`), a **Mutual Funds** dropdown (Rolling Returns Compare: `mf-compare.html`; Fund SIP Calculator: `mf-sip.html`; Fund SWP Calculator: `mf-swp.html`), a **Studies** dropdown (Momentum Study, Gold vs Nifty, Multi-Year Breakout: `breakout-study.html`, NIFTY Iron Fly: `nifty-iron-fly.html`), a **Markets** dropdown (NSE Index Dashboard: `nse-indices.html`; F&O OI Change: `oi-change.html`) and Sheets, which sells the Google Sheets behind them. The dropdown markup is repeated in every public page's header; its styles are at the end of `styles.css` and its open/close script in `nav.js`. All of them are for information only and carry a not-investment-advice disclaimer. Every public page's footer links to the Privacy Policy (`privacy.html`), which covers the forms, server logs, cookies and the Google AdSense wording AdSense requires; update it if the site starts collecting anything new.
 
 ### Draft articles (`drafts/`)
 
@@ -119,21 +119,6 @@ Menu: **Calculators → MF Holdings Explorer**, also on `calculators.html` and i
 - **Files** (git-ignored; keep on the VM): `data/mf_holdings/`; `var/mf_holdings/<amc>.json` (each fund house's last good month); runs in `betas.db`, table `mf_holdings_runs`. Paths: `MF_HOLDINGS_DIR`, `MF_HOLDINGS_CACHE_DIR`.
 - **When a fund house changes its site:** that house fails and keeps last month's data (the run log says which and why). Fix its finder function (`_sbi`, `_hdfc`, …) in `mf_holdings.py`; parsing rarely needs changes.
 - **Tests:** `py -m unittest tests.test_mf_holdings` (no network): SBI- and UTI-style workbooks (labels, stacked schemes, fraction weights, foreign ISINs, InvITs, derivatives tables), zips, AMFI name matching, falling back to a fund house's last good month, keeping old data when too few parse, and the routes' path checks.
-
-### FII/DII Activity (`fii-dii.html`)
-
-Menu: **Markets → FII/DII Activity**, in the sitemap. Two series, picked with a toggle and shown as Daily, Weekly (Monday to Friday, labelled by the Monday), Monthly or Yearly (calendar) totals: four summary tiles (latest day, month to date, year to date, last 12 months; a tile says "only since …" when its period starts before the NSE history does), a bar chart of the last 60 days / 52 weeks / 60 months / all years (green above zero is net buying, coral below is net selling; hover for the value), and a table, newest first, 30 rows at a time. All grouping is done in the browser from one file, `/data/fiidii.json` (~330 KB, ~125 KB gzipped).
-
-Official sources only; nothing is estimated or taken from third-party sites.
-
-- **Database:** `fiidii.db` next to the exe (SQLite, like `betas.db`). Tables: `nse_daily` (date, FII buy/sell/net, DII buy/sell/net, `source` = `nse` or `reel`, `saved_at`), `fpi_daily` (date, equity buy/sell/net on the exchange, all-equity net, debt net, other net, total net) and `fpi_months` (which NSDL months were fetched, and when). `fiidii.publish()` rebuilds `data/fiidii.json` from it.
-- **FII & DII · NSE:** NSE's provisional cash-market buy, sell and net for FII/FPI and DII (`/api/fiidiiTradeReact`, NSE + BSE + MSEI). NSE only ever shows the latest day and publishes no history, so the history is built by saving each evening's figures: the market reel job (`build_market_reel_daily`) calls `fiidii.nightly()` first on every evening run, whether or not the reel posts, and appends a `fii-dii: ...` line to `market_reel.log`. Days the reel saved earlier (`market_reel_state.json` → `history`) are stored with net figures only (`source = 'reel'`) and filled in if NSE's full row arrives. **These rows exist only on the VM: back up `fiidii.db` and never overwrite it.**
-- **FPI · NSDL:** NSDL's "Daily Trends in FPI Investments" archive (`fpi.nsdl.co.in/web/Reports/Archive.aspx`, an ASP.NET form posted with a month-end date; one request returns the whole month) from January 2005. The parser handles both NSDL layouts (pre-2012 Equity/Debt lines; later routes with sub-totals) and stops at the "Total for …", "Grand Total" and footer text. Finished months are never refetched; the current and previous month are refreshed when fetched over 6 hours ago. Yearly equity totals match NSDL's published figures (e.g. 2008 −52,987, 2022 −1,21,439, 2023 +1,71,107, 2024 +427 crore).
-- **Pre-populated history:** `dist` ships `fiidii_seed.db` (the NSDL tables plus any full NSE rows saved on the build PC, ~400 KB) and `data\fiidii.json`. On every open the server merges the seed in without replacing anything newer (a seed NSE row only fills a day that is missing or net-only, never one the server saved), so a new VM shows the full history at once and overwriting `fiidii_seed.db` on deploy is always safe. Before building `dist`, refresh it: `py fiidii.py`, then `py fiidii.py --seed`, then copy `fiidii_seed.db` and `data/fiidii.json` into `dist`. Older JSON caches in `var/fiidii/` (from before the database) are imported automatically.
-- **Startup:** `build_fiidii_history` runs once when the server starts: merge, fetch any missing months, publish (it also publishes before fetching and every 12 months fetched).
-- **Run by hand:** `py fiidii.py` (top up NSDL and rewrite `data/fiidii.json`), `py fiidii.py --nse` (also save today's NSE figures), `py fiidii.py --seed` (write `fiidii_seed.db`).
-- **Files** (git-ignored): `fiidii.db` (keep on the VM, back it up), `fiidii_seed.db` (ship in dist), `data/fiidii.json`. Paths: `FIIDII_DB_PATH`, `FIIDII_SEED_PATH`, `FIIDII_JSON_PATH`.
-- **Tests:** `py -m unittest tests.test_fiidii` (no network): both NSDL layouts and their summary rows, MF "Equity schemes" not counted as equity, reel rows upgraded by NSE's full figures, and seed merges that fill missing and net-only NSE days but never replace the server's own.
 
 ### Sheets for sale (`sheets.html`)
 
@@ -264,7 +249,7 @@ Each scene is drawn with Pillow and joined by ffmpeg with crossfades and backgro
 
 The caption carries the FII/DII figures, the site link, the disclaimer with the ARN and five hashtags (no WhatsApp link). The video fades in from black, so the post sets `thumb_offset` to 2 s and Instagram takes the cover from the intro card; a cover can't be changed through the API after posting (edit it in the app).
 
-Before building the reel, each evening run saves that day's FII/DII figures for the FII/DII Activity page (`fiidii.py`, see above). Each run's outcome goes to `market_reel.log` next to the exe. `failed: URLError ... CERTIFICATE_VERIFY_FAILED` means the VM's Windows certificate store lacks a root NSE needs: `app.py` points `SSL_CERT_FILE` at `certifi`'s bundle at startup so `urllib` trusts the same roots as `requests`, so rebuild the exe if an older build shows it. To check a build without posting, start the exe with `MARKET_REEL_TEST_OUT=C:\path\preview.mp4`: it builds one reel for the latest data at startup. From source: `py market_reel.py --force --no-post --out preview.mp4`.
+Each run's outcome goes to `market_reel.log` next to the exe. `failed: URLError ... CERTIFICATE_VERIFY_FAILED` means the VM's Windows certificate store lacks a root NSE needs: `app.py` points `SSL_CERT_FILE` at `certifi`'s bundle at startup so `urllib` trusts the same roots as `requests`, so rebuild the exe if an older build shows it. To check a build without posting, start the exe with `MARKET_REEL_TEST_OUT=C:\path\preview.mp4`: it builds one reel for the latest data at startup. From source: `py market_reel.py --force --no-post --out preview.mp4`.
 
 ## SEO checklist for public pages
 
@@ -277,7 +262,7 @@ Every indexable page has:
 3. `<link rel="canonical" href="https://letmoneyearn.in/<page>">` (the home page is `https://letmoneyearn.in/`).
 4. `<meta name="robots" content="index, follow, max-image-preview:large">`.
 5. Open Graph and Twitter tags: `og:type`, `og:site_name`, `og:title`, `og:description`, `og:url` (same as the canonical), `og:image`, `twitter:card`, `twitter:title`, `twitter:description`, kept in step with the title and description.
-6. JSON-LD where it fits: `WebApplication` for tools, `Dataset` for data pages (`fii-dii.html`), `Article` for posts.
+6. JSON-LD where it fits: `WebApplication` for tools, `Article` for posts.
 7. Exactly one `<h1>` (including any rendered by the page's script).
 8. An entry in `SITEMAP_STATIC_PAGES` in `app.py` (`/sitemap.xml` lists those plus every published post), and a link in the site menu, which must be identical on every page.
 
