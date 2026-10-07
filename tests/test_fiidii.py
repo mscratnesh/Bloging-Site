@@ -88,15 +88,26 @@ class Database(unittest.TestCase):
         (self.legacy / "nse.json").write_text(json.dumps({"2026-10-02": [1, 2, -1, 3, 1, 2]}))
         (self.legacy / "fpi_2026-09.json").write_text(json.dumps({"2026-09-01": [1, 2, -1, -1, 0, 0, -1]}))
         fiidii.record_nse(self.FD)
-        fiidii.write_seed(self.seed)                                           # holds September from the legacy file
-        self.db.unlink()                                                       # a fresh server with only the seed
-        fiidii.record_nse(self.FD)
+        fiidii.write_seed(self.seed)                                           # September, plus full NSE rows
+        self.db.unlink()
+        self.legacy.joinpath("nse.json").unlink()
+        server = dict(self.FD, FII={"buy": 1.0, "sell": 2.0, "net": -1.0})    # the server's own 5 Oct row differs
+        fiidii.record_nse(server)
         out = fiidii.publish(Path(self.tmp.name) / "fiidii.json")
         self.assertEqual(out["fpi"]["rows"], [["2026-09-01", 1, 2, -1, -1, 0, 0, -1]])
-        self.assertEqual([r[0] for r in out["nse"]["rows"]], ["2026-10-01", "2026-10-02", "2026-10-05"])
-        with closing(sqlite3.connect(self.seed)) as seed:                      # the seed never carries NSE rows
-            self.assertEqual([r[0] for r in seed.execute("SELECT name FROM sqlite_master WHERE type='table'")],
-                             ["fpi_daily", "fpi_months"])
+        rows = {r[0]: r for r in out["nse"]["rows"]}
+        self.assertEqual(sorted(rows), ["2026-10-01", "2026-10-02", "2026-10-05"])
+        self.assertEqual(rows["2026-10-02"], ["2026-10-02", 1, 2, -1, 3, 1, 2])          # missing day filled from the seed
+        self.assertEqual(rows["2026-10-05"][1:4], [1.0, 2.0, -1.0])                     # the server's own row kept
+        self.assertEqual(rows["2026-10-01"][1], None)                                    # net-only, nothing to fill it
+
+    def test_seed_fills_a_net_only_reel_day(self):
+        fiidii.record_nse(self.FD)
+        fiidii.write_seed(self.seed)
+        self.db.unlink()                                                       # server has 5 Oct net-only, from the reel
+        out = fiidii.publish(Path(self.tmp.name) / "fiidii.json")
+        self.assertEqual([r for r in out["nse"]["rows"] if r[0] == "2026-10-05"],
+                         [["2026-10-05", 15674.61, 20373.75, -4699.14, 20492.93, 15311.31, 5181.62]])
 
 
 if __name__ == "__main__":

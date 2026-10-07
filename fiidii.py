@@ -12,8 +12,9 @@ Two series, both in Rs crore, both from official sources only:
              Fetched a month at a time from NSDL's archive; fpi_months records when each month was fetched.
              Finished months are never fetched again, the last two are refreshed at most every 6 hours.
 
-fiidii_seed.db (built with --seed, shipped in dist) holds only the NSDL tables, so a new server starts with
-the full history; it's merged in without replacing anything newer. Older JSON caches in var/fiidii/ are
+fiidii_seed.db (built with --seed, shipped in dist) holds the NSDL tables and any full NSE rows saved where
+it was built, so a new server starts with the full history. It's merged in without replacing anything newer:
+a seed NSE row only fills a day that is missing or net-only ('reel'), never one the server saved itself. Older JSON caches in var/fiidii/ are
 imported once, so switching to the database loses nothing.
 
 Run by hand: py fiidii.py            (fetch what's missing and rewrite data/fiidii.json)
@@ -82,6 +83,12 @@ def connect(db_path: Path = None, seed_path: Path = None, legacy_dir: Path = Non
         db.execute("ATTACH DATABASE ? AS seed", (str(seed),))
         db.execute("INSERT OR IGNORE INTO fpi_daily SELECT * FROM seed.fpi_daily")
         db.execute("INSERT OR IGNORE INTO fpi_months SELECT * FROM seed.fpi_months")
+        if db.execute("SELECT 1 FROM seed.sqlite_master WHERE name = 'nse_daily'").fetchone():
+            db.execute("""INSERT INTO nse_daily SELECT * FROM seed.nse_daily WHERE source = 'nse'
+                          ON CONFLICT(date) DO UPDATE SET fii_buy=excluded.fii_buy, fii_sell=excluded.fii_sell,
+                          fii_net=excluded.fii_net, dii_buy=excluded.dii_buy, dii_sell=excluded.dii_sell,
+                          dii_net=excluded.dii_net, source=excluded.source, saved_at=excluded.saved_at
+                          WHERE nse_daily.source = 'reel'""")
         db.commit()
         db.execute("DETACH DATABASE seed")
     legacy = Path(legacy_dir or LEGACY_DIR)
@@ -263,13 +270,14 @@ def publish(out_path: Path = None, db_path: Path = None) -> dict:
 
 
 def write_seed(seed_path: Path = None, db_path: Path = None) -> int:
-    """fiidii_seed.db for dist: the NSDL tables only (never the NSE rows, which only the live server has)."""
+    """fiidii_seed.db for dist: the NSDL tables, plus full NSE rows (source 'nse') to fill gaps on the server."""
     seed = Path(seed_path or SEED_PATH)
     seed.unlink(missing_ok=True)
     with LOCK, closing(connect(db_path)) as db:
         db.execute("ATTACH DATABASE ? AS seed", (str(seed),))
         db.executescript("""CREATE TABLE seed.fpi_daily AS SELECT * FROM fpi_daily;
-                            CREATE TABLE seed.fpi_months AS SELECT * FROM fpi_months;""")
+                            CREATE TABLE seed.fpi_months AS SELECT * FROM fpi_months;
+                            CREATE TABLE seed.nse_daily AS SELECT * FROM nse_daily WHERE source = 'nse';""")
         n = db.execute("SELECT COUNT(*) FROM seed.fpi_daily").fetchone()[0]
         db.commit()
         db.execute("DETACH DATABASE seed")

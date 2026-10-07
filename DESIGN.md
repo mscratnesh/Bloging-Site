@@ -57,7 +57,7 @@ Admin session is a random token in `SESSIONS` (in-memory set), set via `HttpOnly
 | `reviews` | name, review, rating, status (`pending`/`approved`/`rejected`), image_url | public submissions default `pending`; admin-added reviews (`/api/admin/reviews` POST) are inserted pre-`approved` |
 | `comments` | post_id (FK→posts), name, comment, status | same pending/approve flow as reviews, scoped per post |
 
-**`fiidii.db`** (separate file): `nse_daily` (NSE provisional FII/DII, saved nightly; exists only on the VM), `fpi_daily` and `fpi_months` (NSDL FPI since 2005; also shipped as `fiidii_seed.db`). See README, FII/DII Activity.
+**`fiidii.db`** (separate file): `nse_daily` (NSE provisional FII/DII, saved nightly; exists only on the VM), `fpi_daily` and `fpi_months` (NSDL FPI since 2005). `fiidii_seed.db` ships both in dist and only fills gaps. See README, FII/DII Activity.
 
 **`betas.db`** (separate file, not the blog database): tables `beta_runs` (stock builds, `betas.py`), `mf_beta_runs` (mutual fund builds, `mf_betas.py`) and `mf_holdings_runs` (monthly fund holdings builds, `mf_holdings.py`; `asof` is the month-end, `stocks` the scheme count), each with started_at, finished_at, status `ok`/`failed`, asof, stocks (the count built), days, message: one row per build. `betas.py` creates it on first run; `app.py`'s `build_betas_weekly` thread reads it to decide whether this week's build is done.
 
