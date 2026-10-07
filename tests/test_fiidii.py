@@ -48,6 +48,13 @@ class ParseArchive(unittest.TestCase):
         self.assertEqual(row[6], -5374.91)
 
 
+class ArchiveDate(unittest.TestCase):
+    def test_running_month_asks_for_today_not_the_month_end(self):
+        self.assertEqual(fiidii.archive_date(2026, 10, dt.date(2026, 10, 7)), dt.date(2026, 10, 7))
+        self.assertEqual(fiidii.archive_date(2026, 9, dt.date(2026, 10, 7)), dt.date(2026, 9, 30))
+        self.assertEqual(fiidii.archive_date(2024, 2, dt.date(2026, 10, 7)), dt.date(2024, 2, 29))
+
+
 class Database(unittest.TestCase):
     FD = {"date": dt.date(2026, 10, 5), "FII": {"buy": 15674.61, "sell": 20373.75, "net": -4699.14},
           "DII": {"buy": 20492.93, "sell": 15311.31, "net": 5181.62}}

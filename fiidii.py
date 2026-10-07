@@ -193,9 +193,16 @@ def parse_archive(html: str) -> dict:
     return out
 
 
-def fetch_fpi_month(year: int, month: int, session: requests.Session) -> dict:
+def archive_date(year: int, month: int, today: dt.date = None) -> dt.date:
+    """The date to ask NSDL's archive for: the month-end, or today for the running month
+    (the archive returns nothing for a date in the future)."""
+    last = dt.date(year + month // 12, month % 12 + 1, 1) - dt.timedelta(days=1)
+    return min(last, today or dt.datetime.now(IST).date())
+
+
+def fetch_fpi_month(year: int, month: int, session: requests.Session, today: dt.date = None) -> dict:
     """Every reporting day of one month from NSDL's archive (an ASP.NET form: GET for the tokens, then post the date)."""
-    last = (dt.date(year + month // 12, month % 12 + 1, 1) - dt.timedelta(days=1))
+    last = archive_date(year, month, today)
     page = session.get(NSDL_ARCHIVE, timeout=60)
     page.raise_for_status()
     form = dict(re.findall(r'<input type="hidden" name="(__[A-Z]+)" id="[^"]*" value="([^"]*)"', page.text))
@@ -223,7 +230,7 @@ def update_fpi(db_path: Path = None, today: dt.date = None, pause: float = 1.0, 
         month = f"{y:04d}-{m:02d}"
         if month not in done or (month in recent and time.time() - done[month] > FPI_REFRESH_SECONDS):
             try:
-                rows = fetch_fpi_month(y, m, session)
+                rows = fetch_fpi_month(y, m, session, today)
                 if rows or month in recent:          # an empty finished month means a failed page: retry next time
                     with LOCK, closing(connect(db_path)) as db:
                         db.execute("DELETE FROM fpi_daily WHERE date LIKE ?", (month + "-%",))
