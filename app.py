@@ -29,6 +29,8 @@ try:                                              # urllib trusts only the Windo
     os.environ.setdefault("SSL_CERT_FILE", certifi.where())   # the one requests already uses
 except ImportError:
     pass
+os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")   # numpy (under the beta/holdings builders) otherwise commits a buffer
+                                                     # per CPU thread: ~420 MB instead of ~50 MB, held for the server's life
 
 import market_reel
 import momentum
@@ -160,6 +162,29 @@ def save_json_cache(path, cache):
         pass
 
 
+KEYED_CACHES = {}   # path -> {key: {"fetchedAt", "data"}}, read from disk once instead of on every request
+KEYED_CACHES_LOCK = threading.Lock()
+KEYED_CACHE_KEEP_SECONDS = 7 * 24 * 3600   # entries past their TTL stay this long as the fallback when a fetch fails
+
+
+def keyed_cache_get(path, key):
+    with KEYED_CACHES_LOCK:
+        if path not in KEYED_CACHES:
+            KEYED_CACHES[path] = load_json_cache(path)
+        return KEYED_CACHES[path].get(key)
+
+
+def keyed_cache_put(path, key, data):
+    """Store one entry, drop entries older than KEYED_CACHE_KEEP_SECONDS and save the file."""
+    now = time.time()
+    with KEYED_CACHES_LOCK:
+        cache = KEYED_CACHES.setdefault(path, {})
+        cache[key] = {"fetchedAt": now, "data": data}
+        for old in [k for k, entry in cache.items() if now - entry.get("fetchedAt", 0) > KEYED_CACHE_KEEP_SECONDS]:
+            del cache[old]
+        save_json_cache(path, cache)
+
+
 HISTORY_FETCH_ERRORS = (urllib.error.URLError, TimeoutError, KeyError, IndexError, ValueError, json.JSONDecodeError, csv.Error)
 
 
@@ -250,8 +275,7 @@ def fetch_symbol_history(symbol, years):
 
 def get_symbol_history(symbol, years):
     cache_key = f"{symbol}:{years}y"
-    cache = load_json_cache(HISTORY_CACHE_PATH)
-    entry = cache.get(cache_key)
+    entry = keyed_cache_get(HISTORY_CACHE_PATH, cache_key)
     now = time.time()
     if entry and now - entry.get("fetchedAt", 0) < HISTORY_CACHE_TTL_SECONDS:
         return entry["data"], False
@@ -261,8 +285,7 @@ def get_symbol_history(symbol, years):
         if entry:
             return entry["data"], True
         return None, False
-    cache[cache_key] = {"fetchedAt": now, "data": points}
-    save_json_cache(HISTORY_CACHE_PATH, cache)
+    keyed_cache_put(HISTORY_CACHE_PATH, cache_key, points)
     return points, False
 
 
@@ -341,8 +364,7 @@ def build_fundamentals(yahoo):
 
 
 def get_symbol_fundamentals(symbol):
-    cache = load_json_cache(FUNDAMENTALS_CACHE_PATH)
-    entry = cache.get(symbol)
+    entry = keyed_cache_get(FUNDAMENTALS_CACHE_PATH, symbol)
     now = time.time()
     if entry and now - entry.get("fetchedAt", 0) < FUNDAMENTALS_CACHE_TTL_SECONDS:
         return entry["data"], False
@@ -355,8 +377,7 @@ def get_symbol_fundamentals(symbol):
             return entry["data"], True
         return None, False
     data = {"groups": groups, "asOf": datetime.now(IST).strftime("%d %b %Y")}
-    cache[symbol] = {"fetchedAt": now, "data": data}
-    save_json_cache(FUNDAMENTALS_CACHE_PATH, cache)
+    keyed_cache_put(FUNDAMENTALS_CACHE_PATH, symbol, data)
     return data, False
 
 
@@ -548,6 +569,16 @@ def build_market_reel_daily():
         time.sleep(max(60, (wake - datetime.now(IST)).total_seconds()))
 
 
+def market_hours_end(now):
+    """When `now` falls in NSE trading hours (weekdays 9:00 am to 3:45 pm IST, a margin either side of
+    9:15-3:30), the time they end; otherwise None. The pandas builders wait for it, so their memory and
+    CPU don't compete with the site's busiest hours; that includes a catch-up run after a restart."""
+    if now.weekday() >= 5:
+        return None
+    start, end = now.replace(hour=9, minute=0, second=0, microsecond=0), now.replace(hour=15, minute=45, second=0, microsecond=0)
+    return end if start <= now < end else None
+
+
 def build_betas_weekly():
     """Rebuild the Portfolio Beta tool's data every Friday from 8:15 pm IST, once NSE has published the
     week's last bhavcopy: betas.json (stocks, betas.py), then mf_betas.json (mutual funds, mf_betas.py,
@@ -555,7 +586,7 @@ def build_betas_weekly():
     succeeds with Friday's data, or with any data after Friday midnight (a Friday holiday); the fund
     build once it succeeds after Friday 8:15 pm (AMFI publishes Friday's NAVs late at night, so it
     may run to Thursday). A missed week (server down) runs at the next start, and so does the first
-    ever start. Runs are logged in betas.db, never in the blog's database."""
+    ever start, outside market hours (market_hours_end). Runs are logged in betas.db, never in the blog's database."""
     try:
         import betas                              # pandas + requests: if missing, the tool's data just stays stale
         import mf_betas
@@ -576,6 +607,8 @@ def build_betas_weekly():
                       and datetime.fromisoformat(last_mf["finished_at"]) >= friday)
         if stocks_done and funds_done:
             wake = friday + timedelta(days=7)
+        elif market_hours_end(now):
+            wake = market_hours_end(now)
         else:
             failed = False
             for done, job in ((stocks_done, betas.build), (funds_done, mf_betas.build)):
@@ -595,7 +628,8 @@ def build_mf_holdings_monthly():
     """Refresh the Fund Holdings Explorer's data (mf_holdings.py) on the 15th of each month from 9 am IST,
     for the month just ended: SEBI's deadline is the 10th, and a few fund houses publish late. A fund
     house that hadn't published keeps its previous month and is retried alone once a day for three
-    days. A missed month (server down) runs at the next start. Runs are logged in betas.db."""
+    days. A missed month (server down) runs at the next start. On a weekday it waits until market hours
+    end (3:45 pm, market_hours_end). Runs are logged in betas.db."""
     try:
         import betas
         import mf_holdings                        # pandas, requests, openpyxl, xlrd: if missing, the data stays as it is
@@ -621,6 +655,8 @@ def build_mf_holdings_monthly():
                 stale = None
         if stale == [] or (stale and now >= target + timedelta(days=3)):
             wake = (target.replace(day=1) + timedelta(days=32)).replace(day=15)     # next month's 15th
+        elif market_hours_end(now):
+            wake = market_hours_end(now)
         else:
             try:
                 mf_holdings.build(month_end, houses=stale or None)
